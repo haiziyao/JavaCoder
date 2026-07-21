@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuite tests="0" failures="0" name="section1.Test" time="0" errors="0" skipped="0">
+  <properties>
+    <property name="idea.version" value="2024.2.3"/>
+    <property name="java.runtime.name" value="OpenJDK Runtime Environment"/>
+    <property name="java.vm.version" value="23+37-2369"/>
+    <property name="sun.boot.library.path" value="C:\Users\17542\.jdks\openjdk-23\bin"/>
+    <property name="maven.multiModuleProjectDirectory" value="E:\Agent_Learning\Hzy_Code\MyCoder"/>
+    <property name="java.vm.vendor" value="Oracle Corporation"/>
+    <property name="java.vendor.url" value="https://java.oracle.com/"/>
+    <property name="guice.disable.misplaced.annotation.check" value="true"/>
+    <property name="path.separator" value=";"/>
+    <property name="java.vm.name" value="OpenJDK 64-Bit Server VM"/>
+    <property name="sun.os.patch.level" value=""/>
+    <property name="user.script" value=""/>
+    <property name="user.country" value="CN"/>
+    <property name="sun.java.launcher" value="SUN_STANDARD"/>
+    <property name="java.vm.specification.name" value="Java Virtual Machine Specification"/>
+    <property name="user.dir" value="E:\Agent_Learning\Hzy_Code\MyCoder"/>
+    <property name="java.vm.compressedOopsMode" value="Zero based"/>
+    <property name="java.runtime.version" value="23+37-2369"/>
+    <property name="os.arch" value="amd64"/>
+    <property name="visualvm.id" value="302761253451900"/>
+    <property name="java.io.tmpdir" value="C:\Users\17542\AppData\Local\Temp\"/>
+    <property name="line.separator" value="
+"/>
+    <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
+    <property name="user.variant" value=""/>
+    <property name="stderr.encoding" value="UTF-8"/>
+    <property name="os.name" value="Windows 11"/>
+    <property name="maven.ext.class.path" value="D:\IDEA\IntelliJ IDEA 2024.2.3\plugins\maven\lib\maven-event-listener.jar"/>
+    <property name="classworlds.conf" value="D:\apache-maven-3.6.3\bin\m2.conf"/>
+    <property name="sun.jnu.encoding" value="GBK"/>
+    <property name="stdout.encoding" value="UTF-8"/>
+    <property name="java.library.path" value="C:\Users\17542\.jdks\openjdk-23\bin;C:\WINDOWS\Sun\Java\bin;C:\WINDOWS\system32;C:\WINDOWS;C:\Program Files (x86)\STMicroelectronics\stlink_server;D:\STM32CubeCLT_1.18.0;D:\STM32CubeCLT_1.18.0\CMake\bin;D:\STM32CubeCLT_1.18.0\Ninja\bin;D:\STM32CubeCLT_1.18.0\GNU-tools-for-STM32\bin;D:\STM32CubeCLT_1.18.0\STLink-gdb-server\bin;D:\STM32CubeCLT_1.18.0\STM32CubeProgrammer\bin;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files (x86)\Common Files\Intel\Shared Libraries\redist\intel64\compiler;D:\vmware\bin\;D:\整合包\bin;C:;Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;F:\Windows Kits\10\Windows Performance Toolkit\;C:\Program Files\dotnet\;C:\Program Files\python;C:\Program Files\python\Scripts;D:\BtSoft\panel\script;D:\MySQL\MySQL Server 8.0\bin\;D:\vivo\pcsuite\;D:\math\bin;D:\Git\cmd;C:\Program Files (x86)\Windows Kits\8.1\Windows Performance Toolkit\;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;D:\cmake\bin;D:\Go\bin;E:\GlobalNodeModules;D:\nvm;C:\nvm4w\nodejs;%JAVA_HOME%\bin;D:\cursor\resources\app\bin;D:\gamescreencast\;C:\Users\17542\AppData\Local\Programs\OpenAI\Codex\bin;C:\Users\17542\AppData\Local\pnpm;C:\Users\17542\.cargo\bin;D:\Anaconda3;D:\Anaconda3\Library\usr\bin;D:\Anaconda3\Library\bin;D:\Anaconda3\Scripts;D:\Anaconda3\bin;D:\Anaconda3\condabin;C:\Program Files (x86)\Common Files\Intel\Shared Libraries\redist\intel64\compiler;D:\vmware\bin;D:\鏁村悎鍖匼bin;C:;Windows\system32;C:\Windows;D:\msys64\ucrt64\bin;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0;C:\Windows\System32\OpenSSH;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;F:\Windows Kits\10\Windows Performance Toolkit;C:\Program Files\dotnet;C:\Program Files\python;C:\Program Files\python\Scripts;D:\BtSoft\panel\script;D:\MySQL\MySQL Server 8.0\bin;D:\vivo\pcsuite;D:\math\bin;D:\Git\cmd;D:\XFTP;D:\xshell;C:\Program Files (x86)\Windows Kits\8.1\Windows Performance Toolkit;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\WINDOWS\System32\OpenSSH;D:\MySQL\MySQL Shell 8.0\bin;D:\MySQL\bin;C:\Users\17542\AppData\Local\Programs\Python\Python312\Scripts;C:\Users\17542\AppData\L;D:\Latex\texlive\2024\bin\windows;D:\Microsoft VS Code\bin;D:\msys64\usr\bin;D:\msys64\mingw64\bin;D:\DevEnv\GNU-tools-for-STM32\bin;D:\CLion 2025.2.3\bin;C:\Users\17542\AppData\Local\GitHubDesktop\bin;C:\Users\17542\go\bin;D:\nvm;C:\nvm4w\nodejs;D:\JDK17\bin;C:\Program Files (x86)\WiX Toolset v3.11;D:\apache-maven-3.6.3\bin;D:\DataGrip 2025.3.2\bin;D:\Antigravity\bin;D:\RustRover 2025.3.2\bin;E:\git\vcpkg;E:\git\vcpkg;;C:\Users\17542\AppData\Local\Programs\codecrafters;."/>
+    <property name="jansi.passthrough" value="true"/>
+    <property name="maven.conf" value="D:\apache-maven-3.6.3/conf"/>
+    <property name="jdk.debug" value="release"/>
+    <property name="java.class.version" value="67.0"/>
+    <property name="java.specification.name" value="Java Platform API Specification"/>
+    <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
+    <property name="maven.repo.local" value="E:\Mavenrep"/>
+    <property name="os.version" value="10.0"/>
+    <property name="user.home" value="C:\Users\17542"/>
+    <property name="user.timezone" value="Asia/Shanghai"/>
+    <property name="file.encoding" value="UTF-8"/>
+    <property name="java.specification.version" value="23"/>
+    <property name="user.name" value="17542"/>
+    <property name="java.class.path" value="D:\apache-maven-3.6.3\boot\plexus-classworlds-2.6.0.jar;D:\apache-maven-3.6.3\boot\plexus-classworlds.license"/>
+    <property name="java.vm.specification.version" value="23"/>
+    <property name="sun.arch.data.model" value="64"/>
+    <property name="sun.java.command" value="org.codehaus.classworlds.Launcher -Didea.version=2024.2.3 -s D:\apache-maven-3.6.3\conf\settings.xml -Dmaven.repo.local=E:\Mavenrep clean package -P !jdk-17"/>
+    <property name="java.home" value="C:\Users\17542\.jdks\openjdk-23"/>
+    <property name="user.language" value="zh"/>
+    <property name="java.specification.vendor" value="Oracle Corporation"/>
+    <property name="java.vm.info" value="mixed mode, sharing"/>
+    <property name="java.version" value="23"/>
+    <property name="native.encoding" value="GBK"/>
+    <property name="java.vendor" value="Oracle Corporation"/>
+    <property name="sun.stderr.encoding" value="UTF-8"/>
+    <property name="maven.home" value="D:\apache-maven-3.6.3"/>
+    <property name="file.separator" value="\"/>
+    <property name="java.version.date" value="2024-09-17"/>
+    <property name="java.vendor.url.bug" value="https://bugreport.java.com/bugreport/"/>
+    <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
+    <property name="sun.cpu.endian" value="little"/>
+    <property name="sun.stdout.encoding" value="UTF-8"/>
+    <property name="sun.cpu.isalist" value="amd64"/>
+  </properties>
+</testsuite>
