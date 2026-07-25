@@ -3,9 +3,9 @@
 > 背景介绍: 由于我们会使用到虚拟线程,建议 `Java 21`以上的版本,
 > 教学使用 `java 21`
 
-## 环境配置 
+## 环境配置
 
-使用到两个库: 
+使用到两个库:
 ``` xml
 <dependencies>  
     <!-- JSON + ObjectMapper -->  
@@ -84,9 +84,10 @@
     }
   ]
 }
+```
 
 
-
+```json
 {
     "id": "resp_0f450cc6de1d01b0016a6460885f2881989640c34a92c08140",
     "object": "chat.completion",
@@ -152,7 +153,7 @@
 | `choices[].finish_reason` | `string` | 结束原因 |
 | `usage` | `object` | Token 用量统计 |
 
- `finish_reason` 常见值
+`finish_reason` 常见值
 >  这个字段用来判断 SSE 是否结束,如果是 `null` 就没结束,  `stop` 就代表结束了
 
 | 值 | 含义 | 处理建议 |
@@ -174,7 +175,7 @@
     {"role": "user", "content": "写一段 200 字的产品介绍"}
   ],
   "stream": true
-}
+},
 
 
  
@@ -194,25 +195,25 @@ data: {
             "native_finish_reason": null
         }
     ]
-}
+},
 
-data: {"id":"resp_0f9b9e9022a2e36e016a64651f642c819981a0e76916bb02a1","object":"chat.completion.chunk","created":1784964383,"model":"gpt-5.6-sol","choices":[{"index":0,"delta":{"role":"assistant","reasoning_content":"\n\n"},"finish_reason":null,"native_finish_reason":null}]}
+data: {"id":"resp_0f9b9e9022a2e36e016a64651f642c819981a0e76916bb02a1","object":"chat.completion.chunk","created":1784964383,"model":"gpt-5.6-sol","choices":[{"index":0,"delta":{"role":"assistant","reasoning_content":"\n\n"},"finish_reason":null,"native_finish_reason":null}]},
 
-data: {"id":"resp_0f9b9e9022a2e36e016a64651f642c819981a0e76916bb02a1","object":"chat.completion.chunk","created":1784964383,"model":"gpt-5.6-sol","choices":[{"index":0,"delta":{"role":"assistant","content":"这"},"finish_reason":null,"native_finish_reason":null}]}
+data: {"id":"resp_0f9b9e9022a2e36e016a64651f642c819981a0e76916bb02a1","object":"chat.completion.chunk","created":1784964383,"model":"gpt-5.6-sol","choices":[{"index":0,"delta":{"role":"assistant","content":"这"},"finish_reason":null,"native_finish_reason":null}]},
 
-data: {"id":"resp_0f9b9e9022a2e36e016a64651f642c819981a0e76916bb02a1","object":"chat.completion.chunk","created":1784964383,"model":"gpt-5.6-sol","choices":[{"index":0,"delta":{"role":"assistant","content":"款"},"finish_reason":null,"native_finish_reason":null}]}
+data: {"id":"resp_0f9b9e9022a2e36e016a64651f642c819981a0e76916bb02a1","object":"chat.completion.chunk","created":1784964383,"model":"gpt-5.6-sol","choices":[{"index":0,"delta":{"role":"assistant","content":"款"},"finish_reason":null,"native_finish_reason":null}]},
 
  
  data:
  {
  "id": "请求太多了,成百上千条,省略了"
- }
+ },
  
  
 
-data: {"id":"resp_0f9b9e9022a2e36e016a64651f642c819981a0e76916bb02a1","object":"chat.completion.chunk","created":1784964383,"model":"gpt-5.6-sol","choices":[{"index":0,"delta":{"role":"assistant","content":"选择"},"finish_reason":null,"native_finish_reason":null}]}
+data: {"id":"resp_0f9b9e9022a2e36e016a64651f642c819981a0e76916bb02a1","object":"chat.completion.chunk","created":1784964383,"model":"gpt-5.6-sol","choices":[{"index":0,"delta":{"role":"assistant","content":"选择"},"finish_reason":null,"native_finish_reason":null}]},
 
-data: {"id":"resp_0f9b9e9022a2e36e016a64651f642c819981a0e76916bb02a1","object":"chat.completion.chunk","created":1784964383,"model":"gpt-5.6-sol","choices":[{"index":0,"delta":{"role":"assistant","content":"。"},"finish_reason":null,"native_finish_reason":null}]}
+data: {"id":"resp_0f9b9e9022a2e36e016a64651f642c819981a0e76916bb02a1","object":"chat.completion.chunk","created":1784964383,"model":"gpt-5.6-sol","choices":[{"index":0,"delta":{"role":"assistant","content":"。"},"finish_reason":null,"native_finish_reason":null}]},
 
 data: {
     "id": "resp_0f9b9e9022a2e36e016a64651f642c819981a0e76916bb02a1",
@@ -255,7 +256,7 @@ data: {
 > 这里ds多了一个`"system_fingerprint": "fp_9954b31ca7_prod0820_fp8_kvcache_20260402"`
 > 查看官网解释: 表示模型运行时所使用的后端配置指纹
 
-![[Pasted image 20260725154336.png]] 
+![[Pasted image 20260725154336.png]]
 
 
 
@@ -291,15 +292,15 @@ data: {
         "prompt_cache_hit_tokens": 0,
         "prompt_cache_miss_tokens": 12
     }
-}
+},
 
 data: [DONE]
 ```
 
 > ds会在结束后返回一个 `data: [DONE]`
-   这个便于我们知道SSE结束了,但是gpt确实没有.
-   gpt主要通过  `finish_reason` 字段判断,ds有双重判断
- 
+这个便于我们知道SSE结束了,但是gpt确实没有.
+gpt主要通过  `finish_reason` 字段判断,ds有双重判断
+
 
 ## 工具调用是怎么实现的?
 * 我们这章主要用 `chat` 演示,而不用`SSE`,主要是好看
@@ -402,53 +403,53 @@ data: [DONE]
 ```json
 
 {
-  "model": "gpt-5.6-sol",
-  "messages": [
-    {
-      "role": "user",
-      "content": "北京今天适合跑步吗？"
-    },
-    {
-	  "role": "assistant",
-	  "content": null,
-	  "reasoning_content": "**Planning weather tool integration**",
-	  "tool_calls": [
-		{
-			"id": "call_dsXqkZwWnVOUKZu3po9JuLqo",
-			"type": "function",
-			"function": {
-				"name": "get_weather",
-				"arguments": "{\"city\":\"北京\"}"
-			}
-		}
-	]
-	},
-    {
-	  "role": "tool",
-	  "tool_call_id": "call_dsXqkZwWnVOUKZu3po9JuLqo",
-	  "content": "{\"city\":\"北京\",\"temperature\":28,\"air_quality\":\"良\",\"suggestion\":\"适合傍晚慢跑\"}"
-    }
-  ],
-  "tools": [
-    {
-      "type": "function",
-      "function": {
-        "name": "get_weather",
-        "description": "查询指定城市的天气",
-        "parameters": {
-          "type": "object",
-          "properties": {
-            "city": {
-              "type": "string",
-              "description": "城市名称"
+   "model": "gpt-5.6-sol",
+   "messages": [
+      {
+         "role": "user",
+         "content": "北京今天适合跑步吗？"
+      },
+      {
+         "role": "assistant",
+         "content": null,
+         "reasoning_content": "**Planning weather tool integration**",
+         "tool_calls": [
+            {
+               "id": "call_dsXqkZwWnVOUKZu3po9JuLqo",
+               "type": "function",
+               "function": {
+                  "name": "get_weather",
+                  "arguments": "{\"city\":\"北京\"}"
+               }
             }
-          },
-          "required": ["city"]
-        }
+         ]
+      },
+      {
+         "role": "tool",
+         "tool_call_id": "call_dsXqkZwWnVOUKZu3po9JuLqo",
+         "content": "{\"city\":\"北京\",\"temperature\":28,\"air_quality\":\"良\",\"suggestion\":\"适合傍晚慢跑\"}"
       }
-    }
-  ],
-  "tool_choice": "auto"
+   ],
+   "tools": [
+      {
+         "type": "function",
+         "function": {
+            "name": "get_weather",
+            "description": "查询指定城市的天气",
+            "parameters": {
+               "type": "object",
+               "properties": {
+                  "city": {
+                     "type": "string",
+                     "description": "城市名称"
+                  }
+               },
+               "required": ["city"]
+            }
+         }
+      }
+   ],
+   "tool_choice": "auto"
 }
 ```
 
@@ -492,20 +493,20 @@ data: [DONE]
 `Tools`描述
 ```JSON
 {
-  "tools": [{
-    "name": "ReadFile",
-    "description": "读取指定路径的文件内容。返回带行号的文件文本。路径必须是绝对路径。",
-    "input_schema": {
-      "type": "object",
-      "properties": {
-        "path": {
-          "type": "string",
-          "description": "文件的绝对路径"
-        }
-      },
-      "required": ["path"]
-    }
-  }]
+   "tools": [{
+      "name": "ReadFile",
+      "description": "读取指定路径的文件内容。返回带行号的文件文本。路径必须是绝对路径。",
+      "input_schema": {
+         "type": "object",
+         "properties": {
+            "path": {
+               "type": "string",
+               "description": "文件的绝对路径"
+            }
+         },
+         "required": ["path"]
+      }
+   }]
 }
 ```
 
@@ -513,12 +514,12 @@ data: [DONE]
 ```JSON
 
 {
-  "role": "user",
-  "content": [{
-    "type": "tool_result",
-    "tool_use_id": "tool_123",
-    "content": "1\tdef main():\n2\t    print('hello')\n3\t"
-  }]
+   "role": "user",
+   "content": [{
+      "type": "tool_result",
+      "tool_use_id": "tool_123",
+      "content": "1\tdef main():\n2\t    print('hello')\n3\t"
+   }]
 }
 ```
 
@@ -808,11 +809,11 @@ data: [DONE]
 
 ### Config实现
 
-> 这个不需要说太多, 
+> 这个不需要说太多,
 
 ### Message实现
 message,就是我们每次发送给llm的那个message数组
-在以往中,我们会把 `role`和`content`加进去, 
+在以往中,我们会把 `role`和`content`加进去,
 在这里我们需要额外封装三个其他
 * `ToolCall`: 这个是LLM 给我们返回的工具调用决策,我们要加入到记忆中
 * `ToolResult`: 这是我们放入记忆的 执行工具的结果
