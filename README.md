@@ -1,5 +1,6 @@
 # JCoder-1 让Agent开口说话
 
+
 > 背景介绍: 由于我们会使用到虚拟线程,建议 `Java 21`以上的版本,
 > 教学使用 `java 21`
 
@@ -83,11 +84,10 @@
       "content": "用一句话解释什么是向量数据库"
     }
   ]
-}
+},
 ```
 
-
-```json
+``` json
 {
     "id": "resp_0f450cc6de1d01b0016a6460885f2881989640c34a92c08140",
     "object": "chat.completion",
@@ -175,10 +175,10 @@
     {"role": "user", "content": "写一段 200 字的产品介绍"}
   ],
   "stream": true
-},
+}
+```
 
-
- 
+```json 
 data: {
     "id": "resp_0f9b9e9022a2e36e016a64651f642c819981a0e76916bb02a1",
     "object": "chat.completion.chunk",
@@ -403,53 +403,53 @@ gpt主要通过  `finish_reason` 字段判断,ds有双重判断
 ```json
 
 {
-   "model": "gpt-5.6-sol",
-   "messages": [
-      {
-         "role": "user",
-         "content": "北京今天适合跑步吗？"
-      },
-      {
-         "role": "assistant",
-         "content": null,
-         "reasoning_content": "**Planning weather tool integration**",
-         "tool_calls": [
-            {
-               "id": "call_dsXqkZwWnVOUKZu3po9JuLqo",
-               "type": "function",
-               "function": {
-                  "name": "get_weather",
-                  "arguments": "{\"city\":\"北京\"}"
-               }
+  "model": "gpt-5.6-sol",
+  "messages": [
+    {
+      "role": "user",
+      "content": "北京今天适合跑步吗？"
+    },
+    {
+	  "role": "assistant",
+	  "content": null,
+	  "reasoning_content": "**Planning weather tool integration**",
+	  "tool_calls": [
+		{
+			"id": "call_dsXqkZwWnVOUKZu3po9JuLqo",
+			"type": "function",
+			"function": {
+				"name": "get_weather",
+				"arguments": "{\"city\":\"北京\"}"
+			}
+		}
+	]
+	},
+    {
+	  "role": "tool",
+	  "tool_call_id": "call_dsXqkZwWnVOUKZu3po9JuLqo",
+	  "content": "{\"city\":\"北京\",\"temperature\":28,\"air_quality\":\"良\",\"suggestion\":\"适合傍晚慢跑\"}"
+    }
+  ],
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "get_weather",
+        "description": "查询指定城市的天气",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "city": {
+              "type": "string",
+              "description": "城市名称"
             }
-         ]
-      },
-      {
-         "role": "tool",
-         "tool_call_id": "call_dsXqkZwWnVOUKZu3po9JuLqo",
-         "content": "{\"city\":\"北京\",\"temperature\":28,\"air_quality\":\"良\",\"suggestion\":\"适合傍晚慢跑\"}"
+          },
+          "required": ["city"]
+        }
       }
-   ],
-   "tools": [
-      {
-         "type": "function",
-         "function": {
-            "name": "get_weather",
-            "description": "查询指定城市的天气",
-            "parameters": {
-               "type": "object",
-               "properties": {
-                  "city": {
-                     "type": "string",
-                     "description": "城市名称"
-                  }
-               },
-               "required": ["city"]
-            }
-         }
-      }
-   ],
-   "tool_choice": "auto"
+    }
+  ],
+  "tool_choice": "auto"
 }
 ```
 
@@ -493,20 +493,20 @@ gpt主要通过  `finish_reason` 字段判断,ds有双重判断
 `Tools`描述
 ```JSON
 {
-   "tools": [{
-      "name": "ReadFile",
-      "description": "读取指定路径的文件内容。返回带行号的文件文本。路径必须是绝对路径。",
-      "input_schema": {
-         "type": "object",
-         "properties": {
-            "path": {
-               "type": "string",
-               "description": "文件的绝对路径"
-            }
-         },
-         "required": ["path"]
-      }
-   }]
+  "tools": [{
+    "name": "ReadFile",
+    "description": "读取指定路径的文件内容。返回带行号的文件文本。路径必须是绝对路径。",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string",
+          "description": "文件的绝对路径"
+        }
+      },
+      "required": ["path"]
+    }
+  }]
 }
 ```
 
@@ -514,12 +514,12 @@ gpt主要通过  `finish_reason` 字段判断,ds有双重判断
 ```JSON
 
 {
-   "role": "user",
-   "content": [{
-      "type": "tool_result",
-      "tool_use_id": "tool_123",
-      "content": "1\tdef main():\n2\t    print('hello')\n3\t"
-   }]
+  "role": "user",
+  "content": [{
+    "type": "tool_result",
+    "tool_use_id": "tool_123",
+    "content": "1\tdef main():\n2\t    print('hello')\n3\t"
+  }]
 }
 ```
 
