@@ -72,8 +72,9 @@
 
 > 示例演示: 见 `post-man`
 
+`request` 和对应的 `response`
 ```json
-// 最小请求演示
+
 {
   "model": "gpt-5.6-sol",
   "messages": [
@@ -85,11 +86,11 @@
 }
 
 
-// response
+
 {
     "id": "resp_0f450cc6de1d01b0016a6460885f2881989640c34a92c08140",
     "object": "chat.completion",
-    "created": 1784963208,   // Unix 时间戳
+    "created": 1784963208,    
     "model": "gpt-5.6-sol",
     "choices": [
         {
@@ -100,7 +101,7 @@
                 "reasoning_content": null,
                 "tool_calls": null
             },
-            "finish_reason": "stop",  // 见下(important)
+            "finish_reason": "stop",  
             "native_finish_reason": "stop"
         }
     ],
@@ -166,7 +167,7 @@
 ### 流式调用
 
 ``` json
-// 发起请求
+ 
 {
   "model": "gpt-5.6-sol",
   "messages": [
@@ -176,7 +177,7 @@
 }
 
 
-//结果
+ 
 data: {
     "id": "resp_0f9b9e9022a2e36e016a64651f642c819981a0e76916bb02a1",
     "object": "chat.completion.chunk",
@@ -201,13 +202,13 @@ data: {"id":"resp_0f9b9e9022a2e36e016a64651f642c819981a0e76916bb02a1","object":"
 
 data: {"id":"resp_0f9b9e9022a2e36e016a64651f642c819981a0e76916bb02a1","object":"chat.completion.chunk","created":1784964383,"model":"gpt-5.6-sol","choices":[{"index":0,"delta":{"role":"assistant","content":"款"},"finish_reason":null,"native_finish_reason":null}]}
 
-// 省略,中间太多了
-//
-//
-//
-//
-//
-//
+ 
+ data:
+ {
+ "id": "请求太多了,成百上千条,省略了"
+ }
+ 
+ 
 
 data: {"id":"resp_0f9b9e9022a2e36e016a64651f642c819981a0e76916bb02a1","object":"chat.completion.chunk","created":1784964383,"model":"gpt-5.6-sol","choices":[{"index":0,"delta":{"role":"assistant","content":"选择"},"finish_reason":null,"native_finish_reason":null}]}
 
@@ -317,9 +318,9 @@ data: [DONE]
 
 这个过程中,我们相当于是"执行者",LLM是决策者
 
+`发出请求`
 ``` json
 
-// 发出请求
 {
   "model": "gpt-5.6-sol",
   "messages": [
@@ -351,9 +352,9 @@ data: [DONE]
 }
 ```
 
-
+`返回结果`
 ``` json
-// 返回结果
+ 
 {
     "id": "resp_0c76004b92501c74016a64710c7ba4819ab4f09b90f84e8faf",
     "object": "chat.completion",
@@ -399,7 +400,7 @@ data: [DONE]
 我们把自己执行后的结果包装进去
 
 ```json
-// 封装messages后再次发出请求
+
 {
   "model": "gpt-5.6-sol",
   "messages": [
@@ -451,9 +452,9 @@ data: [DONE]
 }
 ```
 
+`返回结果`
 ``` json
 
-// 返回结果
 {
     "id": "resp_08bbe7fe1c3be3c9016a6474af828c819b8cd34f545c046242",
     "object": "chat.completion",
@@ -488,8 +489,8 @@ data: [DONE]
 
 > 我们上面写成了一个Function的形式,也有其他不同的格式,例如
 
+`Tools`描述
 ```JSON
-// tools 描述
 {
   "tools": [{
     "name": "ReadFile",
@@ -508,8 +509,9 @@ data: [DONE]
 }
 ```
 
+`tool_result封装 request`
 ```JSON
-//  tool_result封装 request
+
 {
   "role": "user",
   "content": [{
@@ -535,7 +537,7 @@ data: [DONE]
         "city": {
           "type": "string",
           "description": "城市名称，如'北京'、'上海'。支持国内主要城市。",
-          "enum": ["北京", "上海", "广州", "深圳"]  // 可选项
+          "enum": ["北京", "上海", "广州", "深圳"]  
         },
         "unit": {
           "type": "string",
@@ -633,7 +635,7 @@ data: [DONE]
 是把文本生成、多模态输入、工具调用等能力统一到一个更灵活的格式中
 
 ``` json
-// 给个示例
+ 
 {
   "model": "gpt-5.6-sol",
   "input": [
@@ -820,7 +822,7 @@ message,就是我们每次发送给llm的那个message数组
 查了很久,原因是: A畜的tool格式,对于openAI不适用
 
 ``` json
-// 举个例子
+ 
 {
   "model": "gpt-5.6-sol",
   "messages": [
@@ -877,8 +879,8 @@ message,就是我们每次发送给llm的那个message数组
 }
 ```
 
+`返回结果`
 ``` json
-// 返回结果
 {
     "id": "resp_0f660cd6efe582c1016a64aaaae7bc819aa6bc40e86552b24a",
     "object": "chat.completion",
