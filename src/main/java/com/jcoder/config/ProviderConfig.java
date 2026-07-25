@@ -1,11 +1,11 @@
-package com.hzy.config;
+package com.jcoder.config;
 
 /**
  * 作者：亥子曜
  * -后之览者，亦将有感于斯文
  */
 public record ProviderConfig(
-        String name,
+        String name,  // 其实不要也行
         String protocol,
         String baseUrl,
         String model,
@@ -14,6 +14,3 @@ public record ProviderConfig(
         Integer contextWindow,
         Integer maxOutputTokens
 ) {}
-
-
-// TODO: private volatile Integer fetchedContextWindow;

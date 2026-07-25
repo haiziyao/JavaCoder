@@ -1,4 +1,4 @@
-package com.hzy.conversation;
+package com.jcoder.message;
 
 import java.util.List;
 
@@ -9,10 +9,9 @@ import java.util.List;
 public class Message {
     private String role;
     private String content;
-    private List<ThinkingBlock> thinkingBlocks;
-    private List<ToolUseBlock> toolUses;
-    private List<ToolResultBlock> toolResults;
 
+    private List<ToolCall> toolCalls;
+    private List<ToolResult> toolResults;
 
     public Message(String role, String content) {
         this.role = role;
@@ -35,27 +34,19 @@ public class Message {
         this.content = content;
     }
 
-    public List<ThinkingBlock> getThinkingBlocks() {
-        return thinkingBlocks;
+    public List<ToolCall> getToolCalls() {
+        return toolCalls;
     }
 
-    public void setThinkingBlocks(List<ThinkingBlock> thinkingBlocks) {
-        this.thinkingBlocks = thinkingBlocks;
+    public void setToolCalls(List<ToolCall> toolCalls) {
+        this.toolCalls = toolCalls;
     }
 
-    public List<ToolUseBlock> getToolUses() {
-        return toolUses;
-    }
-
-    public void setToolUses(List<ToolUseBlock> toolUses) {
-        this.toolUses = toolUses;
-    }
-
-    public List<ToolResultBlock> getToolResults() {
+    public List<ToolResult> getToolResults() {
         return toolResults;
     }
 
-    public void setToolResults(List<ToolResultBlock> toolResults) {
+    public void setToolResults(List<ToolResult> toolResults) {
         this.toolResults = toolResults;
     }
 }

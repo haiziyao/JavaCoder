@@ -1,14 +1,10 @@
-package com.hzy.config;
+package com.jcoder.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.io.InputStream;
 
-/**
- * 作者：亥子曜
- * -后之览者，亦将有感于斯文
- */
 public class ConfigManager {
 
     private static final String CONFIG_FILE = "application.json";
@@ -26,7 +22,4 @@ public class ConfigManager {
         }
 
     }
-
-
-
 }
