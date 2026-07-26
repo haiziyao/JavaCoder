@@ -113,7 +113,7 @@ public class Main {
                         conversationManager.addToolResultsMsg(toolResults);
                         // TODO: 这里需要打上日志
                         System.err.println("[tool] results added, requesting model again. Now is "
-                                +goal+" , Next is"+(goal+1));
+                                +goal+" , Next is "+(goal+1)+" . Running...  ");
                         goal++;
                     }else{
                         conversationManager.addMessage(assistantMessage);

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="MyCoder —— 一个可扩展的终端 AI 编程助手项目介绍">
+  <title>MyCoder · AI 编程助手</title>
+  <style>
+    :root {
+      --bg: #080b12;
+      --panel: #101621;
+      --panel-2: #151d2b;
+      --line: rgba(159, 181, 211, .14);
+      --text: #e9f0fb;
+      --muted: #8e9bad;
+      --cyan: #63e6e2;
+      --blue: #78a9ff;
+      --purple: #b596ff;
+      --green: #9be28f;
+      --orange: #ffbd7a;
+      --shadow: 0 24px 80px rgba(0,0,0,.3);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0; color: var(--text); background: var(--bg);
+      font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      line-height: 1.6; overflow-x: hidden;
+    }
+    body:before {
+      content: ""; position: fixed; inset: 0; pointer-events: none; opacity: .28;
+      background-image: linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px);
+      background-size: 42px 42px; mask-image: linear-gradient(to bottom, black, transparent 76%);
+    }
+    a { color: inherit; text-decoration: none; }
+    .wrap { width: min(1120px, calc(100% - 44px)); margin: auto; }
+    nav { height: 76px; display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 2; }
+    .brand { display: flex; gap: 12px; align-items: center; font-weight: 800; letter-spacing: -.03em; font-size: 19px; }
+    .brand-mark { width: 34px; height: 34px; border: 1px solid rgba(99,230,226,.55); border-radius: 10px; display: grid; place-items: center; color: var(--cyan); background: rgba(99,230,226,.08); box-shadow: 0 0 26px rgba(99,230,226,.12); }
+    .brand-mark:after { content: ">_"; font: 700 13px ui-monospace, monospace; }
+    nav .links { display: flex; gap: 27px; color: var(--muted); font-size: 13px; }
+    nav .links a:hover { color: var(--cyan); }
+    .hero { min-height: 640px; display: grid; grid-template-columns: 1.02fr .98fr; align-items: center; gap: 64px; padding: 72px 0 100px; position: relative; }
+    .hero:after { content: ""; position: absolute; width: 600px; height: 400px; right: -180px; top: 20px; background: #224a80; filter: blur(150px); opacity: .22; pointer-events: none; }
+    .eyebrow { color: var(--cyan); font: 700 12px ui-monospace, SFMono-Regular, Consolas, monospace; text-transform: uppercase; letter-spacing: .16em; }
+    h1 { font-size: clamp(46px, 6vw, 76px); line-height: 1.05; letter-spacing: -.065em; margin: 18px 0 23px; max-width: 610px; }
+    h1 span { color: var(--cyan); }
+    .lead { color: var(--muted); font-size: 17px; max-width: 530px; margin: 0 0 31px; }
+    .actions { display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn { border: 1px solid var(--line); border-radius: 8px; padding: 11px 17px; font-size: 13px; transition: .2s; }
+    .btn.primary { background: var(--cyan); color: #071215; border-color: var(--cyan); font-weight: 750; }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(99,230,226,.14); }
+    .btn:not(.primary):hover { border-color: var(--cyan); color: var(--cyan); }
+    .terminal { position: relative; z-index: 1; border: 1px solid var(--line); background: rgba(16,22,33,.88); border-radius: 13px; box-shadow: var(--shadow), 0 0 0 1px rgba(120,169,255,.03); overflow: hidden; }
+    .terminal-head { height: 43px; display: flex; align-items: center; gap: 7px; padding: 0 15px; border-bottom: 1px solid var(--line); color: #68768a; font-size: 11px; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: #ff6f75; }.dot:nth-child(2){background:#ffc765}.dot:nth-child(3){background:#74dc9d}.terminal-title { margin-left: 8px; font-family: ui-monospace, monospace; }
+    pre { padding: 25px 25px 27px; margin: 0; overflow: auto; font: 13px/2 ui-monospace, SFMono-Regular, Consolas, monospace; color: #b7c5da; }
+    .p { color: var(--purple); }.c { color: #60728b; }.s { color: var(--green); }.k { color: var(--cyan); }.o { color: var(--orange); }
+    section { padding: 92px 0; position: relative; }
+    .section-head { display: flex; justify-content: space-between; align-items: end; gap: 25px; margin-bottom: 34px; }
+    .section-head h2 { margin: 8px 0 0; font-size: clamp(28px,4vw,42px); letter-spacing: -.045em; line-height: 1.1; }
+    .section-head p { color: var(--muted); max-width: 380px; font-size: 14px; margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 15px; }
+    .card { background: linear-gradient(145deg, rgba(21,29,43,.8), rgba(13,18,27,.8)); border: 1px solid var(--line); border-radius: 11px; padding: 25px; transition: .25s; }
+    .card:hover { border-color: rgba(99,230,226,.37); transform: translateY(-4px); }
+    .icon { width: 37px; height: 37px; border-radius: 9px; display: grid; place-items: center; margin-bottom: 17px; background: rgba(99,230,226,.1); color: var(--cyan); font: 700 16px ui-monospace, monospace; }
+    .card:nth-child(2) .icon { color: var(--purple); background: rgba(181,150,255,.1); }.card:nth-child(3) .icon { color: var(--orange); background: rgba(255,189,122,.1); }
+    .card h3 { font-size: 16px; margin: 0 0 9px; }.card p { margin: 0; color: var(--muted); font-size: 13px; }
+    .architecture { display: grid; grid-template-columns: .85fr 1.15fr; gap: 18px; align-items: stretch; }
+    .flow { display: flex; flex-direction: column; justify-content: center; gap: 9px; }
+    .flow-item { border: 1px solid var(--line); padding: 15px 18px; border-radius: 9px; background: var(--panel); display: flex; align-items: center; gap: 14px; }
+    .flow-item strong { display: block; font-size: 13px; }.flow-item small { color: var(--muted); font-size: 11px; }.num { color: var(--cyan); font: 700 12px ui-monospace,monospace; }
+    .arrow { color: #526174; text-align: center; font-size: 17px; height: 10px; line-height: 10px; }
+    .code-card { padding: 0; overflow: hidden; }.code-card pre { padding: 26px; height: 100%; }
+    .tools { grid-template-columns: repeat(6,1fr); }.tool { padding: 18px 15px; }.tool .icon { margin-bottom: 13px; width: 31px; height: 31px; font-size: 12px; }.tool h3 { font-size: 13px; margin-bottom: 5px; }.tool p { font-size: 12px; }
+    .config { display: grid; grid-template-columns: .9fr 1.1fr; gap: 18px; }.config-note { padding: 34px; display: flex; flex-direction: column; justify-content: center; }.config-note h3 { font-size: 25px; letter-spacing: -.04em; margin: 12px 0; }.config-note p { color: var(--muted); font-size: 14px; }
+    footer { border-top: 1px solid var(--line); padding: 31px 0 45px; color: #657285; font-size: 12px; display:flex; justify-content:space-between; }.footer-accent { color: var(--cyan); }
+    @media (max-width: 800px) { nav .links { display:none; }.hero,.architecture,.config { grid-template-columns:1fr; }.hero { padding-top: 52px; }.grid { grid-template-columns:1fr; }.tools { grid-template-columns: repeat(2,1fr); }.section-head { display:block; }.section-head p { margin-top: 15px; } }
+    @media (max-width: 440px) { .wrap { width: min(100% - 28px,1120px); } h1 { font-size: 46px; }.tools { grid-template-columns:1fr 1fr; }.card { padding: 20px; } footer { display:block; } footer span { display:block; margin-top:8px; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav>
+      <a class="brand" href="#top"><span class="brand-mark"></span><span>MyCoder</span></a>
+      <div class="links"><a href="#features">能力</a><a href="#architecture">工作方式</a><a href="#tools">工具箱</a><a href="#config">配置</a></div>
+    </nav>
+    <main id="top">
+      <section class="hero">
+        <div>
+          <div class="eyebrow">/ intelligent coding agent</div>
+          <h1>让想法，<br><span>直接变成代码。</span></h1>
+          <p class="lead">MyCoder 是一个基于 Java 构建的终端 AI 编程助手。它连接大语言模型与真实开发环境，理解任务、调用工具，并持续推进直到完成。</p>
+          <div class="actions"><a class="btn primary" href="#architecture">了解工作流　→</a><a class="btn" href="#tools">查看内置工具</a></div>
+        </div>
+        <div class="terminal">
+          <div class="terminal-head"><i class="dot"></i><i class="dot"></i><i class="dot"></i><span class="terminal-title">mycoder · session</span></div>
+          <pre><span class="c">// start a new conversation</span>
+<span class="p">$</span> <span class="k">java</span> -jar mycoder.jar
+
+<span class="o">MyCoder</span> <span class="c">· AI 对话启动</span>
+<span class="c">输出 exit 或者 quit 退出</span>
+
+<span class="p">&gt;</span> 帮我找到项目中所有的配置文件
+
+<span class="k">↳ thinking</span> <span class="c">选择 glob 工具...</span>
+<span class="k">↳ tool</span> <span class="s">glob</span> { pattern: <span class="s">"**/*.json"</span> }
+<span class="k">↳ result</span> 找到 1 个文件
+
+<span class="p">&gt;</span> <span class="s">我找到了 application.json ...</span><span class="k">▋</span></pre>
+        </div>
+      </section>
+
+      <section id="features">
+        <div class="section-head"><div><div class="eyebrow">01 / core capabilities</div><h2>不只是聊天，<br>而是完成任务。</h2></div><p>从自然语言需求到可执行的工程动作，MyCoder 将模型的推理能力落到你的代码库中。</p></div>
+        <div class="grid">
+          <article class="card"><div class="icon">AI</div><h3>模型驱动的理解</h3><p>兼容 OpenAI 风格接口，通过流式 SSE 接收响应，让模型逐步输出思考结果与行动计划。</p></article>
+          <article class="card"><div class="icon">↻</div><h3>自动推进循环</h3><p>工具执行结果会回到对话上下文，模型可以继续判断、修正并调用下一个工具，最高支持 20 轮自动推进。</p></article>
+          <article class="card"><div class="icon">⌘</div><h3>面向真实项目</h3><p>读取、搜索、编辑和运行都在项目环境中完成，让 AI 从“给建议”走向“动手实现”。</p></article>
+        </div>
+      </section>
+
+      <section id="architecture">
+        <div class="section-head"><div><div class="eyebrow">02 / how it works</div><h2>一个清晰的<br>Agent 闭环。</h2></div><p>MyCoder 将每轮对话拆成可观察、可扩展的执行流程，模型与工具各司其职。</p></div>
+        <div class="architecture">
+          <div class="flow">
+            <div class="flow-item"><span class="num">01</span><div><strong>用户提出目标</strong><small>ConversationManager 记录上下文</small></div></div><div class="arrow">↓</div>
+            <div class="flow-item"><span class="num">02</span><div><strong>LLM 流式响应</strong><small>OpenAIClient 解析 SSE 事件</small></div></div><div class="arrow">↓</div>
+            <div class="flow-item"><span class="num">03</span><div><strong>选择并调用工具</strong><small>ToolRegister 调度执行</small></div></div><div class="arrow">↓</div>
+            <div class="flow-item"><span class="num">04</span><div><strong>结果回传，持续推进</strong><small>直到生成最终答案</small></div></div>
+          </div>
+          <div class="card code-card"><pre><span class="c">// ToolRegister.createDefault()</span>
+<span class="p">register</span>.<span class="k">register</span>(<span class="o">new</span> ReadFileTool());
+<span class="p">register</span>.<span class="k">register</span>(<span class="o">new</span> WriteFileTool());
+<span class="p">register</span>.<span class="k">register</span>(<span class="o">new</span> EditFileTool());
+<span class="p">register</span>.<span class="k">register</span>(<span class="o">new</span> BashTool());
+<span class="p">register</span>.<span class="k">register</span>(<span class="o">new</span> GlobTool());
+<span class="p">register</span>.<span class="k">register</span>(<span class="o">new</span> GrepTool());
+
+<span class="c">// 每个工具都遵循统一的 Tool 契约</span>
+<span class="k">ToolExecuteResult</span> result = tool.<span class="k">execute</span>(params);
+<span class="p">conversationManager</span>.<span class="k">addToolResultsMsg</span>(result);</pre></div>
+        </div>
+      </section>
+
+      <section id="tools">
+        <div class="section-head"><div><div class="eyebrow">03 / built-in toolkit</div><h2>给 Agent 一双<br>真正能工作的手。</h2></div><p>默认注册六种基础工具，同时保留清晰的扩展接口，方便接入你的专属能力。</p></div>
+        <div class="grid tools">
+          <article class="card tool"><div class="icon">▣</div><h3>ReadFile</h3><p>读取文件内容</p></article><article class="card tool"><div class="icon">＋</div><h3>WriteFile</h3><p>创建或覆盖文件</p></article><article class="card tool"><div class="icon">✎</div><h3>EditFile</h3><p>精确替换文本</p></article><article class="card tool"><div class="icon">$</div><h3>Bash</h3><p>执行 Shell 命令</p></article><article class="card tool"><div class="icon">⌕</div><h3>Glob</h3><p>按模式发现文件</p></article><article class="card tool"><div class="icon">≡</div><h3>Grep</h3><p>搜索代码内容</p></article>
+        </div>
+      </section>
+
+      <section id="config">
+        <div class="section-head"><div><div class="eyebrow">04 / configuration</div><h2>保持开放，<br>连接任何模型。</h2></div><p>Provider 配置与业务逻辑分离，使用熟悉的 JSON 即可切换服务地址、模型和生成参数。</p></div>
+        <div class="config"><div class="card config-note"><div class="eyebrow">application.json</div><h3>简单配置，快速启动</h3><p>默认使用 OpenAI 兼容协议，支持自托管或第三方模型服务。上下文窗口、最大输出长度等参数均可按需调整。</p></div><div class="card code-card"><pre>{
+  <span class="s">"providers"</span>: [{
+    <span class="s">"protocol"</span>: <span class="o">"gpt"</span>,
+    <span class="s">"baseUrl"</span>: <span class="o">"http://127.0.0.1:54321/v1"</span>,
+    <span class="s">"model"</span>: <span class="o">"gpt-5.6-sol"</span>,
+    <span class="s">"thinking"</span>: <span class="p">false</span>,
+    <span class="s">"contextWindow"</span>: <span class="o">128000</span>,
+    <span class="s">"maxOutputTokens"</span>: <span class="o">8192</span>
+  }]
+}</pre></div></div>
+      </section>
+    </main>
+    <footer><span>MyCoder <span class="footer-accent">·</span> AI 编程助手</span><span>Built with Java · Designed for builders</span></footer>
+  </div>
+</body>
+</html>
