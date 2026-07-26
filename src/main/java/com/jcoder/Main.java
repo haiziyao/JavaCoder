@@ -28,6 +28,8 @@ import java.util.concurrent.BlockingQueue;
  */
 public class Main {
 
+    static final Integer MAX_AUTO_PROCEED = 20;
+
     public static void main(String[] args) {
 
         ProviderConfig providerConfig = ConfigManager.appConfig.providers().get(0);
@@ -57,53 +59,67 @@ public class Main {
                 if (prompt.equalsIgnoreCase("exit") || prompt.equalsIgnoreCase("quit")) {
                     break;
                 }
-                if (prompt.isBlank()) {continue;}
+                if (prompt.isBlank()) {
+                    continue;
+                }
 
                 // 处理逻辑
                 conversationManager.addUserMsg(prompt);
 
 
                 RequestBodyHelper requestBodyHelper = new RequestBodyHelper(
-                        conversationManager,systemPrompt,toolRegister.listDefinitions()
+                        conversationManager, systemPrompt, toolRegister.listDefinitions()
                 );
 
-
-                TurnResult result = executeOneTurn(client, requestBodyHelper);
-
-                // TODO: 适当使用断言,之前我们的逻辑保证了只会传过来空字符串,绝对不会是null
-                // 我们在这里断言一下,避免以后代码更改破坏这条规则
-                assert result.content() != null;
-                Message assistantMessage = new Message("assistant", result.content());
-
-
-                if (!result.toolCalls().isEmpty()){
-                    assistantMessage.setToolCalls(result.toolCalls());
-                    conversationManager.addMessage(assistantMessage);
-
-                    List<ToolResult> toolResults = new ArrayList<>();
-
-                    for (ToolCallBlock call : result.toolCalls()) {
-                        Tool tool = toolRegister.get(call.toolName());
-                        ToolExecuteResult executeResult;
-                        if (tool == null) {
-                            executeResult = ToolExecuteResult.error( "Unknown tool: " + call.toolName());
-                        }else{
-                            executeResult = tool.execute(call.params());
-                        }
-
-                        toolResults.add(new ToolResult(call.toolId(), executeResult.output(),
-                                        executeResult.isError())
-                        );
+                int goal = 1;
+                for (int i = 0; i < goal; i++) {
+                    if (goal >= MAX_AUTO_PROCEED) {
+                        break;
                     }
 
-                    conversationManager.addToolResultsMsg(toolResults);
+                    TurnResult result = executeOneTurn(client, requestBodyHelper);
+
+                    // TODO: 适当使用断言,之前我们的逻辑保证了只会传过来空字符串,绝对不会是null
+                    // 我们在这里断言一下,避免以后代码更改破坏这条规则
+                    assert result.content() != null;
+                    Message assistantMessage = new Message("assistant", result.content());
+
+
+                    if (!result.toolCalls().isEmpty()) {
+                        assistantMessage.setToolCalls(result.toolCalls());
+                        conversationManager.addMessage(assistantMessage);
+                        List<ToolResult> toolResults = new ArrayList<>();
+
+                        for (ToolCallBlock call : result.toolCalls()) {
+                            // TODO 打个日志
+                            System.err.println("[tool] call " + call.toolName() + " args=" + call.params());
+
+                            Tool tool = toolRegister.get(call.toolName());
+                            ToolExecuteResult executeResult;
+                            if (tool == null) {
+                                executeResult = ToolExecuteResult.error("Unknown tool: " + call.toolName());
+                            } else {
+                                executeResult = tool.execute(call.params());
+                            }
+                            // TODO: 再打个日志
+                            System.err.println("[tool] finished " + call.toolName() + " error="
+                                            + executeResult.isError() + " outputChars=" + executeResult.output().length());
+
+                            toolResults.add(new ToolResult(call.toolId(), executeResult.output(),
+                                    executeResult.isError())
+                            );
+                        }
+
+                        conversationManager.addToolResultsMsg(toolResults);
+                        // TODO: 这里需要打上日志
+                        System.err.println("[tool] results added, requesting model again. Now is "
+                                +goal+" , Next is"+(goal+1));
+                        goal++;
+                    }else{
+                        conversationManager.addMessage(assistantMessage);
+                    }
+                    System.out.println();
                 }
-                conversationManager.addMessage(assistantMessage);
-
-
-
-                System.out.println();
-
             }
         }catch (Exception e){
             e.printStackTrace();

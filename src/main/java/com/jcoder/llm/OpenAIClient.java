@@ -168,7 +168,8 @@ public class OpenAIClient implements LLMClient{
                         .path("finish_reason");
 
                 if (finishReason.asText().equals("tool_calls")){
-                    for (Integer index : toolArguments.keySet()) {
+                    for (Integer index : toolArguments.keySet()
+                            .stream().sorted().toList()) {
                         String toolId = toolIds.get(index);
                         String toolName = toolNames.get(index);
                         String type = toolTypes.get(index);
