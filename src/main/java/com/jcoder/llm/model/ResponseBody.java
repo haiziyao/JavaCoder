@@ -1,6 +1,6 @@
 package com.jcoder.llm.model;
 
-import com.jcoder.message.ToolCall;
+import com.jcoder.message.ToolCallBlock;
 
 import java.util.List;
 
@@ -11,7 +11,7 @@ import java.util.List;
 public record ResponseBody(
         String requestId,
         String content,
-        List<ToolCall> toolCalls,
+        List<ToolCallBlock> toolCalls,
         Usage usage,
         String finishReason
 ) {}

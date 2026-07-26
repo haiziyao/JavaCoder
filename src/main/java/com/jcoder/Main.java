@@ -5,11 +5,19 @@ package com.jcoder;
 import com.jcoder.config.ConfigManager;
 import com.jcoder.config.ProviderConfig;
 import com.jcoder.llm.LLMClient;
-import com.jcoder.llm.model.RequestBodyHelper;
+import com.jcoder.llm.RequestBodyHelper;
 import com.jcoder.llm.model.StreamBlock;
 import com.jcoder.message.ConversationManager;
+import com.jcoder.message.Message;
+import com.jcoder.message.ToolCallBlock;
+import com.jcoder.message.ToolResult;
+import com.jcoder.run.TurnResult;
+import com.jcoder.tool.Tool;
+import com.jcoder.tool.ToolExecuteResult;
+import com.jcoder.tool.ToolRegister;
 
 import java.net.http.HttpClient;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.BlockingQueue;
@@ -32,6 +40,8 @@ public class Main {
             return;
         }
 
+        ToolRegister toolRegister = ToolRegister.createDefault();
+
         ConversationManager conversationManager = new ConversationManager();
         try(Scanner scanner = new Scanner(System.in)) {
             System.out.println("AI 对话启动");
@@ -52,16 +62,45 @@ public class Main {
                 // 处理逻辑
                 conversationManager.addUserMsg(prompt);
 
+
                 RequestBodyHelper requestBodyHelper = new RequestBodyHelper(
-                        conversationManager,systemPrompt,List.of()
+                        conversationManager,systemPrompt,toolRegister.listDefinitions()
                 );
 
 
-                String answer = executeOneTurn(client, requestBodyHelper);
+                TurnResult result = executeOneTurn(client, requestBodyHelper);
 
-                if (answer != null) {
-                    conversationManager.addAssistantMsg(answer);
+                // TODO: 适当使用断言,之前我们的逻辑保证了只会传过来空字符串,绝对不会是null
+                // 我们在这里断言一下,避免以后代码更改破坏这条规则
+                assert result.content() != null;
+                Message assistantMessage = new Message("assistant", result.content());
+
+
+                if (!result.toolCalls().isEmpty()){
+                    assistantMessage.setToolCalls(result.toolCalls());
+                    conversationManager.addMessage(assistantMessage);
+
+                    List<ToolResult> toolResults = new ArrayList<>();
+
+                    for (ToolCallBlock call : result.toolCalls()) {
+                        Tool tool = toolRegister.get(call.toolName());
+                        ToolExecuteResult executeResult;
+                        if (tool == null) {
+                            executeResult = ToolExecuteResult.error( "Unknown tool: " + call.toolName());
+                        }else{
+                            executeResult = tool.execute(call.params());
+                        }
+
+                        toolResults.add(new ToolResult(call.toolId(), executeResult.output(),
+                                        executeResult.isError())
+                        );
+                    }
+
+                    conversationManager.addToolResultsMsg(toolResults);
                 }
+                conversationManager.addMessage(assistantMessage);
+
+
 
                 System.out.println();
 
@@ -72,30 +111,50 @@ public class Main {
     }
 
 
-    private static String executeOneTurn(LLMClient client, RequestBodyHelper requestBodyHelper) throws InterruptedException {
+    private static TurnResult executeOneTurn(LLMClient client, RequestBodyHelper requestBodyHelper) throws InterruptedException {
         BlockingQueue<StreamBlock> queue  = client.stream(requestBodyHelper);
         StringBuilder answer = new StringBuilder();
+        List<ToolCallBlock> toolCalls = new ArrayList<>();
         while (true) {
             StreamBlock block = queue.take();
 
-            if (block instanceof StreamBlock.ContentDelta contentDelta) {
-                String text = contentDelta.content();
+            switch (block) {
+                case StreamBlock.ContentDelta contentDelta -> {
+                    String text = contentDelta.content();
 
-                if (text != null && !text.isEmpty()) {
-                    System.out.print(text);
-                    System.out.flush();
-                    answer.append(text);
+                    if (text != null && !text.isEmpty()) {
+                        System.out.print(text);
+                        System.out.flush();
+                        answer.append(text);
+                    }
                 }
 
-            } else if (block instanceof StreamBlock.StreamError error) {
-                System.err.println();
-                System.err.println(
-                        "Error: " + error.msg()
-                );
-                return null;
+                case StreamBlock.ToolCallComplete toolCallComplete -> {
+                    toolCalls.add(
+                            new ToolCallBlock(
+                                    toolCallComplete.toolId(),
+                                    toolCallComplete.type(),
+                                    toolCallComplete.toolName(),
+                                    toolCallComplete.arguments()
+                            )
+                    );
+                }
 
-            } else if (block instanceof StreamBlock.StreamEnd end) {
-                return answer.toString();
+                case StreamBlock.StreamError error -> {
+                    System.err.println("Error: " + error.msg());
+                    return new TurnResult("", List.of());
+                }
+
+                case StreamBlock.StreamEnd end -> {
+                    return new TurnResult(
+                            answer.toString(),
+                            toolCalls
+                    );
+                }
+
+                default -> {
+                    // 当前暂时忽略 ToolCallDelta 等事件
+                }
             }
         }
 

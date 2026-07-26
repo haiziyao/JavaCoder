@@ -10,7 +10,7 @@ public class Message {
     private String role;
     private String content;
 
-    private List<ToolCall> toolCalls;
+    private List<ToolCallBlock> toolCalls;
     private List<ToolResult> toolResults;
 
     public Message(String role, String content) {
@@ -34,11 +34,11 @@ public class Message {
         this.content = content;
     }
 
-    public List<ToolCall> getToolCalls() {
+    public List<ToolCallBlock> getToolCalls() {
         return toolCalls;
     }
 
-    public void setToolCalls(List<ToolCall> toolCalls) {
+    public void setToolCalls(List<ToolCallBlock> toolCalls) {
         this.toolCalls = toolCalls;
     }
 

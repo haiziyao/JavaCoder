@@ -30,7 +30,7 @@ public class ConversationManager {
         history.add(new Message("assistant", msg));
     }
 
-    public void addToolCallsMsg(List<ToolCall> toolCalls) {
+    public void addToolCallsMsg(List<ToolCallBlock> toolCalls) {
         Message msg = new Message("assistant", "");
         msg.setToolCalls(toolCalls);
         history.add(msg);

@@ -1,9 +1,9 @@
 package com.jcoder.llm;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jcoder.config.ProviderConfig;
-import com.jcoder.llm.model.RequestBodyHelper;
 import com.jcoder.llm.model.ResponseBody;
 import com.jcoder.llm.model.StreamBlock;
 
@@ -17,6 +17,8 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -97,6 +99,10 @@ public class OpenAIClient implements LLMClient{
                         new InputStreamReader(input, StandardCharsets.UTF_8)))
         {
             String line;
+            Map<Integer, String> toolIds = new HashMap<>();
+            Map<Integer, String> toolTypes = new HashMap<>();
+            Map<Integer, String> toolNames = new HashMap<>();
+            Map<Integer, StringBuilder> toolArguments = new HashMap<>();
 
             while ((line = reader.readLine()) != null) {
                 if (!line.startsWith("data: ")) {
@@ -125,9 +131,68 @@ public class OpenAIClient implements LLMClient{
                         queue.put(new StreamBlock.ContentDelta(text));
                     }
                 }
+
+                JsonNode toolCalls = delta.path("tool_calls");
+
+                if (!toolCalls.isMissingNode() && !toolCalls.isNull()) {
+                    if (toolCalls.isArray()) {
+                        for (JsonNode toolCall : toolCalls) {
+                            int index = toolCall.path("index").asInt(0);
+                            // 放 ID
+                            String id = toolCall.path("id").asText();
+                            if (!id.isEmpty()){toolIds.put(index, id);}
+
+                            // 放 type
+                            String type = toolCall.path("type").asText();
+                            if (!type.isEmpty()){toolTypes.put(index, type);}
+
+                            JsonNode function = toolCall.path("function");
+
+                            // 放name
+                            String name = function.path("name").asText("");
+                            if (!name.isEmpty()) {toolNames.put(index, name);}
+
+                            String arguments = function.path("arguments").asText("");
+
+                            if (!arguments.isEmpty()) {toolArguments
+                                    .computeIfAbsent(index, ignored -> new StringBuilder())
+                                        .append(arguments);
+                            }
+                        }
+                    }
+                }
+
+
                 JsonNode finishReason = root.path("choices")
                         .path(0)
                         .path("finish_reason");
+
+                if (finishReason.asText().equals("tool_calls")){
+                    for (Integer index : toolArguments.keySet()) {
+                        String toolId = toolIds.get(index);
+                        String toolName = toolNames.get(index);
+                        String type = toolTypes.get(index);
+                        String rawArguments = toolArguments.get(index).toString();
+
+                        Map<String, Object> arguments;
+
+                        try {
+                            arguments = objectMapper.readValue(rawArguments, Map.class);
+                        } catch (JsonProcessingException e) {
+                            queue.put(new StreamBlock.StreamError(
+                                    "Invalid tool arguments: " + rawArguments
+                            ));
+                            return;
+                        }
+
+                        queue.put(new StreamBlock.ToolCallComplete(
+                                toolId,
+                                toolName,
+                                type,
+                                arguments
+                        ));
+                    }
+                }
 
                 if (!finishReason.isMissingNode() && !finishReason.isNull() && !finishReason.asText().isBlank()) {
 
