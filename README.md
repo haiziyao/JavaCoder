@@ -1,177 +1,176 @@
+# MyCoder
 
- > 在第一章中,该测的都测了,这章主要在于实现和优化.
- 
- 
-我们把上一章的测试结果粘贴过来, `tools`块的格式应该是啥样子的
+MyCoder 是一个使用 Java 编写的本地 AI 编程 Agent。它连接 OpenAI 兼容接口，能够在连续对话中读取、搜索、修改项目文件并执行命令。
 
-``` json
-{
-  "type": "function",
-  "function": {
-    "name": "get_weather",
-    "description": "查询指定城市的实时天气信息，包括温度、湿度和天气状况。适用于用户询问某地天气时调用。",
-    "parameters": {
-      "type": "object",
-      "properties": {
-        "city": {
-          "type": "string",
-          "description": "城市名称，如'北京'、'上海'。支持国内主要城市。",
-          "enum": ["北京", "上海", "广州", "深圳"]  
-        },
-        "unit": {
-          "type": "string",
-          "description": "温度单位，可选摄氏度（metric）或华氏度（imperial），默认为metric。",
-          "default": "metric"
-        }
-      },
-      "required": ["city"]
-    },
-    "returns": {
-      "type": "object",
-      "properties": {
-        "temperature": {"type": "number"},
-        "humidity": {"type": "number"},
-        "condition": {"type": "string"}
-      }
-    }
-  }
-}
+本次改造为原有命令行程序增加了一套可直接使用的本地 Web UI，同时保留 CLI 模式。
+
+## 作者感想
+> Agent好像跑了20轮,可能触发最大限制了.但是实现的非常好,没有报错
+> 我也不多说啥了.下面都是AI自己写的了
+
+## 本次提示词
+
+> 我现在需要给E:\Agent_Learning\Hzy_Code\MyCoder这个项目做一个UI系统,目前还只是命令行,请你实现一下.最后重写README.md,写我的提示词是啥,你做了什么
+
+## 我做了什么
+
+### 1. 增加本地 Web UI
+
+- 新增深色、响应式的聊天工作台；
+- 支持用户消息与 AI 消息展示；
+- 支持 LLM 内容逐段流式呈现，而不是等待完整回答；
+- 工具开始执行、执行完成、失败和输出均可视化；
+- 支持 Enter 发送、Shift + Enter 换行；
+- 提供常用任务快捷入口；
+- 支持一键新建对话并清空后端上下文；
+- 桌面端与移动端均有适配。
+
+UI 页面位于：
+
+```text
+src/main/resources/ui/index.html
 ```
 
-所以我们可以开始自己写`ToolDefinition`的成员变量了
+### 2. 增加轻量 Web 服务
 
+新增 `WebServer`，基于 JDK 自带的 `HttpServer` 实现，不需要引入 Spring Boot 或额外前端框架。
 
-## 代码介绍
+提供接口：
 
-> 对于本章节来说,我不太会写过多的笔记,因为我对这个项目也是边摸索边实现的
-> 我就主要说下整个流程
+| 接口 | 方法 | 用途 |
+| --- | --- | --- |
+| `/` | GET | 返回 UI 页面 |
+| `/api/chat` | POST | 发起 Agent 对话，以 NDJSON 流返回运行事件 |
+| `/api/clear` | POST | 清空当前会话上下文 |
 
-一个工具被调用的整个流程
+服务仅监听 `127.0.0.1`，默认端口为 `8080`。
 
-* 工具定义: 
-* 实现工具: 
-* 工具发现:
-* 工具注入: 主要注入提示词
-* 工具执行:
-* 结果返回:
-* 重新调用LLM:
+### 3. 抽离可复用 Agent 核心
 
-### 工具定义
+原来的 Agent 循环全部写在 `Main` 中，只能向终端输出。现在新增：
 
-这里可以直接看着上面的JSON串,自己封装,想封装成啥样都行,只要自己能做好Class和JSON转换就行
+- `CodingAgent`：负责对话上下文、模型流、工具调用与自动推进；
+- `AgentEventListener`：将状态、内容增量和工具事件传递给不同界面；
+- `ConversationManager.clear()`：支持新建会话。
 
-``` java
-// 对于工具的职责,我们定义一个接口
-public interface Tool {  
-  
-    String name();  
-    String description();  
-    ToolCategory category();  // READ,Write等,用来看tool的执行策略 
-  
-    ToolDefinition definition();  
-  
-    ToolExecuteResult execute(Map<String,Object> args);  
-    default boolean shouldDefer(){return false;}  
-  
-}
+因此 Web UI 和 CLI 能够共用同一套 Agent 执行逻辑，避免维护两套实现。
 
-public record ToolDefinition(  
-        String name,  
-        String description,  
-        Map<String, ToolParamDefinition> properties,  
-        List<String> required,  
-        ToolReturnDefinition returns  
-) {  
-}
+### 4. 保留命令行模式
 
-public record ToolParamDefinition(  
-        String type,  
-        String description,  
-        // default , enum 等等信息  
-        Map<String,Object> others  
-) {  
-}
+默认启动 Web UI；传入 `--cli` 可继续使用原来的终端交互方式。
 
-public record ToolReturnDefinition(  
-        String type,  
-        // "param" : { "type" : "number"}  
-        Map<String,String> properties  
-) {  
-}
+### 5. 兼容当前构建环境
 
+将流式请求线程调整为普通后台线程，Web 服务采用缓存线程池。项目源码仍按 `pom.xml` 声明面向 Java 21 编译，同时相关新增代码也能由当前 Maven 所使用的 JDK 17 编译。
+
+## 项目结构
+
+```text
+src/main/java/com/jcoder/
+├── Main.java                    # 启动入口：Web UI / CLI
+├── config/                      # 应用和模型配置
+├── llm/                         # OpenAI 兼容客户端、SSE 解析
+├── message/                     # 对话、工具调用和工具结果
+├── run/
+│   ├── CodingAgent.java         # Agent 执行核心
+│   ├── AgentEventListener.java  # UI 事件接口
+│   └── TurnResult.java
+├── tool/                        # 工具定义、注册与实现
+└── ui/
+    └── WebServer.java           # 本地 Web 服务
+
+src/main/resources/
+├── application.json             # Provider 与提示词配置
+└── ui/index.html                # Web UI
 ```
 
-我真的是按照 JSON 随意封装的, 想封装成啥样全看自己
+## 内置工具
 
-### 实现工具
+| 工具 | 功能 |
+| --- | --- |
+| `ReadFile` | 读取文本文件 |
+| `WriteFile` | 创建或覆盖文件 |
+| `EditFile` | 精确替换文件内容 |
+| `Glob` | 按 Glob 模式查找文件 |
+| `Grep` | 使用正则搜索文件内容 |
+| `Bash` | 执行 Shell 命令 |
 
-也就是实现`Tool`接口,自己去做工具
+## 环境要求
 
+- JDK 21（与 `pom.xml` 的编译目标一致）；
+- Maven 3.6+；
+- 一个可用的 OpenAI Chat Completions 兼容服务。
 
-|           |        |     |     |                    |
-| --------- | ------ | --- | --- | ------------------ |
-| 工具        | 分类     | 只读  | 破坏性 | 典型场景               |
-| ReadFile  | file   | 是   | 否   | 查看文件内容、读取配置        |
-| WriteFile | file   | 否   | 否   | 创建新文件、覆盖写入         |
-| EditFile  | file   | 否   | 否   | 精确修改文件某几行，节省 token |
-| Bash      | shell  | 否   | 是   | 编译、测试、安装依赖、执行命令    |
-| Glob      | search | 是   | 否   | 了解项目结构、查找特定类型文件    |
-| Grep      | search | 是   | 否   | 搜索代码中的函数定义、变量引用    |
+> 如果 Maven 实际运行在较旧 JDK 上，请先检查 `mvn -version`。编译和运行最好统一使用 JDK 21，避免测试 class 文件版本不一致。
 
-> 实现工具这一步我就不想动手了,直接让AI去做吧,这点事情就不自己写了
-> 按照接口实现,让AI干绝对没有问题
+## 配置
 
+编辑 `src/main/resources/application.json`，填写 Provider 的服务地址、API Key、模型和输出长度等参数。
 
-### 工具发现
+请勿将真实 API Key 提交到公开仓库。建议在后续迭代中增加环境变量读取能力。
 
-其实就是我们统一写一个Register,提供一个方法能够拿到所有工具类和工具定义信息
+## 启动 Web UI
 
-之后Agent通过`name`拿到对应`Tool`的实现类,然后调用`execute`方法
+### 使用 Maven 编译
 
-所以这里就是写一个调用工具好吧
+```bash
+mvn clean package -DskipTests
+```
 
+### 启动
 
-###  工具注入
+```bash
+java -cp target/classes com.jcoder.Main
+```
 
-我们在`day-1`的时候封装了 `RequestBodyHelper`
-我们当时是把tools放进去作为了一个参数
-所以我们也在`buildRequestBody` 里面补充我们的`tools`注入信息
+启动后程序会尝试自动打开浏览器，也可以手动访问：
 
-### 工具执行
+```text
+http://127.0.0.1:8080
+```
 
-这里肯定要先回到我们的`SSE-doStream()`方法
-因为我们拿到的是断断续续的片段,先要拼接,之后才能拿到整个`tool_calls`信息
+### 指定端口
 
-拿到`tool_call`我们就需要在main里面执行了
+```bash
+java -cp target/classes com.jcoder.Main --port 9090
+```
 
-### 结果返回
+然后访问 `http://127.0.0.1:9090`。
 
-这一步很有说法,
-我们肯定会把`tool_calls`和`tool_results`封装进去`Message`,也就是放在我们的`ConvesationManager`里面
+## 启动 CLI
 
-但是请记住,我们之前还有一个方法,就是`buildMessages()`
-这个方法做的是,把`history`拿出来,重新整理,再交给下一次请求
+```bash
+java -cp target/classes com.jcoder.Main --cli
+```
 
->千万不要忘记了这里的处理
+输入 `exit` 或 `quit` 退出。
 
+## 工作流程
 
-### 重新调用LLM
+1. 用户在 UI 或 CLI 输入任务；
+2. `CodingAgent` 将消息写入 `ConversationManager`；
+3. `OpenAIClient` 调用模型并解析 SSE 流；
+4. 文本增量实时发送到 UI；
+5. 如果模型请求工具，`ToolRegister` 查找并执行对应工具；
+6. 工具结果加入上下文，再次请求模型；
+7. 循环执行，直到模型给出最终回答或达到最多 20 轮。
 
-直接把整个请求逻辑放在for循环
+## 构建验证
 
-如果检测到`tool_calls`是空,就代表结束了.
-否则就循环
+本次实现执行过：
 
->但注意要设置一个最大循环次数
+```bash
+mvn -DskipTests package
+```
 
+主代码编译和打包成功。
 
-## 好了,现在试试吧
+在当前机器上执行完整 `mvn test` 时，Maven 使用的是 JDK 17，而测试 class 由 Java 21（class file version 65）编译，因此 Surefire 启动测试时报 `UnsupportedClassVersionError`。这是本地 Maven 运行 JDK 与测试字节码版本不一致造成的环境问题；将 `JAVA_HOME` 和 Maven 统一切换到 JDK 21 后再执行：
 
-> 我启动项目之后直接让Agent在`resource`下生成一个介绍本项目的`html`文件
-> 各位可以打开看看怎么样.
+```bash
+mvn clean test
+```
 
-## Plus Test
+## 说明
 
-> 试一试我们直接让Agent给本项目加一个好看的UI系统
-> 我打算使用`day-2-test`分支进行测试
-> 后续`day-3`将仍然会在`day-2`基础上进行
+原来的 `src/main/resources/index.html` 是项目介绍页。本次真正的交互式 UI 位于 `src/main/resources/ui/index.html`，并由 `WebServer` 提供服务。

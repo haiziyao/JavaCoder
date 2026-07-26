@@ -53,13 +53,15 @@ public class OpenAIClient implements LLMClient{
     public BlockingQueue<StreamBlock> stream(RequestBodyHelper requestBodyHelper) {
 
         var queue = new LinkedBlockingQueue<StreamBlock>();
-        Thread.startVirtualThread(()->{
+        Thread worker = new Thread(() -> {
             try {
                 doStream(requestBodyHelper,queue);
             } catch (Exception e) {
                 queue.add(new StreamBlock.StreamError(e.getMessage()));
             }
-        });
+        }, "mycoder-llm-stream");
+        worker.setDaemon(true);
+        worker.start();
         return queue;
     }
 

@@ -41,4 +41,8 @@ public class ConversationManager {
         history.add(msg);
     }
 
+    public void clear() {
+        history.clear();
+    }
+
 }
