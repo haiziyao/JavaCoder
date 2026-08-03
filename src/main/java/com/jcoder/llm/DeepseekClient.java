@@ -195,12 +195,12 @@ public class DeepseekClient implements LLMClient{
                     }
                 }
 
-                if (!finishReason.isMissingNode() && !finishReason.isNull() && !finishReason.asText().isBlank()) {
-
-                    //TODO:  这里可以添加上 Usage
-                    queue.put(new StreamBlock.StreamEnd(finishReason.asText()));
-                    break;
-                }
+//                if (!finishReason.isMissingNode() && !finishReason.isNull() && !finishReason.asText().isBlank()) {
+//
+//                    //TODO:  这里可以添加上 Usage
+//                    queue.put(new StreamBlock.StreamEnd(finishReason.asText()));
+//                    break;
+//                }
             }
         }
 

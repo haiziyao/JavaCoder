@@ -3,7 +3,7 @@
     {      "name": "ds-provider",
       "protocol": "deepseek",
       "baseUrl": "https://api.deepseek.com",
-      "apiKey": "sk-7b128044b5134b4aa09837bd22f225a6",
+      "apiKey": " ",
       "model": "deepseek-v4-flash",
       "thinking": false,
       "contextWindow": 128000,

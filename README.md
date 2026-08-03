@@ -147,3 +147,17 @@ StreamBlock->AgentEvent->Consumer
 ### 实现一个WebUI
 让AI实现一个WebUI,并使用WebUI.看看AI的能力
 我们仍旧把这里代码放在`day-3-test`
+
+
+## 经验教训
+
+对于OpenAI的gpt系列模型,`thinking`模式是自动关闭的
+但是对于Deepseek来说,`thingking`是默认打开的
+
+一定要注意这个,一定要关闭thinking模式,为什么这么说?
+因为自己手写框架的话,会遇到一些问题,比如如果用thinking模式,就需要额外拼接一个`reason_content`字段
+
+这对我刚开始实现的时候非常逆天,经常遇到莫名其妙死机(也就是说对话中断了),原因就在于这个thinking模式的配置,ds会将原来的content内容放在reason_content,如果没有处理,那么就会直接结束对话.
+本来应该是一通分析和建议,结果直接莫名其妙的断了
+
+果然,自己写程序总有一堆坑
