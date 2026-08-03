@@ -18,7 +18,7 @@ import com.jcoder.run.TurnResult;
 import com.jcoder.tool.Tool;
 import com.jcoder.tool.ToolExecuteResult;
 import com.jcoder.tool.ToolRegister;
-import com.jcoder.ui.CmdUI;
+import com.jcoder.ui.WebUI;
 
 import java.net.http.HttpClient;
 import java.util.ArrayList;
@@ -49,7 +49,7 @@ public class Main {
 
         Agent agent = new Agent(client,toolRegister,systemPrompt,providerConfig.contextWindow(),providerConfig.maxOutputTokens());
 
-        new CmdUI().run(agent,conversationManager);
+        new WebUI().run(agent,conversationManager);
 
     }
 }

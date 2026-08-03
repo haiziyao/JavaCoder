@@ -162,7 +162,7 @@ public class DeepseekClient implements LLMClient{
                     }
                 }
 
-
+                System.out.println(root);
                 JsonNode finishReason = root.path("choices")
                         .path(0)
                         .path("finish_reason");
@@ -194,13 +194,13 @@ public class DeepseekClient implements LLMClient{
                         ));
                     }
                 }
-
-                if (!finishReason.isMissingNode() && !finishReason.isNull() && !finishReason.asText().isBlank()) {
-
-                    //TODO:  这里可以添加上 Usage
-                    queue.put(new StreamBlock.StreamEnd(finishReason.asText()));
-                    break;
-                }
+                // NOTE: deepseek的这个可以删去
+//                if (!finishReason.isMissingNode() && !finishReason.isNull() && !finishReason.asText().isBlank()) {
+//
+//                    //TODO:  这里可以添加上 Usage
+//                    queue.put(new StreamBlock.StreamEnd(finishReason.asText()));
+//                    break;
+//                }
             }
         }
 
