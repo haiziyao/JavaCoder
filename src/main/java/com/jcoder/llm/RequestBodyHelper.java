@@ -36,12 +36,13 @@ public class RequestBodyHelper {
     }
 
     public String buildRequestBody(ObjectMapper objectMapper,
-                                   String model, boolean isStream, int maxOutputTokens) throws JsonProcessingException {
+                                   String model, boolean isStream, int maxOutputTokens,boolean thinking) throws JsonProcessingException {
         ObjectNode requestBodyRoot = objectMapper.createObjectNode();
 
         requestBodyRoot.put("model", model);
         requestBodyRoot.put("stream", isStream);
         requestBodyRoot.put("max_tokens", maxOutputTokens);
+        if(!thinking) requestBodyRoot.putObject("thinking").put("type", "disabled");
 
         ArrayNode messages = buildMessages(objectMapper);
         requestBodyRoot.set("messages", messages);

@@ -44,6 +44,7 @@ public class OpenAIClient implements LLMClient{
         model = this.providerConfig.model();
         // 这个值我都不想自己加,让模型自己走默认值吧
         maxOutputTokens = this.providerConfig.maxOutputTokens();
+        thinking = this.providerConfig.thinking();
     }
 
     @Override
@@ -61,7 +62,7 @@ public class OpenAIClient implements LLMClient{
     }
 
     private void doStream(RequestBodyHelper requestBodyHelper, LinkedBlockingQueue<StreamBlock> queue)  throws Exception {
-        String requestBody =  requestBodyHelper.buildRequestBody(objectMapper,model,true,maxOutputTokens);
+        String requestBody =  requestBodyHelper.buildRequestBody(objectMapper,model,true,maxOutputTokens,thinking);
 
 
         HttpRequest request = HttpRequest.newBuilder()
