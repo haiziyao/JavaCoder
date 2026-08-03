@@ -17,10 +17,11 @@ public interface LLMClient {
     public ResponseBody request(RequestBodyHelper requestBodyHelper);
 
 
-    static LLMClient create(HttpClient httpClient, ProviderConfig providerConfig, String systemPrompt){
+    static LLMClient create(HttpClient httpClient, ProviderConfig providerConfig){
         String protocol = providerConfig.protocol();
         return switch (protocol){
-            case "gpt" ->new OpenAIClient(httpClient, providerConfig, systemPrompt);
+            case "gpt" ->new OpenAIClient(httpClient, providerConfig);
+            case "deepseek" -> new DeepseekClient(httpClient, providerConfig);
             default -> throw new IllegalStateException("Unexpected value: " + protocol);
         };
     }

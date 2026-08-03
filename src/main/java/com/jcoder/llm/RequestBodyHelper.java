@@ -182,4 +182,13 @@ public class RequestBodyHelper {
 
         return toolsNode;
     }
+
+
+    public List<ToolDefinition> getTools() {
+        return tools;
+    }
+
+    public void setTools(List<ToolDefinition> tools) {
+        this.tools = tools;
+    }
 }

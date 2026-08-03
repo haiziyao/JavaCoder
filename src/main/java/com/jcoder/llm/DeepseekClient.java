@@ -26,22 +26,24 @@ import java.util.concurrent.LinkedBlockingQueue;
  * 作者：亥子曜
  * -后之览者，亦将有感于斯文
  */
-public class OpenAIClient implements LLMClient{
+public class DeepseekClient implements LLMClient{
 
 
     private final HttpClient httpClient;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final ProviderConfig providerConfig;
 
+
     private volatile String model;
     private volatile boolean thinking;
     private volatile int maxOutputTokens;
 
-    public OpenAIClient(HttpClient httpClient, ProviderConfig providerConfig) {
+    public DeepseekClient(HttpClient httpClient, ProviderConfig providerConfig) {
         this.httpClient = httpClient;
         this.providerConfig = providerConfig;
 
         model = this.providerConfig.model();
+
         // 这个值我都不想自己加,让模型自己走默认值吧
         maxOutputTokens = this.providerConfig.maxOutputTokens();
     }
@@ -119,7 +121,7 @@ public class OpenAIClient implements LLMClient{
                         .path(0)
                         .path("delta");
 
-                if (delta.has("content")) {
+                if (delta.has("content") && !delta.get("content").isNull()) {
                     String text = delta
                             .get("content")
                             .asText();
@@ -153,7 +155,7 @@ public class OpenAIClient implements LLMClient{
 
                             if (!arguments.isEmpty()) {toolArguments
                                     .computeIfAbsent(index, ignored -> new StringBuilder())
-                                        .append(arguments);
+                                    .append(arguments);
                             }
                         }
                     }

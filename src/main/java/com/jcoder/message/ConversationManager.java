@@ -18,6 +18,11 @@ public class ConversationManager {
         return history;
     }
 
+    // TODO:
+    public void injectLongTermMemory(){
+
+    }
+
     public void addMessage(Message message) {
         history.add(message);
     }
