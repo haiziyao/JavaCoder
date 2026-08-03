@@ -108,7 +108,9 @@ public class Agent {
 
             // 没有工具调用->结束
             if(result.toolCalls().isEmpty()) {
-                conversationManager.addMessage(assistantMessage);
+                if (result.content() != null&& !result.content().isEmpty()) {
+                    conversationManager.addMessage(assistantMessage);
+                }
                 queue.putSafe(new AgentEvent.LoopComplete(turn));
                 return;
             }
