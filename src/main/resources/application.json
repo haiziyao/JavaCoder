@@ -1,17 +1,14 @@
 {
   "providers": [
-    {      "name": "ds-provider",
+    {
+      "name": "ds-provider",
       "protocol": "deepseek",
       "baseUrl": "https://api.deepseek.com",
-      "apiKey": " ",
-      "model": "deepseek-v4-flash",
+      "apiKey": "",
+      "model": "deepseek-v4-pro",
       "thinking": false,
       "contextWindow": 128000,
       "maxOutputTokens": 8192
     }
-  ],
-  "prompt": {
-    "system_prompt": ""
-
-  }
+  ]
 }

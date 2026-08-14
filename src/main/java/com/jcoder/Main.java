@@ -7,8 +7,9 @@ import com.jcoder.config.ProviderConfig;
 import com.jcoder.llm.LLMClient;
 import com.jcoder.message.ConversationManager;
 import com.jcoder.tool.ToolRegister;
-import com.jcoder.ui.CmdUI;
 import com.jcoder.ui.UI;
+import com.jcoder.ui.CmdUI;
+import com.jcoder.ui.web.WebUI;
 
 import java.net.http.HttpClient;
 
@@ -20,7 +21,7 @@ public class Main {
     public static void main(String[] args) {
         ProviderConfig providerConfig = ConfigManager.appConfig.providers().get(0);
 
-        LLMClient client = LLMClient.create(HttpClient.newHttpClient(),providerConfig);
+        LLMClient client = LLMClient.create(HttpClient.newHttpClient(), providerConfig);
 
         if (client == null) {
             System.out.println("LLMClient创建失败");
@@ -37,10 +38,13 @@ public class Main {
                 providerConfig.contextWindow(),
                 providerConfig.maxOutputTokens()
         );
+        agent.setWorkDir(System.getProperty("user.dir"));
 
-        UI ui = new CmdUI();
+        UI ui = chooseUi(args);
         ui.run(agent, conversationManager);
+    }
 
+    private static UI chooseUi(String[] args) {
+        return new WebUI();
     }
 }
-

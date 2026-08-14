@@ -10,10 +10,6 @@
       "contextWindow": 128000,
       "maxOutputTokens": 8192
     }
-  ],
-  "prompt": {
-    "system_prompt": ""
-
-  }
+  ]
 }
 

@@ -82,6 +82,15 @@ class PromptBuilderTest {
         assertTrue(lastMessage(turnSix).contains("# Plan Mode"));
     }
 
+    @Test
+    void tellsAgentToActInsteadOfEndingWithAPlanToAct() {
+        PromptContent content = promptBuilder.build(
+                new ConversationManager(), List.of(), environment, AgentMode.NORMAL, 1);
+
+        assertTrue(content.system().contains("same response"));
+        assertTrue(content.system().contains("Do not end a task response with only a promise"));
+    }
+
     private static String lastMessage(PromptContent content) {
         return content.messages().get(content.messages().size() - 1).getContent();
     }
