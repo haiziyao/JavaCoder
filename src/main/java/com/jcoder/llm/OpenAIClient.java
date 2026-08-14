@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jcoder.config.ProviderConfig;
 import com.jcoder.llm.model.ResponseBody;
 import com.jcoder.llm.model.StreamBlock;
+import com.jcoder.prompt.PromptContent;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -32,10 +33,12 @@ public class OpenAIClient implements LLMClient{
     private final HttpClient httpClient;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final ProviderConfig providerConfig;
+    private final RequestBodyHelper requestBodyHelper = new RequestBodyHelper();
 
     private volatile String model;
     private volatile boolean thinking;
     private volatile int maxOutputTokens;
+    private volatile String lastRequestJson = "";
 
     public OpenAIClient(HttpClient httpClient, ProviderConfig providerConfig) {
         this.httpClient = httpClient;
@@ -48,12 +51,12 @@ public class OpenAIClient implements LLMClient{
     }
 
     @Override
-    public BlockingQueue<StreamBlock> stream(RequestBodyHelper requestBodyHelper) {
+    public BlockingQueue<StreamBlock> stream(PromptContent promptContent) {
 
         var queue = new LinkedBlockingQueue<StreamBlock>();
         Thread.startVirtualThread(()->{
             try {
-                doStream(requestBodyHelper,queue);
+                doStream(promptContent, queue);
             } catch (Exception e) {
                 queue.add(new StreamBlock.StreamError(e.getMessage()));
             }
@@ -61,8 +64,10 @@ public class OpenAIClient implements LLMClient{
         return queue;
     }
 
-    private void doStream(RequestBodyHelper requestBodyHelper, LinkedBlockingQueue<StreamBlock> queue)  throws Exception {
-        String requestBody =  requestBodyHelper.buildRequestBody(objectMapper,model,true,maxOutputTokens,thinking);
+    private void doStream(PromptContent promptContent,
+                          LinkedBlockingQueue<StreamBlock> queue) throws Exception {
+        lastRequestJson = requestBodyHelper.buildRequestBody(
+                objectMapper, promptContent, model, true, maxOutputTokens, thinking);
 
 
         HttpRequest request = HttpRequest.newBuilder()
@@ -71,7 +76,7 @@ public class OpenAIClient implements LLMClient{
                 .header("Content-Type", "application/json")
                 .header("Accept", "text/event-stream")
                 .timeout(Duration.ofMinutes(5))
-                .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+                .POST(HttpRequest.BodyPublishers.ofString(lastRequestJson))
                 .build();
 
         HttpResponse<InputStream> response =
@@ -205,7 +210,12 @@ public class OpenAIClient implements LLMClient{
     }
 
     @Override
-    public ResponseBody request(RequestBodyHelper requestBodyHelper) {
+    public ResponseBody request(PromptContent promptContent) {
         return null;
+    }
+
+    @Override
+    public String getLastRequestJson() {
+        return lastRequestJson;
     }
 }

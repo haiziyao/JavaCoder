@@ -5,10 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import com.jcoder.message.ConversationManager;
 import com.jcoder.message.Message;
 import com.jcoder.message.ToolCallBlock;
 import com.jcoder.message.ToolResult;
+import com.jcoder.prompt.PromptContent;
 import com.jcoder.tool.ToolDefinition;
 import com.jcoder.tool.ToolParamDefinition;
 
@@ -21,22 +21,10 @@ import java.util.Map;
  */
 public class RequestBodyHelper {
 
-    private ConversationManager conversationManager;
-    private String systemPrompt;
-    private List<ToolDefinition> tools;
-
-    // 这俩仅仅作为提醒吧,先不实现
-    int maxOutputTokens;
-    boolean thinking;
-
-    public RequestBodyHelper(ConversationManager conversationManager, String systemPrompt, List<ToolDefinition> tools) {
-        this.conversationManager = conversationManager;
-        this.systemPrompt = systemPrompt;
-        this.tools = tools;
-    }
-
     public String buildRequestBody(ObjectMapper objectMapper,
-                                   String model, boolean isStream, int maxOutputTokens,boolean thinking) throws JsonProcessingException {
+                                   PromptContent promptContent,
+                                   String model, boolean isStream, int maxOutputTokens,
+                                   boolean thinking) throws JsonProcessingException {
         ObjectNode requestBodyRoot = objectMapper.createObjectNode();
 
         requestBodyRoot.put("model", model);
@@ -44,30 +32,31 @@ public class RequestBodyHelper {
         requestBodyRoot.put("max_tokens", maxOutputTokens);
         requestBodyRoot.putObject("thinking").put("type", thinking ? "enabled" : "disabled");
 
-        ArrayNode messages = buildMessages(objectMapper);
+        ArrayNode messages = buildMessages(objectMapper, promptContent);
         requestBodyRoot.set("messages", messages);
 
         // 工具注入
-        if (tools != null && !tools.isEmpty()) {
-            requestBodyRoot.set("tools", getToolsNode(objectMapper));
+        if (!promptContent.tools().isEmpty()) {
+            requestBodyRoot.set("tools", getToolsNode(objectMapper, promptContent.tools()));
         }
 
         return objectMapper.writeValueAsString(requestBodyRoot);
 
     }
 
-    public ArrayNode buildMessages(ObjectMapper objectMapper) throws JsonProcessingException {
+    public ArrayNode buildMessages(ObjectMapper objectMapper,
+                                   PromptContent promptContent) throws JsonProcessingException {
         ArrayNode messages = objectMapper.createArrayNode();
 
-        if(systemPrompt != null && !systemPrompt.isEmpty()) {
+        if (!promptContent.system().isEmpty()) {
             ObjectNode systemPromptNode = objectMapper.createObjectNode();
             systemPromptNode.put("role","system");
-            systemPromptNode.put("content",systemPrompt);
+            systemPromptNode.put("content", promptContent.system());
             messages.add(systemPromptNode);
         }
 
-        List<Message> history = conversationManager.getHistoryMut();
-        if (history == null || history.isEmpty()) {
+        List<Message> history = promptContent.messages();
+        if (history.isEmpty()) {
             return messages;
         }
 
@@ -133,7 +122,8 @@ public class RequestBodyHelper {
     }
 
     // AI 写的, 懒得动手了
-    public ArrayNode getToolsNode(ObjectMapper objectMapper) {
+    public ArrayNode getToolsNode(ObjectMapper objectMapper,
+                                  List<ToolDefinition> tools) {
         if (tools == null || tools.isEmpty()) {
             return objectMapper.createArrayNode();
         }
@@ -182,14 +172,5 @@ public class RequestBodyHelper {
         }
 
         return toolsNode;
-    }
-
-
-    public List<ToolDefinition> getTools() {
-        return tools;
-    }
-
-    public void setTools(List<ToolDefinition> tools) {
-        this.tools = tools;
     }
 }

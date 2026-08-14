@@ -1,12 +1,15 @@
 package com.jcoder.agent;
 
 import com.jcoder.llm.LLMClient;
-import com.jcoder.llm.RequestBodyHelper;
 import com.jcoder.llm.model.StreamBlock;
 import com.jcoder.message.ConversationManager;
 import com.jcoder.message.Message;
 import com.jcoder.message.ToolCallBlock;
 import com.jcoder.message.ToolResult;
+import com.jcoder.prompt.AgentMode;
+import com.jcoder.prompt.EnvironmentContext;
+import com.jcoder.prompt.PromptBuilder;
+import com.jcoder.prompt.PromptContent;
 import com.jcoder.run.TurnResult;
 import com.jcoder.tool.Tool;
 import com.jcoder.tool.ToolExecuteResult;
@@ -24,7 +27,9 @@ public class Agent {
 
     private  LLMClient client;
     private final ToolRegister toolRegister;
-    private String systemPrompt;
+    private final PromptBuilder promptBuilder = new PromptBuilder();
+    private volatile PromptContent currentPromptContent;
+    private volatile AgentMode mode = AgentMode.NORMAL;
     // UNUSED: 目前算是冗余字段
     private String protocol;
 
@@ -39,10 +44,10 @@ public class Agent {
     //TODO: 权限管理+Hook回调
 
 
-    public Agent(LLMClient client, ToolRegister toolRegister,String systemPrompt,int contextWindow, int maxOutput) {
+    public Agent(LLMClient client, ToolRegister toolRegister,
+                 int contextWindow, int maxOutput) {
         this.client = client;
         this.toolRegister = toolRegister;
-        this.systemPrompt = systemPrompt;
         this.contextWindow = contextWindow;
         this.maxOutput = maxOutput;
 
@@ -70,8 +75,6 @@ public class Agent {
     public void agentLoop(ConversationManager conversationManager,AgentEventQueue queue) throws InterruptedException {
         // 注入记忆,还没写
         conversationManager.injectLongTermMemory();
-        RequestBodyHelper requestBodyHelper = new RequestBodyHelper(conversationManager,
-                this.systemPrompt,null);
 
         int totalInput = 0;
         int totalOutput = 0;
@@ -92,10 +95,17 @@ public class Agent {
 
             //plan model 注入
 
-            //获取工具 schema,调用llm
-            requestBodyHelper.setTools(toolRegister.listDefinitions());
+            //组装本轮完整 Prompt
+            currentPromptContent = promptBuilder.build(
+                    conversationManager,
+                    toolRegister.listDefinitions(),
+                    EnvironmentContext.detect(workDir),
+                    mode,
+                    turn
+            );
             //消费式流响应
-            TurnResult result = executeOneTurn(client, requestBodyHelper,queue,turn);
+            TurnResult result = executeOneTurn(
+                    client, currentPromptContent, queue, turn);
             // NOTE: 适当使用断言,之前我们的逻辑保证了只会传过来空字符串,绝对不会是null
             // 我们在这里断言一下,避免以后代码更改破坏这条规则
             assert result.content() != null;
@@ -151,9 +161,9 @@ public class Agent {
 
     }
 
-    private static TurnResult executeOneTurn(LLMClient client, RequestBodyHelper requestBodyHelper,
+    private static TurnResult executeOneTurn(LLMClient client, PromptContent promptContent,
                                              AgentEventQueue eventQueue,int turn) throws InterruptedException {
-        BlockingQueue<StreamBlock> queue  = client.stream(requestBodyHelper);
+        BlockingQueue<StreamBlock> queue = client.stream(promptContent);
         StringBuilder answer = new StringBuilder();
         List<ToolCallBlock> toolCalls = new ArrayList<>();
         while (true) {
@@ -224,6 +234,22 @@ public class Agent {
 
     public int getMaxIterations() {
         return maxIterations;
+    }
+
+    public PromptContent getCurrentPromptContent() {
+        return currentPromptContent;
+    }
+
+    public String getLastRequestJson() {
+        return client.getLastRequestJson();
+    }
+
+    public AgentMode getMode() {
+        return mode;
+    }
+
+    public void setMode(AgentMode mode) {
+        this.mode = mode;
     }
 
     public void setMaxIterations(int maxIterations) {

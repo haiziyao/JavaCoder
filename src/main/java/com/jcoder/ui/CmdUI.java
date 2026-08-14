@@ -11,8 +11,9 @@ import java.util.Scanner;
  * 作者：亥子曜
  * -后之览者，亦将有感于斯文
  */
-public class CmdUI {
+public class CmdUI implements UI {
 
+    @Override
     public void run(Agent agent, ConversationManager conversationManager) {
         try (Scanner scanner = new Scanner(System.in)) {
             while (true) {

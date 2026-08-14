@@ -3,6 +3,7 @@ package com.jcoder.llm;
 import com.jcoder.config.ProviderConfig;
 import com.jcoder.llm.model.ResponseBody;
 import com.jcoder.llm.model.StreamBlock;
+import com.jcoder.prompt.PromptContent;
 
 import java.net.http.HttpClient;
 import java.util.concurrent.BlockingQueue;
@@ -13,8 +14,9 @@ import java.util.concurrent.BlockingQueue;
  */
 public interface LLMClient {
 
-    public BlockingQueue<StreamBlock> stream(RequestBodyHelper requestBodyHelper);
-    public ResponseBody request(RequestBodyHelper requestBodyHelper);
+    BlockingQueue<StreamBlock> stream(PromptContent promptContent);
+    ResponseBody request(PromptContent promptContent);
+    String getLastRequestJson();
 
 
     static LLMClient create(HttpClient httpClient, ProviderConfig providerConfig){

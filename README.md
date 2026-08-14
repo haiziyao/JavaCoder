@@ -1,163 +1,204 @@
+# MyCoder
 
+MyCoder 是一个用于学习 AI Coding Agent 工作原理的 Java 项目。
 
-> 在之前我们已经实现好了一个可以持续对话的简陋的Agent.
-> 现在我们要实现一些常用的事项
-> 比如封装一个ReAct-Agent,可以直接用
+当前阶段关注三个核心问题：如何组织 System Prompt、如何把对话和工具转换成 API 请求，以及 Agent 如何在多轮工具调用中持续工作。项目以简单、可读、可运行作为主要目标，不提前实现复杂的平台能力。
 
+## 当前功能
 
->在此之前,由于deepseek最近发布了v4-flash模型,那么我们先扩展一个ds接口
->我们只需要把配置文件改了, 在`create()`函数中加入 case deepseek就可以了
+- 支持 OpenAI 兼容协议和 DeepSeek 协议。
+- 支持流式文本、工具调用和工具结果回传。
+- 内置 `ReadFile`、`EditFile`、`WriteFile`、`Bash`、`Glob`、`Grep` 六个工具。
+- 使用七个独立文件维护 System Prompt。
+- 统一组装 `system / messages / tools` 三部分请求内容。
+- 将环境上下文和模式提醒作为 `user + <system-reminder>` 动态注入。
+- 支持 `NORMAL`、`PLAN`、`EXECUTE_PLAN` 三种 Agent 模式。
+- UI 可以查看当前 Prompt 快照和最后一次请求 JSON。
 
-但是,好巧不巧,出现问题了:
- ```
- > 你好
-nullnullnullnullnullnullnullnullnullnullnullnullnullnullnullnullnullnullnullnullnullnullnullnullnullnullnullnullnullnullnullnullnullnull你好！很高兴为你服务。😊
+## 运行环境
 
-我是你的编程助手，可以帮你完成各种代码相关的任务，比如：
+- JDK 21 或更高版本
+- Maven 3.6.3 或更高版本
 
-- 📝 **编写代码**：用各种语言写程序、脚本
-- 🔍 **调试问题**：分析报错、查找 bug
-- 📂 **文件操作**：创建、修改、搜索项目文件
-- 🔧 **代码重构**：优化结构、改进性能
-- 📚 **解答疑问**：解释概念、算法、框架用法
+本项目使用 JDK 23 验证，编译目标版本为 Java 21。
 
-请告诉我你想做什么，我会尽力帮助你！有什么我可以为你效劳的吗？
- ```
+不修改系统环境变量时，可以在当前 PowerShell 会话临时指定 JDK：
 
-为什么会输出一堆null呢?
-怎么去排查这个问题呢?我们对AI发话"请你输出一个1"
-
-```
-> 请你输出一个 1
-nullnullnullnullnullnullnullnullnullnullnullnullnullnullnullnullnullnullnullnullnullnullnullnullnullnullnullnullnull1
+```powershell
+$env:JAVA_HOME='C:\Users\17542\.jdks\openjdk-23'
+$env:Path="$env:JAVA_HOME\bin;$env:Path"
 ```
 
-这时候我们去Postman再调用一下
+运行测试：
 
+```powershell
+mvn test
 ```
 
-data: {"id":"a3b388f5-c94e-469f-ace8-748043517274","object":"chat.completion.chunk","created":1785720376,"model":"deepseek-v4-pro","system_fingerprint":"fp_9954b31ca7_prod0820_fp8_kvcache_20260402","choices":[{"index":0,"delta":{"role":"assistant","content":null,"reasoning_content":""},"logprobs":null,"finish_reason":null}]}
+启动项目时，可以直接在 IDEA 中运行：
 
-data: {"id":"a3b388f5-c94e-469f-ace8-748043517274","object":"chat.completion.chunk","created":1785720376,"model":"deepseek-v4-pro","system_fingerprint":"fp_9954b31ca7_prod0820_fp8_kvcache_20260402","choices":[{"index":0,"delta":{"content":null,"reasoning_content":"我们"},"logprobs":null,"finish_reason":null}]}
-
-data: {"id":"a3b388f5-c94e-469f-ace8-748043517274","object":"chat.completion.chunk","created":1785720376,"model":"deepseek-v4-pro","system_fingerprint":"fp_9954b31ca7_prod0820_fp8_kvcache_20260402","choices":[{"index":0,"delta":{"content":null,"reasoning_content":"被"},"logprobs":null,"finish_reason":null}]}
-
-data: {"id":"a3b388f5-c94e-469f-ace8-748043517274","object":"chat.completion.chunk","created":1785720376,"model":"deepseek-v4-pro","system_fingerprint":"fp_9954b31ca7_prod0820_fp8_kvcache_20260402","choices":[{"index":0,"delta":{"content":null,"reasoning_content":"要求"},"logprobs":null,"finish_reason":null}]}
-
-data: {"id":"a3b388f5-c94e-469f-ace8-748043517274","object":"chat.completion.chunk","created":1785720376,"model":"deepseek-v4-pro","system_fingerprint":"fp_9954b31ca7_prod0820_fp8_kvcache_20260402","choices":[{"index":0,"delta":{"content":null,"reasoning_content":"输出"},"logprobs":null,"finish_reason":null}]}
-
-data: {"id":"a3b388f5-c94e-469f-ace8-748043517274","object":"chat.completion.chunk","created":1785720376,"model":"deepseek-v4-pro","system_fingerprint":"fp_9954b31ca7_prod0820_fp8_kvcache_20260402","choices":[{"index":0,"delta":{"content":null,"reasoning_content":"1"},"logprobs":null,"finish_reason":null}]}
-
-data: {"id":"a3b388f5-c94e-469f-ace8-748043517274","object":"chat.completion.chunk","created":1785720376,"model":"deepseek-v4-pro","system_fingerprint":"fp_9954b31ca7_prod0820_fp8_kvcache_20260402","choices":[{"index":0,"delta":{"content":null,"reasoning_content":"。"},"logprobs":null,"finish_reason":null}]}
-
-data: {"id":"a3b388f5-c94e-469f-ace8-748043517274","object":"chat.completion.chunk","created":1785720376,"model":"deepseek-v4-pro","system_fingerprint":"fp_9954b31ca7_prod0820_fp8_kvcache_20260402","choices":[{"index":0,"delta":{"content":null,"reasoning_content":"这"},"logprobs":null,"finish_reason":null}]}
-
-data: {"id":"a3b388f5-c94e-469f-ace8-748043517274","object":"chat.completion.chunk","created":1785720376,"model":"deepseek-v4-pro","system_fingerprint":"fp_9954b31ca7_prod0820_fp8_kvcache_20260402","choices":[{"index":0,"delta":{"content":null,"reasoning_content":"很简单"},"logprobs":null,"finish_reason":null}]}
-
-data: {"id":"a3b388f5-c94e-469f-ace8-748043517274","object":"chat.completion.chunk","created":1785720376,"model":"deepseek-v4-pro","system_fingerprint":"fp_9954b31ca7_prod0820_fp8_kvcache_20260402","choices":[{"index":0,"delta":{"content":null,"reasoning_content":"。"},"logprobs":null,"finish_reason":null}]}
-
-data: {"id":"a3b388f5-c94e-469f-ace8-748043517274","object":"chat.completion.chunk","created":1785720376,"model":"deepseek-v4-pro","system_fingerprint":"fp_9954b31ca7_prod0820_fp8_kvcache_20260402","choices":[{"index":0,"delta":{"content":null,"reasoning_content":"直接"},"logprobs":null,"finish_reason":null}]}
-
-data: {"id":"a3b388f5-c94e-469f-ace8-748043517274","object":"chat.completion.chunk","created":1785720376,"model":"deepseek-v4-pro","system_fingerprint":"fp_9954b31ca7_prod0820_fp8_kvcache_20260402","choices":[{"index":0,"delta":{"content":null,"reasoning_content":"输出"},"logprobs":null,"finish_reason":null}]}
-
-data: {"id":"a3b388f5-c94e-469f-ace8-748043517274","object":"chat.completion.chunk","created":1785720376,"model":"deepseek-v4-pro","system_fingerprint":"fp_9954b31ca7_prod0820_fp8_kvcache_20260402","choices":[{"index":0,"delta":{"content":null,"reasoning_content":"1"},"logprobs":null,"finish_reason":null}]}
-
-data: {"id":"a3b388f5-c94e-469f-ace8-748043517274","object":"chat.completion.chunk","created":1785720376,"model":"deepseek-v4-pro","system_fingerprint":"fp_9954b31ca7_prod0820_fp8_kvcache_20260402","choices":[{"index":0,"delta":{"content":null,"reasoning_content":"即可"},"logprobs":null,"finish_reason":null}]}
-
-data: {"id":"a3b388f5-c94e-469f-ace8-748043517274","object":"chat.completion.chunk","created":1785720376,"model":"deepseek-v4-pro","system_fingerprint":"fp_9954b31ca7_prod0820_fp8_kvcache_20260402","choices":[{"index":0,"delta":{"content":null,"reasoning_content":"。"},"logprobs":null,"finish_reason":null}]}
-
-data: {"id":"a3b388f5-c94e-469f-ace8-748043517274","object":"chat.completion.chunk","created":1785720376,"model":"deepseek-v4-pro","system_fingerprint":"fp_9954b31ca7_prod0820_fp8_kvcache_20260402","choices":[{"index":0,"delta":{"content":"1","reasoning_content":null},"logprobs":null,"finish_reason":null}]}
-
-data: {"id":"a3b388f5-c94e-469f-ace8-748043517274","object":"chat.completion.chunk","created":1785720376,"model":"deepseek-v4-pro","system_fingerprint":"fp_9954b31ca7_prod0820_fp8_kvcache_20260402","choices":[{"index":0,"delta":{"content":"","reasoning_content":null},"logprobs":null,"finish_reason":"stop"}],"usage":{"prompt_tokens":7,"completion_tokens":16,"total_tokens":23,"prompt_tokens_details":{"cached_tokens":0},"completion_tokens_details":{"reasoning_tokens":14},"prompt_cache_hit_tokens":0,"prompt_cache_miss_tokens":7}}
-
-data: [DONE]
-
+```text
+src/main/java/com/jcoder/Main.java
 ```
 
-一眼便知道 是`content`和`reasoning_content`搞得鬼
-(上面的json可能看得不是很清楚,原因是我使用的text代码块展示,而不是json,在github中,json格式只得有一个根节点,否则爆红)
+## Provider 配置
 
->所以,应该是我们没对content内容做校验,在gpt中,如果content没有内容就是结束了
->但是ds中content会为null,我们肯定不能把null都排除,因为我们正文中有content
->所以ds的话就需要我们对`content`和`reasoning-content`两个进行判断了
+配置文件位于 `src/main/resources/application.json`。
 
-``` java
-if (delta.has("content") && !delta.get("content").isNull()) {  
-    String text = delta  
-            .get("content")  
-            .asText();  
-  
-    if (!text.isEmpty()) {  
-        queue.put(new StreamBlock.ContentDelta(text));  
-    }  
+```json
+{
+  "providers": [
+    {
+      "name": "my-provider",
+      "protocol": "deepseek",
+      "baseUrl": "https://api.example.com",
+      "apiKey": "your-api-key",
+      "model": "your-model",
+      "thinking": false,
+      "contextWindow": 64000,
+      "maxOutputTokens": 8192
+    }
+  ]
 }
 ```
-加上一个判断就行了,如果content的节点是null就扔掉,之前没有写后面那个逻辑
-这里对于reasoning_content,我们是直接抛弃了,后面再想会有什么其他做法
 
+`protocol` 当前支持：
 
-## 实现ReAct-Agent
-其实这章做的事情简单来说,就是把main内容也封装了.
+- `gpt`：使用 `OpenAIClient`。
+- `deepseek`：使用 `DeepseekClient`。
 
-我们把Main中的循环,封装为一个ReAct-Agent.
+不要把真实 API Key 提交到 Git。
 
+## Prompt 组装结构
 
-## 新加类和代码
+Prompt 的核心数据结构是 `PromptContent`：
 
-### Agent
-
-这个就有一个Agent.run()方法,集成了之前的Main的代码
-
-### AgentEvent
-这个类可能有很多人都会质疑
-我们之前有StreamBlock,链路是这样的
-```
-Request->Response->StreamBlock->Consumer
-我们这里的Consumer是谁?是我们mian里面的System.println()
+```java
+public record PromptContent(
+        String system,
+        List<Message> messages,
+        List<ToolDefinition> tools
+) {}
 ```
 
-那么AgentEvent是做什么的呢?
+组装流程：
 
-这么来说,也就是我们拿到的StreamBlock肯定要被消费,但是我们Agent代码里面不想写消费
-想把消费提取出去,怎么办,我们想UI去消费
-那么就多一层队列
+```text
+sys_prompt/*.md
+       ↓
+ConfigManager → PromptConfig
+       ↓
+PromptBuilder
+       ├── system: 七个静态 Prompt 模块
+       ├── messages: 环境提醒 + 会话历史 + 模式提醒
+       └── tools: 工具 JSON Schema
+       ↓
+PromptContent → LLMClient → API JSON
 ```
-StreamBlock->AgentEvent->Consumer
+
+`PromptBuilder` 是唯一的完整 Prompt 组装入口。`RequestBodyHelper` 只负责把已经组装好的 `PromptContent` 序列化成 API 请求，不再保存会话、System Prompt 或工具状态。
+
+## 七个 System Prompt 模块
+
+文件位于 `src/main/resources/sys_prompt`：
+
+| 优先级 | 文件 | 职责 |
+|---:|---|---|
+| 0 | `identity.md` | 定义 MyCoder 的身份和工作范围 |
+| 10 | `behavior.md` | 约束与用户沟通和行动的方式 |
+| 20 | `tool-usage.md` | 指导工具选择、顺序和配合关系 |
+| 30 | `code-quality.md` | 控制代码质量和修改范围 |
+| 40 | `security.md` | 提供提示词层面的安全约束 |
+| 50 | `task-pattern.md` | 区分 Bug、功能、重构和解释任务的策略 |
+| 60 | `output-style.md` | 约束最终回答格式和长度 |
+
+这些内容属于稳定信息，统一进入 System Prompt。排序由 `PromptSection.priority` 决定。
+
+Prompt 可以通过 `ConfigManager` 重新加载或修改：
+
+```java
+ConfigManager.reloadPrompts();
+
+ConfigManager.savePrompt(
+        PromptConfig.Section.BEHAVIOR,
+        newContent
+);
 ```
 
-也就是说,我们在Agent.run()里面,把收到的结果都装queue里面.然后返回这个队列
+当前写回功能面向 IDEA 开发环境中的 classpath 资源。打包成 JAR 后，暂不支持直接修改 JAR 内部的 Prompt 文件。
 
-随想用就给谁用
+## 动态上下文与 system-reminder
 
-### AgentEventQueue
-我们这里算是一个代理类, 因为如果用原生queue的put,offer等等会遇到并发,阻塞的问题
-我们先提出来一层,方便以后更改
+动态内容不拼接进 System Prompt，避免环境变化导致整个静态 Prompt 不稳定。
 
-### ui.CmdUI
-这里就是我说的消费层
+每次请求的消息顺序为：
 
+```text
+1. role=user：环境 system-reminder
+2. ConversationManager 中的会话历史
+3. role=user：当前模式 system-reminder（非 NORMAL 模式）
+```
 
+提醒统一使用以下格式：
 
-## 实战
+```xml
+<system-reminder>
+动态上下文或运行时指令
+</system-reminder>
+```
 
-### 美化index.html
-仍旧使用deepseek-api,然后美化一下index.html
-检测一下是否形成闭环
+环境上下文目前包含：
 
-### 实现一个WebUI
-让AI实现一个WebUI,并使用WebUI.看看AI的能力
-我们仍旧把这里代码放在`day-3-test`
+- 工作目录
+- 操作系统
+- CPU 架构
+- Shell
+- 当前日期
 
+这些提醒只存在于本次 `PromptContent`，不会写入 `ConversationManager`。
 
-## 经验教训
+## Agent 模式
 
-对于OpenAI的gpt系列模型,`thinking`模式是自动关闭的
-但是对于Deepseek来说,`thingking`是默认打开的
+```java
+public enum AgentMode {
+    NORMAL,
+    PLAN,
+    EXECUTE_PLAN
+}
+```
 
-一定要注意这个,一定要关闭thinking模式,为什么这么说?
-因为自己手写框架的话,会遇到一些问题,比如如果用thinking模式,就需要额外拼接一个`reason_content`字段
+- `NORMAL`：正常分析和执行任务。
+- `PLAN`：要求 Agent 只分析并生成计划，不修改项目。
+- `EXECUTE_PLAN`：要求 Agent 按已确认的计划执行。
 
-这对我刚开始实现的时候非常逆天,经常遇到莫名其妙死机(也就是说对话中断了),原因就在于这个thinking模式的配置,ds会将原来的content内容放在reason_content,如果没有处理,那么就会直接结束对话.
-本来应该是一通分析和建议,结果直接莫名其妙的断了
+UI 可以通过以下接口切换模式：
 
-果然,自己写程序总有一堆坑
+```java
+agent.setMode(AgentMode.PLAN);
+AgentMode currentMode = agent.getMode();
+```
+
+在同一次 Agent Loop 中，第 1、6、11……轮注入完整模式提醒，其余轮次注入精简提醒。
+
+目前模式只通过 Prompt 约束行为，尚未通过权限系统限制工具调用。
+
+## UI 接口
+
+UI 层通过统一接口启动 Agent：
+
+```java
+public interface UI {
+    void run(Agent agent, ConversationManager conversationManager);
+}
+```
+
+当前实现为 `CmdUI`。后续增加图形界面时，不需要修改 Agent 的运行入口。
+
+提供给 UI 的状态接口：
+
+```java
+PromptContent prompt = agent.getCurrentPromptContent();
+String requestJson = agent.getLastRequestJson();
+AgentMode mode = agent.getMode();
+```
+
