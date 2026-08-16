@@ -6,11 +6,14 @@ import com.jcoder.config.ConfigManager;
 import com.jcoder.config.ProviderConfig;
 import com.jcoder.llm.LLMClient;
 import com.jcoder.message.ConversationManager;
+import com.jcoder.permission.PermissionChecker;
+import com.jcoder.permission.PermissionMode;
 import com.jcoder.tool.ToolRegister;
 import com.jcoder.ui.CmdUI;
 import com.jcoder.ui.UI;
 
 import java.net.http.HttpClient;
+import java.nio.file.Path;
 
 /**
  * 作者：亥子曜
@@ -37,6 +40,11 @@ public class Main {
                 providerConfig.contextWindow(),
                 providerConfig.maxOutputTokens()
         );
+
+        agent.setChecker(new PermissionChecker(
+                PermissionMode.DEFAULT,
+                Path.of("").toAbsolutePath()   // 项目根 = 当前工作目录
+        ));
 
         UI ui = new CmdUI();
         ui.run(agent, conversationManager);

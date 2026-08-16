@@ -13,6 +13,8 @@ MyCoder 是一个用于学习 AI Coding Agent 工作原理的 Java 项目。
 - 统一组装 `system / messages / tools` 三部分请求内容。
 - 将环境上下文和模式提醒作为 `user + <system-reminder>` 动态注入。
 - 支持 `NORMAL`、`PLAN`、`EXECUTE_PLAN` 三种 Agent 模式。
+- 内置权限系统：权限矩阵、危险命令拦截、路径沙箱、权限询问，模式可在运行中动态切换。
+- `DeepseekClient` 增加流结束兜底：流意外中断时也能正常结束本轮，避免 Agent 卡死。
 - UI 可以查看当前 Prompt 快照和最后一次请求 JSON。
 
 ## 运行环境
@@ -180,7 +182,74 @@ AgentMode currentMode = agent.getMode();
 
 在同一次 Agent Loop 中，第 1、6、11……轮注入完整模式提醒，其余轮次注入精简提醒。
 
-目前模式只通过 Prompt 约束行为，尚未通过权限系统限制工具调用。
+`AgentMode` 目前只通过 Prompt 约束行为；工具调用层面的拦截由下面独立的「权限系统」负责。
+
+## 权限系统
+
+权限系统位于 `com.jcoder.permission` 包，由三个类组成：
+
+| 类 | 职责 |
+|---|---|
+| `PermissionMode` | 权限模式 + 决策矩阵 `decide(ToolCategory)` |
+| `PermissionChecker` | 分层权限检查，返回 `CheckResult(decision, reason)` |
+| `PermissionResponse` | 用户对权限询问的回答：`ALLOW` / `ALLOW_ALWAYS` / `DENY` |
+
+### 权限矩阵
+
+`PermissionMode.decide(category)` 根据「模式 × 工具类别」给出 `ALLOW` / `ASK` / `DENY`：
+
+| 模式 | READ | WRITE | COMMAND |
+|---|---|---|---|
+| `DEFAULT` | ALLOW | ASK | ASK |
+| `ACCEPT_EDITS` | ALLOW | ALLOW | ASK |
+| `PLAN` | 按 `DEFAULT` | 按 `DEFAULT` | 按 `DEFAULT` |
+| `BYPASS` | ALLOW | ALLOW | ALLOW |
+
+### 检查分层
+
+`PermissionChecker.check(tool, args)` 命中即返回，顺序如下：
+
+1. 危险命令（`rm -rf /`、`mkfs.`、`curl | sh` 等）→ `DENY`
+2. 路径沙箱：文件类工具目标必须在项目根目录内，否则 → `ASK`（`BYPASS` 除外）
+3. 会话级「总是允许」规则 → `ALLOW`
+4. 模式矩阵兜底 → `ALLOW` / `ASK` / `DENY`
+
+检查时按工具名抽取对应参数字段：
+
+| 工具 | 检查字段 |
+|---|---|
+| `Bash` | `command` |
+| `ReadFile` / `WriteFile` / `EditFile` | `file_path` |
+| `Glob` / `Grep` | `pattern` |
+
+### 权限询问闭环
+
+当决策为 `ASK` 时，`Agent.executeWithPermission` 通过 `AgentEvent.PermissionRequest` 把请求发给 UI，阻塞等待用户回答：
+
+```text
+checker.check(...) → ASK
+   → PermissionRequest 事件 → CmdUI 打印询问
+   → 用户输入 y / a / n
+   → ALLOW / ALLOW_ALWAYS / DENY
+   → 放行执行 / 记住规则并执行 / 拒绝
+```
+
+`ALLOW_ALWAYS` 会把「工具名 + 内容」写入会话级 `allowAlwaysRules`，本次会话内再次命中直接放行。
+
+### 动态切换模式
+
+`PermissionChecker.mode` 是 `volatile` 字段，Agent 线程读、UI/外部线程写即可即时生效：
+
+```java
+agent.getChecker().setMode(PermissionMode.ACCEPT_EDITS);
+```
+
+命令行下输入 `/permission` 可以循环切换模式：
+
+```text
+/permission
+[权限] 当前模式 -> ACCEPT_EDITS
+```
 
 ## UI 接口
 

@@ -1,6 +1,9 @@
 package com.jcoder.agent;
 
+import com.jcoder.permission.PermissionResponse;
+
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 public sealed interface AgentEvent {
     record Text(String delta) implements AgentEvent {}
@@ -10,4 +13,6 @@ public sealed interface AgentEvent {
     record LoopComplete(int turns) implements AgentEvent {}
     record Error(String message) implements AgentEvent {}
     record Log(String message) implements AgentEvent {}
+    record PermissionRequest(String toolName, String description,
+                             CompletableFuture<PermissionResponse> future) implements AgentEvent {}
 }

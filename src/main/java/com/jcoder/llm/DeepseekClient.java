@@ -109,6 +109,7 @@ public class DeepseekClient implements LLMClient{
             Map<Integer, String> toolNames = new HashMap<>();
             Map<Integer, StringBuilder> toolArguments = new HashMap<>();
 
+            boolean done = false;
             while ((line = reader.readLine()) != null) {
                 if (!line.startsWith("data: ")) {
                     continue;
@@ -118,6 +119,7 @@ public class DeepseekClient implements LLMClient{
 
                 if ("[DONE]".equals(data)) {
                     queue.put(new StreamBlock.StreamEnd("DONE"));
+                    done = true;
                     break;
                 }
 
@@ -206,6 +208,9 @@ public class DeepseekClient implements LLMClient{
 //                    queue.put(new StreamBlock.StreamEnd(finishReason.asText()));
 //                    break;
 //                }
+            }
+            if (!done) {
+                queue.put(new StreamBlock.StreamError("stream ended without [DONE]"));
             }
         }
 

@@ -6,6 +6,8 @@ import com.jcoder.message.ConversationManager;
 import com.jcoder.message.Message;
 import com.jcoder.message.ToolCallBlock;
 import com.jcoder.message.ToolResult;
+import com.jcoder.permission.PermissionChecker;
+import com.jcoder.permission.PermissionResponse;
 import com.jcoder.prompt.AgentMode;
 import com.jcoder.prompt.EnvironmentContext;
 import com.jcoder.prompt.PromptBuilder;
@@ -17,7 +19,10 @@ import com.jcoder.tool.ToolRegister;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 作者：亥子曜
@@ -42,6 +47,7 @@ public class Agent {
     private int maxIterations;
 
     //TODO: 权限管理+Hook回调
+    private PermissionChecker checker;
 
 
     public Agent(LLMClient client, ToolRegister toolRegister,
@@ -53,8 +59,8 @@ public class Agent {
 
         // CONST: 默认兜底
         this.maxIterations = 100;
-    }
 
+    }
 
 
 
@@ -91,10 +97,7 @@ public class Agent {
             //自动上下文压缩
 
             //注入工具清单
-
-
             //plan model 注入
-
             //组装本轮完整 Prompt
             currentPromptContent = promptBuilder.build(
                     conversationManager,
@@ -138,7 +141,7 @@ public class Agent {
                 if (tool == null) {
                     executeResult = ToolExecuteResult.error("Unknown tool: " + call.toolName());
                 } else {
-                    executeResult = tool.execute(call.params());
+                    executeResult = executeWithPermission(tool, call.params(), queue);
                 }
 
                 queue.putSafe(new AgentEvent.Log("[tool] finished " + call.toolName() + " error="
@@ -213,8 +216,48 @@ public class Agent {
         }
 
     }
+    private ToolExecuteResult executeWithPermission(Tool tool, Map<String, Object> args,
+                                                    AgentEventQueue queue) {
+        if (checker == null) {                       // 没装配 checker 就直通（向后兼容）
+            return tool.execute(args);
+        }
+
+        var check = checker.check(tool, args);
+        switch (check.decision()) {
+            case DENY -> {
+                return ToolExecuteResult.error("Permission denied: " + check.reason());
+            }
+            case ALLOW -> {
+                return tool.execute(args);
+            }
+            case ASK -> {
+                // 发事件给 UI，并阻塞等用户回答（Agent 跑在虚拟线程，不卡 UI）
+                var future = new CompletableFuture<PermissionResponse>();
+                String desc = checker.describeToolAction(tool.name(), args);
+                queue.putSafe(new AgentEvent.PermissionRequest(tool.name(), desc, future));
+
+                PermissionResponse resp;
+                try {
+                    resp = future.get(5, TimeUnit.MINUTES);   // 超时默认拒绝
+                } catch (Exception e) {
+                    resp = PermissionResponse.DENY;
+                }
+
+                if (resp == PermissionResponse.DENY) {
+                    return ToolExecuteResult.error("User denied permission");
+                }
+                if (resp == PermissionResponse.ALLOW_ALWAYS) {
+                    checker.addAllowAlwaysRule(tool, args);
+                }
+                return tool.execute(args);
+            }
+        }
+        return tool.execute(args); // 编译器兜底，实际不会走到
+    }
 
 
+    public void setChecker(PermissionChecker checker) { this.checker = checker; }
+    public PermissionChecker getChecker() { return checker; }
 
     public String getWorkDir() {
         return workDir;

@@ -4,6 +4,9 @@ import com.jcoder.agent.Agent;
 import com.jcoder.agent.AgentEvent;
 import com.jcoder.agent.AgentEventQueue;
 import com.jcoder.message.ConversationManager;
+import com.jcoder.permission.PermissionChecker;
+import com.jcoder.permission.PermissionMode;
+import com.jcoder.permission.PermissionResponse;
 
 import java.util.Scanner;
 
@@ -20,6 +23,18 @@ public class CmdUI implements UI {
                 System.out.print("> ");
 
                 String prompt = scanner.nextLine();
+
+                // 权限模式查看/切换（拦截命令，不发给模型）
+                if ("/permission".equalsIgnoreCase(prompt)) {
+                    PermissionChecker checker = agent.getChecker();
+                    if (checker == null) {
+                        System.out.println("[权限] 未装配 checker");
+                    } else {
+                        PermissionMode now = checker.cycleMode();
+                        System.out.println("[权限] 当前模式 → " + now);
+                    }
+                    continue;
+                }
 
                 if ("exit".equalsIgnoreCase(prompt)) {
                     break;
@@ -86,6 +101,18 @@ public class CmdUI implements UI {
                             System.err.println(
                                     "\n[Agent Log] " +log.message()
                             );
+                        }
+
+                        case AgentEvent.PermissionRequest e -> {
+                            System.out.println("\n[权限询问] " + e.description());
+                            System.out.print("y=允许一次 / a=总是允许 / n=拒绝: ");
+                            String answer = scanner.nextLine().trim().toLowerCase();
+                            PermissionResponse resp = switch (answer) {
+                                case "a" -> PermissionResponse.ALLOW_ALWAYS;
+                                case "n" -> PermissionResponse.DENY;
+                                default  -> PermissionResponse.ALLOW;
+                            };
+                            e.future().complete(resp);
                         }
                     }
 
