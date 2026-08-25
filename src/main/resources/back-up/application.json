@@ -1,11 +1,10 @@
 {
   "providers": [
-    {
-      "name": "my-provider",
-      "protocol": "gpt",
-      "baseUrl": "http://127.0.0.1:54321/v1",
-      "apiKey": "agt_codex_gNQu7X2S0FVBmfWtHeFF3PJoBPoWyy37",
-      "model": "gpt-5.6-sol",
+    {      "name": "ds-provider",
+      "protocol": "deepseek",
+      "baseUrl": "https://api.deepseek.com",
+      "apiKey": " ",
+      "model": "deepseek-v4-flash",
       "thinking": false,
       "contextWindow": 128000,
       "maxOutputTokens": 8192

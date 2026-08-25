@@ -1,0 +1,532 @@
+- generic [active] [ref=e1]:
+  - region "Notifications (F8)":
+    - list
+  - complementary "Announcement" [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]: New
+      - link "AI Coding Crash Course is out now." [ref=e5] [cursor=pointer]:
+        - /url: /s/crash-course
+  - generic [ref=e10]:
+    - banner [ref=e11]:
+      - link "AI Hero home" [ref=e13] [cursor=pointer]:
+        - /url: /
+        - generic [ref=e14]: AIHero
+      - navigation "Primary navigation" [ref=e15]:
+        - list [ref=e16]:
+          - listitem [ref=e17]:
+            - link "Courses" [ref=e18] [cursor=pointer]:
+              - /url: /courses
+      - navigation "User navigation" [ref=e21]:
+        - list [ref=e22]:
+          - listitem [ref=e23]:
+            - button "Search" [ref=e24] [cursor=pointer]
+          - listitem [ref=e25]:
+            - link "Newsletter" [ref=e26] [cursor=pointer]:
+              - /url: /newsletter
+          - listitem [ref=e27]
+          - listitem [ref=e29]
+    - generic [ref=e31]:
+      - generic "Learning navigation" [ref=e32]:
+        - generic [ref=e33]:
+          - generic [ref=e34]: Explore
+          - list [ref=e36]:
+            - listitem [ref=e37]:
+              - link "Map" [ref=e38] [cursor=pointer]:
+                - /url: /learn
+            - listitem [ref=e42]:
+              - link "Skills" [expanded] [ref=e43] [cursor=pointer]:
+                - /url: /skills
+              - list [ref=e52]:
+                - listitem [ref=e53]:
+                  - link "Overview" [ref=e54] [cursor=pointer]:
+                    - /url: /skills
+                - listitem [ref=e56]:
+                  - button "Toggle Getting Started section" [ref=e58] [cursor=pointer]:
+                    - generic [ref=e59]: "1"
+                    - generic [ref=e60]: Getting Started
+                - listitem [ref=e63]:
+                  - button "Toggle The Main Flow section" [ref=e65] [cursor=pointer]:
+                    - generic [ref=e66]: "2"
+                    - generic [ref=e67]: The Main Flow
+                - listitem [ref=e70]:
+                  - button "Toggle Shaping section" [ref=e72] [cursor=pointer]:
+                    - generic [ref=e73]: "3"
+                    - generic [ref=e74]: Shaping
+                - listitem [ref=e77]:
+                  - button "Toggle Upkeep section" [ref=e79] [cursor=pointer]:
+                    - generic [ref=e80]: "4"
+                    - generic [ref=e81]: Upkeep
+                - listitem [ref=e84]:
+                  - generic [ref=e85]:
+                    - button "Toggle Productivity Skills section" [expanded] [ref=e86] [cursor=pointer]:
+                      - generic [ref=e87]: "5"
+                      - generic [ref=e88]: Productivity Skills
+                    - list [ref=e92]:
+                      - listitem [ref=e93]:
+                        - link "/grill-me" [ref=e94] [cursor=pointer]:
+                          - /url: /skills-grill-me
+                          - generic [ref=e95]: "5.1"
+                      - listitem [ref=e97]:
+                        - link "/handoff" [ref=e98] [cursor=pointer]:
+                          - /url: /skills-handoff
+                          - generic [ref=e99]: "5.2"
+                      - listitem [ref=e101]:
+                        - link "/to-questionnaire" [ref=e102] [cursor=pointer]:
+                          - /url: /skills-to-questionnaire
+                          - generic [ref=e103]: "5.3"
+                      - listitem [ref=e105]:
+                        - link "/teach" [ref=e106] [cursor=pointer]:
+                          - /url: /skills-teach
+                          - generic [ref=e107]: "5.4"
+                      - listitem [ref=e109]:
+                        - link "/wait-what" [ref=e110] [cursor=pointer]:
+                          - /url: /skills-wait-what
+                          - generic [ref=e111]: "5.5"
+                      - listitem [ref=e113]:
+                        - link "/writing-for-agents" [ref=e114] [cursor=pointer]:
+                          - /url: /skills-writing-for-agents
+                          - generic [ref=e115]: "5.6"
+                - listitem [ref=e117]:
+                  - button "Toggle Reference Skills section" [ref=e119] [cursor=pointer]:
+                    - generic [ref=e120]: "6"
+                    - generic [ref=e121]: Reference Skills
+            - listitem [ref=e124]:
+              - link "Open source" [ref=e125] [cursor=pointer]:
+                - /url: /open-source
+          - generic [ref=e132]: Guides
+          - list [ref=e134]:
+            - listitem [ref=e135]:
+              - link "LLM Fundamentals" [ref=e136] [cursor=pointer]:
+                - /url: /llm-fundamentals
+            - listitem [ref=e138]:
+              - link "AI Engineer Roadmap" [ref=e139] [cursor=pointer]:
+                - /url: /ai-engineer-roadmap
+            - listitem [ref=e141]:
+              - link "AI Coding Dictionary" [ref=e142] [cursor=pointer]:
+                - /url: /ai-coding-dictionary
+          - generic [ref=e144]: Topics
+          - button "Toggle Think Like an AI Engineer section" [ref=e147] [cursor=pointer]:
+            - generic [ref=e148]: Think Like an AI Engineer
+          - button "Toggle Learn How LLMs Think section" [ref=e153] [cursor=pointer]:
+            - generic [ref=e154]: Learn How LLMs Think
+          - button "Toggle Set Up Your Agent section" [ref=e159] [cursor=pointer]:
+            - generic [ref=e160]: Set Up Your Agent
+          - button "Toggle Score First Wins section" [ref=e165] [cursor=pointer]:
+            - generic [ref=e166]: Score First Wins
+          - button "Toggle Get Better Results section" [ref=e171] [cursor=pointer]:
+            - generic [ref=e172]: Get Better Results
+          - button "Toggle Build the Right Thing section" [ref=e177] [cursor=pointer]:
+            - generic [ref=e178]: Build the Right Thing
+          - button "Toggle Ship Solid Code section" [ref=e183] [cursor=pointer]:
+            - generic [ref=e184]: Ship Solid Code
+          - button "Toggle Build a Software Factory section" [ref=e189] [cursor=pointer]:
+            - generic [ref=e190]: Build a Software Factory
+          - button "Toggle Meta / Announcements section" [ref=e195] [cursor=pointer]:
+            - generic [ref=e196]: Meta / Announcements
+      - generic [ref=e199]:
+        - main [ref=e201]:
+          - article [ref=e204]:
+            - generic [ref=e206]:
+              - generic [ref=e207]:
+                - generic [ref=e208]:
+                  - generic [ref=e209]: 16 / 25
+                  - generic [ref=e210]: AI Skills for Real Engineers · 5 min read
+                - heading "The /grill-me Skill" [level=1] [ref=e211]
+                - paragraph [ref=e214]: Align on an idea before committing to it.
+                - generic [ref=e215]:
+                  - generic [ref=e216]:
+                    - generic [ref=e217]:
+                      - img "Matt Pocock" [ref=e218]
+                      - generic [ref=e219]: Matt Pocock
+                    - button "Subscribe" [ref=e221] [cursor=pointer]
+                  - generic [ref=e222]:
+                    - button "Copy page" [ref=e223] [cursor=pointer]
+                    - button "Share" [ref=e228] [cursor=pointer]
+                    - link "Next page" [ref=e229] [cursor=pointer]:
+                      - /url: /skills-handoff
+              - region "Install this skill" [ref=e230]:
+                - paragraph [ref=e231]: Install this skill
+                - generic [ref=e232]:
+                  - generic [ref=e233]: $
+                  - code [ref=e234]: npx skills@latest add mattpocock/skills --skill=grill-me
+                  - button "Copy install command for /grill-me" [ref=e235] [cursor=pointer]
+                - paragraph [ref=e243]:
+                  - text: Then type
+                  - code [ref=e244]: /grill-me
+                  - text: in your coding agent.
+                - generic [ref=e246]:
+                  - term [ref=e247]: Source
+                  - definition [ref=e248]:
+                    - link "mattpocock/skills" [ref=e249] [cursor=pointer]:
+                      - /url: https://github.com/mattpocock/skills
+            - generic [ref=e250]:
+              - article [ref=e252]:
+                - heading [level=2] [ref=e253]:
+                  - link "What it does" [ref=e254] [cursor=pointer]:
+                    - /url: "#what-it-does"
+                - paragraph [ref=e255]:
+                  - code [ref=e256]: grill-me
+                  - text: takes a
+                  - strong [ref=e257]: loose idea
+                  - text: "and interviews you until you can commit to it. You do not need a worked-out plan to start: producing one is what the"
+                  - link "session" [ref=e258] [cursor=pointer]:
+                    - /url: /ai-coding-dictionary/session
+                  - text: is for. It asks in
+                  - strong [ref=e259]: rounds
+                  - text: ": each round is the whole"
+                  - strong [ref=e260]: frontier
+                  - text: (every question whose prerequisites you have already settled), so you are never asked something that hinges on an answer it hasn't heard yet.
+                - paragraph [ref=e261]:
+                  - text: It is
+                  - strong [ref=e262]:
+                    - link "stateless" [ref=e263] [cursor=pointer]:
+                      - /url: /ai-coding-dictionary/stateless
+                  - text: . It writes no files and leaves no workspace behind. The only thing it leaves is a sharper version of the idea, in your own head.
+                - heading [level=2] [ref=e264]:
+                  - link "When to reach for it" [ref=e265] [cursor=pointer]:
+                    - /url: "#when-to-reach-for-it"
+                - paragraph [ref=e266]:
+                  - text: You invoke this by typing
+                  - code [ref=e267]: /grill-me
+                  - text: ; the
+                  - link "agent" [ref=e268] [cursor=pointer]:
+                    - /url: /ai-coding-dictionary/agent
+                  - text: won't reach for it on its own. Start it in a
+                  - strong [ref=e269]: fresh conversation
+                  - text: ", not on top of a plan you already had an agent write."
+                - paragraph [ref=e270]: Reach for it as soon as you have an idea worth taking seriously (a feature, a product direction, a business call, a piece of writing), and long before you have worked out what it involves. Vagueness is not a reason to wait; it is the thing the session eats. If you can already specify the thing precisely, you don't need to grill it.
+                - paragraph [ref=e271]:
+                  - text: Which of the three
+                  - link "grilling" [ref=e272] [cursor=pointer]:
+                    - /url: /ai-coding-dictionary/grilling
+                  - text: "skills you want depends on what is in front of you:"
+                - list [ref=e273]:
+                  - listitem [ref=e274]:
+                    - strong [ref=e275]: Anything, anywhere
+                    - text: ":"
+                    - code [ref=e276]: grill-me
+                    - text: . It needs no repo and writes no files, and the subject doesn't have to be code.
+                  - listitem [ref=e277]:
+                    - strong [ref=e278]: A codebase to align against
+                    - text: ":"
+                    - link "grill-with-docs" [ref=e279] [cursor=pointer]:
+                      - /url: /skills-grill-with-docs
+                    - text: . The same interview, but
+                    - link "stateful" [ref=e280] [cursor=pointer]:
+                      - /url: /ai-coding-dictionary/stateful
+                    - text: ": it reads your code and keeps what it learns in"
+                    - code [ref=e281]: CONTEXT.md
+                    - text: and ADRs.
+                  - listitem [ref=e282]:
+                    - strong [ref=e283]: Too big for one session
+                    - text: ":"
+                    - link "wayfinder" [ref=e284] [cursor=pointer]:
+                      - /url: /skills-wayfinder
+                    - text: . It charts the effort as a map and runs grilling sessions inside it.
+                - paragraph [ref=e285]:
+                  - text: Leave
+                  - link "plan mode" [ref=e286] [cursor=pointer]:
+                    - /url: /ai-coding-dictionary/agent-mode
+                  - text: off.
+                  - link "Plan mode" [ref=e287] [cursor=pointer]:
+                    - /url: /ai-coding-dictionary/agent-mode
+                  - text: primes the agent to rush toward producing a plan, which is the opposite of staying in inquiry.
+                - heading [level=2] [ref=e288]:
+                  - link "It's a conversation, not an interview" [ref=e289] [cursor=pointer]:
+                    - /url: "#its-a-conversation-not-an-interview"
+                - paragraph [ref=e290]:
+                  - text: The skill asks the questions, but
+                  - strong [ref=e291]: you
+                  - text: own the scope. That is the part people miss, and it separates a session that turns an idea into decisions from one that produces confident nonsense.
+                - paragraph [ref=e292]:
+                  - text: The failure mode is
+                  - strong [ref=e293]: passivity
+                  - text: ": answering \"agreed, agreed, agreed\" for forty questions and coming out with a plan the agent wrote and you nodded at. It feels productive because it was long. Nothing was actually decided, and the result carries a certainty it hasn't earned."
+                - paragraph [ref=e294]: "Being active means steering. Push back on a question pitched beneath the fidelity you need. Say when the scope is drifting. Answer \"I don't know\" and mean it. This skill is built to aid an engineer, not to replace one: what comes out tracks the quality of your answers, not the number of questions asked."
+                - paragraph [ref=e295]: "The opposite error is real but rarer: staying in the interview so long you never reach code."
+                - heading [level=2] [ref=e296]:
+                  - link "Grillable and ungrillable" [ref=e297] [cursor=pointer]:
+                    - /url: "#grillable-and-ungrillable"
+                - paragraph [ref=e298]: Some questions can be answered by talking. Others can't, and no amount of grilling will get you there.
+                - paragraph [ref=e299]:
+                  - text: "\"One long form or three pages?\" and \"how should this interaction feel?\" are"
+                  - strong [ref=e300]: ungrillable
+                  - text: ": they need something to react to. When you hit one, stop grilling. Build the throwaway version with"
+                  - link "prototype" [ref=e301] [cursor=pointer]:
+                    - /url: /skills-prototype
+                  - text: ", look at it, then come back and answer in one line."
+                - paragraph [ref=e302]: Talking your way through an ungrillable question is where sessions balloon. The agent keeps rephrasing, you keep guessing, and the scope grows to fill the uncertainty.
+                - heading [level=2] [ref=e303]:
+                  - link "It's working if" [ref=e304] [cursor=pointer]:
+                    - /url: "#its-working-if"
+                - list [ref=e305]:
+                  - listitem [ref=e306]: You disagree with something. A session with no pushback from you is a session you didn't need.
+                  - listitem [ref=e307]: Questions arrive in a few rounds rather than one long drip, and later rounds clearly build on what you said earlier.
+                  - listitem [ref=e308]: You end up somewhere you didn't expect, because a question surfaced a decision you had been making implicitly.
+                  - listitem [ref=e309]: At the end you could defend each choice to someone who wasn't there.
+                - heading [level=2] [ref=e310]:
+                  - link "Common questions" [ref=e311] [cursor=pointer]:
+                    - /url: "#common-questions"
+                - paragraph [ref=e312]:
+                  - strong [ref=e313]: How many questions should I expect, and how do I know when it ends?
+                  - text: "Count rounds, not questions. Forty-six questions across four rounds is an ordinary session. It ends when the frontier is empty: every branch visited, nothing left silently assumed."
+                - paragraph [ref=e314]:
+                  - strong [ref=e315]: It asked me two hundred questions. What went wrong?
+                  - text: Usually the scope was too large. Ask the agent to break the work into smaller pieces first, then grill each one. Very long sessions also drift into the
+                  - strong [ref=e316]:
+                    - link "dumb zone" [ref=e317] [cursor=pointer]:
+                      - /url: /ai-coding-dictionary/smart-zone
+                  - text: ", where the"
+                  - link "context window" [ref=e318] [cursor=pointer]:
+                    - /url: /ai-coding-dictionary/context-window
+                  - text: is full enough that the questions get worse.
+                - paragraph [ref=e319]:
+                  - strong [ref=e320]: Can I go back to one question at a time?
+                  - text: Yes. Add this to your global
+                  - code [ref=e321]: CLAUDE.md
+                  - text: ":"
+                - generic [ref=e322]:
+                  - button "Copy to clipboard" [ref=e323] [cursor=pointer]
+                  - generic [ref=e324]: When grilling, ask one question at a time.
+                - paragraph [ref=e328]:
+                  - strong [ref=e329]: What if I genuinely don't know the answer?
+                  - text: Say so. "I don't know" is a real answer, and a question you can't answer is usually a sign to prototype rather than to guess.
+                - paragraph [ref=e330]:
+                  - strong [ref=e331]: Do I start a fresh session before writing the spec?
+                  - text: No. The value of the session is the
+                  - link "context" [ref=e332] [cursor=pointer]:
+                    - /url: /ai-coding-dictionary/context
+                  - text: you just built. Hand the same conversation straight to
+                  - link "to-spec" [ref=e333] [cursor=pointer]:
+                    - /url: /skills-to-spec
+                  - text: .
+                - paragraph [ref=e334]:
+                  - strong [ref=e335]: Does the model matter?
+                  - text: More than for most skills. Grilling leans on the
+                  - link "model" [ref=e336] [cursor=pointer]:
+                    - /url: /ai-coding-dictionary/model
+                  - text: "'s own sense of how systems break, so give it your best one. Implementation mostly follows context and tolerates a cheaper model."
+                - heading [level=2] [ref=e337]:
+                  - link "Where it fits" [ref=e338] [cursor=pointer]:
+                    - /url: "#where-it-fits"
+                - paragraph [ref=e339]:
+                  - code [ref=e340]: grill-me
+                  - text: is a
+                  - strong [ref=e341]: standalone you can run anywhere, on anything
+                  - text: . Being
+                  - link "stateless" [ref=e342] [cursor=pointer]:
+                    - /url: /ai-coding-dictionary/stateless
+                  - text: "is what makes it portable: no repo, no workspace, no setup, and no assumption that the idea is even about software. People point it at business decisions, at writing, at what to do next: anything that won't sit still in their head."
+                - paragraph [ref=e343]:
+                  - text: That portability is the whole difference from
+                  - link "grill-with-docs" [ref=e344] [cursor=pointer]:
+                    - /url: /skills-grill-with-docs
+                  - text: ", which runs the same interview but reads a codebase to align against and records what it learns as"
+                  - code [ref=e345]: CONTEXT.md
+                  - text: and ADRs. Both sit on the
+                  - link "grilling" [ref=e346] [cursor=pointer]:
+                    - /url: /skills-grilling
+                  - text: primitive;
+                  - code [ref=e347]: grill-me
+                  - text: is the user-invoked front door that carries nothing with it.
+                - paragraph [ref=e348]:
+                  - text: If what you grilled does turn out to be software, you can hand the same conversation to
+                  - link "to-spec" [ref=e349] [cursor=pointer]:
+                    - /url: /skills-to-spec
+                  - text: and carry on into the build flow (an option, not the point of the skill). When you're unsure which flow fits,
+                  - link "ask-matt" [ref=e350] [cursor=pointer]:
+                    - /url: /skills-ask-matt
+                  - text: routes you.
+                - complementary "Start the free AI Skills course" [ref=e351]:
+                  - generic [ref=e352]:
+                    - generic [ref=e353]: AI Hero · Free email course
+                    - heading "Pressure-testing finds weak decisions. It does not ship the feature." [level=3] [ref=e354]
+                    - paragraph [ref=e355]: "One command installs all 22 skills. Seven free lessons pick up where pressure-testing stops: settle the work, slice it, run it, check the diff. Go at your pace."
+              - complementary [ref=e357]:
+                - generic [ref=e358]:
+                  - navigation "On this page" [ref=e359]:
+                    - paragraph [ref=e360]: On this page
+                    - list [ref=e361]:
+                      - listitem [ref=e362]:
+                        - link "What it does" [ref=e363] [cursor=pointer]:
+                          - /url: "#what-it-does"
+                      - listitem [ref=e365]:
+                        - link "When to reach for it" [ref=e366] [cursor=pointer]:
+                          - /url: "#when-to-reach-for-it"
+                      - listitem [ref=e368]:
+                        - link "It's a conversation, not an interview" [ref=e369] [cursor=pointer]:
+                          - /url: "#its-a-conversation-not-an-interview"
+                      - listitem [ref=e371]:
+                        - link "Grillable and ungrillable" [ref=e372] [cursor=pointer]:
+                          - /url: "#grillable-and-ungrillable"
+                      - listitem [ref=e374]:
+                        - link "It's working if" [ref=e375] [cursor=pointer]:
+                          - /url: "#its-working-if"
+                      - listitem [ref=e377]:
+                        - link "Common questions" [ref=e378] [cursor=pointer]:
+                          - /url: "#common-questions"
+                      - listitem [ref=e380]:
+                        - link "Where it fits" [ref=e381] [cursor=pointer]:
+                          - /url: "#where-it-fits"
+                      - listitem [ref=e383]:
+                        - link "Related reading" [ref=e384] [cursor=pointer]:
+                          - /url: "#related-reading"
+                  - region "Where this fits" [ref=e387]:
+                    - paragraph [ref=e388]: Where this fits
+                    - list [ref=e389]:
+                      - listitem [ref=e390]:
+                        - link "Getting Started" [ref=e391] [cursor=pointer]:
+                          - /url: /skills-setup-matt-pocock-skills
+                      - listitem [ref=e394]:
+                        - link "The Main Flow" [ref=e395] [cursor=pointer]:
+                          - /url: /skills-grill-with-docs
+                      - listitem [ref=e398]:
+                        - link "Shaping" [ref=e399] [cursor=pointer]:
+                          - /url: /skills-wayfinder
+                      - listitem [ref=e402]:
+                        - link "Upkeep" [ref=e403] [cursor=pointer]:
+                          - /url: /skills-improve-codebase-architecture
+                      - listitem [ref=e406]:
+                        - generic [ref=e407]: Productivity Skills
+                      - listitem [ref=e410]:
+                        - link "Reference Skills" [ref=e411] [cursor=pointer]:
+                          - /url: /skills-codebase-design
+                  - generic [ref=e414]:
+                    - paragraph [ref=e415]: Share
+                    - generic [ref=e416]:
+                      - link "Share on X" [ref=e417] [cursor=pointer]:
+                        - /url: https://x.com/intent/tweet?text=The%20%2Fgrill-me%20Skill%20by%20%40mattpocockuk%0A%0Ahttps%3A%2F%2Fwww.aihero.dev%2Fskills-grill-me
+                      - link "Share on Bluesky" [ref=e421] [cursor=pointer]:
+                        - /url: https://bsky.app/intent/compose?text=The%20%2Fgrill-me%20Skill%20by%20%40mattpocock.com%0A%0Ahttps%3A%2F%2Fwww.aihero.dev%2Fskills-grill-me
+                      - link "Share on LinkedIn" [ref=e425] [cursor=pointer]:
+                        - /url: https://linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fwww.aihero.dev%2Fskills-grill-me&title=The%20%2Fgrill-me%20Skill
+                      - button "Copy URL" [ref=e431] [cursor=pointer]
+            - region "Skill actions" [ref=e436]:
+              - generic [ref=e437]:
+                - paragraph [ref=e438]: Skill actions
+                - generic [ref=e440]:
+                  - generic [ref=e441]:
+                    - heading "Install the skills" [level=2] [ref=e442]
+                    - link [ref=e443] [cursor=pointer]:
+                      - /url: https://www.skills.sh/mattpocock/skills
+                      - img "Live Skills.sh install count" [ref=e444]
+                  - generic [ref=e445]:
+                    - tablist [ref=e446]:
+                      - tab "All agents" [selected] [ref=e447] [cursor=pointer]
+                      - tab "Claude Code" [ref=e448] [cursor=pointer]
+                    - tabpanel "All agents" [ref=e449]:
+                      - generic [ref=e450]:
+                        - generic [ref=e451]: $
+                        - code [ref=e452]: npx skills@latest add mattpocock/skills
+                        - button "Copy install the skills install command" [ref=e453] [cursor=pointer]
+                      - paragraph [ref=e461]:
+                        - text: Installs the whole set. Then type
+                        - code [ref=e462]: /grill-me
+                        - text: in your coding agent.
+                      - generic [ref=e463]:
+                        - generic [ref=e464]: Update with npx skills update
+                        - link "Skills.sh" [ref=e465] [cursor=pointer]:
+                          - /url: https://www.skills.sh/mattpocock/skills
+                - navigation "Skill cycle" [ref=e469]:
+                  - link "Previous skill The /wizard Skill" [ref=e470] [cursor=pointer]:
+                    - /url: /skills-wizard
+                    - paragraph [ref=e471]: Previous skill
+                    - paragraph [ref=e472]:
+                      - generic [ref=e473]: The /wizard Skill
+                  - generic [ref=e477]:
+                    - paragraph [ref=e478]: You are here
+                    - paragraph [ref=e479]:
+                      - generic [ref=e480]: The /grill-me Skill
+                  - link "Next skill The /handoff Skill" [ref=e482] [cursor=pointer]:
+                    - /url: /skills-handoff
+                    - paragraph [ref=e483]: Next skill
+                    - paragraph [ref=e484]:
+                      - generic [ref=e485]: The /handoff Skill
+            - region "Related reading" [ref=e489]:
+              - generic [ref=e490]:
+                - heading "Related reading" [level=2] [ref=e491]
+                - list [ref=e492]:
+                  - listitem [ref=e493]:
+                    - link "Video 9 Things People Get Wrong With /grill-me and /grill-with-docs" [ref=e494] [cursor=pointer]:
+                      - /url: /things-people-get-wrong-with-grill-me-and-grill-with-docs
+                      - generic [ref=e495]:
+                        - generic [ref=e496]: Video
+                        - generic [ref=e497]: 9 Things People Get Wrong With /grill-me and /grill-with-docs
+                  - listitem [ref=e500]:
+                    - link "Video The /handoff Skill" [ref=e501] [cursor=pointer]:
+                      - /url: /skills-handoff
+                      - generic [ref=e502]:
+                        - generic [ref=e503]: Video
+                        - generic [ref=e504]: The /handoff Skill
+        - contentinfo [ref=e507]:
+          - generic [ref=e508]:
+            - generic [ref=e509]:
+              - heading "Learn" [level=3] [ref=e510]
+              - list [ref=e511]:
+                - listitem [ref=e512]:
+                  - link "AI Coding Crash Course" [ref=e513] [cursor=pointer]:
+                    - /url: /workshops/ai-coding-crash-course
+                - listitem [ref=e514]:
+                  - link "AI SDK v6 Crash Course" [ref=e515] [cursor=pointer]:
+                    - /url: /workshops/ai-sdk-v6-crash-course
+                - listitem [ref=e516]:
+                  - link "LLM Fundamentals" [ref=e517] [cursor=pointer]:
+                    - /url: /llm-fundamentals
+                - listitem [ref=e518]:
+                  - link "AI Coding Dictionary" [ref=e519] [cursor=pointer]:
+                    - /url: /ai-coding-dictionary
+                - listitem [ref=e520]:
+                  - link "The AI Engineer Roadmap" [ref=e521] [cursor=pointer]:
+                    - /url: /ai-engineer-roadmap
+                - listitem [ref=e522]:
+                  - link "Vercel AI SDK Tutorial" [ref=e523] [cursor=pointer]:
+                    - /url: /vercel-ai-sdk-tutorial
+                - listitem [ref=e524]:
+                  - link "Model Context Protocol Tutorial" [ref=e525] [cursor=pointer]:
+                    - /url: /model-context-protocol-tutorial
+            - generic [ref=e526]:
+              - heading "Cohorts" [level=3] [ref=e527]
+              - list [ref=e528]:
+                - listitem [ref=e529]:
+                  - link "AI Coding for Real Engineers" [ref=e530] [cursor=pointer]:
+                    - /url: /cohorts/ai-coding-for-real-engineers-m0k0w
+                - listitem [ref=e531]:
+                  - link "Claude Code for Real Engineers" [ref=e532] [cursor=pointer]:
+                    - /url: /cohorts/claude-code-for-real-engineers-2026-04
+                - listitem [ref=e533]:
+                  - link "Build Your Own AI Personal Assistant in TypeScript" [ref=e534] [cursor=pointer]:
+                    - /url: /cohorts/build-your-own-ai-personal-assistant-in-typescript
+                - listitem [ref=e535]:
+                  - link "Build DeepSearch in TypeScript" [ref=e536] [cursor=pointer]:
+                    - /url: /cohorts/build-deepsearch-in-typescript
+            - heading "Account" [level=3] [ref=e538]
+            - generic [ref=e540]:
+              - heading "Agents" [level=3] [ref=e541]
+              - list [ref=e542]:
+                - listitem [ref=e543]:
+                  - link "sitemap.md" [ref=e544] [cursor=pointer]:
+                    - /url: /sitemap.md
+                - listitem [ref=e545]:
+                  - link "llms.txt" [ref=e546] [cursor=pointer]:
+                    - /url: /llms.txt
+                - listitem [ref=e547]:
+                  - link "skills.md" [ref=e548] [cursor=pointer]:
+                    - /url: /skills.md
+                - listitem [ref=e549]:
+                  - link "rss.xml" [ref=e550] [cursor=pointer]:
+                    - /url: /rss.xml
+          - generic [ref=e551]:
+            - navigation "Footer" [ref=e552]:
+              - link "Browse All" [ref=e553] [cursor=pointer]:
+                - /url: /posts
+              - link "Skills" [ref=e554] [cursor=pointer]:
+                - /url: /skills
+              - link "Free course" [ref=e555] [cursor=pointer]:
+                - /url: /skills/subscribe
+              - link "Dictionary" [ref=e556] [cursor=pointer]:
+                - /url: /ai-coding-dictionary
+              - link "FAQ" [ref=e557] [cursor=pointer]:
+                - /url: /faq
+              - link "Terms" [ref=e558] [cursor=pointer]:
+                - /url: /privacy
+            - button "Theme" [ref=e559] [cursor=pointer]

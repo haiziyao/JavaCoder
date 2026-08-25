@@ -3,5 +3,6 @@ package com.jcoder.config;
 import java.util.List;
 
 public record AppConfig(
-        List<ProviderConfig> providers
+        List<ProviderConfig> providers,
+        List<McpServerConfig> mcpServers
 ) {}

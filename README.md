@@ -1,75 +1,132 @@
-# 权限系统
+## Day-06: MCP
 
-本次更新为 MyCoder 增加了工具执行前的权限拦截，代码位于 `com.jcoder.permission` 包。
+说到mcp,那么大家肯定会很熟悉.
+那是当然,最火的一个协议指定
 
-## 三个类
-
-| 类 | 职责 |
-|---|---|
-| `PermissionMode` | 权限模式 + 决策矩阵 `decide(ToolCategory)` |
-| `PermissionChecker` | 分层权限检查，返回 `CheckResult(decision, reason)` |
-| `PermissionResponse` | 用户对权限询问的回答：`ALLOW` / `ALLOW_ALWAYS` / `DENY` |
-
-## 权限矩阵
-
-`PermissionMode.decide(category)` 根据「模式 × 工具类别」给出 `ALLOW` / `ASK` / `DENY`：
-
-| 模式 | READ | WRITE | COMMAND |
-|---|---|---|---|
-| `DEFAULT` | ALLOW | ASK | ASK |
-| `ACCEPT_EDITS` | ALLOW | ALLOW | ASK |
-| `PLAN` | 按 `DEFAULT` | 按 `DEFAULT` | 按 `DEFAULT` |
-| `BYPASS` | ALLOW | ALLOW | ALLOW |
-
-## 检查分层
-
-`PermissionChecker.check(tool, args)` 命中即返回：
-
-1. 危险命令（`rm -rf /`、`mkfs.`、`curl | sh` 等）→ `DENY`。
-2. 路径沙箱：文件类工具目标必须在项目根目录内，否则 `ASK`（`BYPASS` 除外）。
-3. 会话级「总是允许」规则 → `ALLOW`。
-4. 模式矩阵兜底 → `ALLOW` / `ASK` / `DENY`。
-
-按工具名抽取检查字段：
-
-| 工具 | 检查字段 |
-|---|---|
-| `Bash` | `command` |
-| `ReadFile` / `WriteFile` / `EditFile` | `file_path` |
-| `Glob` / `Grep` | `pattern` |
-
-## 权限询问闭环
-
-决策为 `ASK` 时，`Agent` 通过 `AgentEvent.PermissionRequest` 把请求发给 UI，阻塞等待用户回答：
-
-```text
-check(...) → ASK
-   → PermissionRequest 事件 → CmdUI 打印询问
-   → 用户输入 y / a / n
-   → ALLOW / ALLOW_ALWAYS / DENY
-   → 放行 / 记住规则并放行 / 拒绝
-```
-
-`ALLOW_ALWAYS` 会把「工具名 + 内容」写入会话级 `allowAlwaysRules`，本次会话内再次命中直接放行。
-
-## 动态切换模式
-
-`PermissionChecker.mode` 是 `volatile` 字段，Agent 线程读、UI/外部线程写即可即时生效：
-
+对于这一章,我们实现了哪些东西:
 ```java
-agent.getChecker().setMode(PermissionMode.ACCEPT_EDITS);
+class McpServerConfig{}; // 主要用来加载Mcp的配置
+class McpManager{};  // 这里是mcp注册的主要类,主要方法就是完成mcp的注册
+class McpToolWrapper{};  //这个类主要做把mcp的tool和工具tool对齐转换
 ```
 
-命令行下输入 `/permission` 循环切换：
+由于我们使用sdk,这里只需要封装sdk,所以比较简单
 
-```text
-> /permission
-[权限] 当前模式 -> ACCEPT_EDITS
+
+## 自行测试 json-rpc
+
+```cmd
+#!/usr/bin/env bash
+{
+  # 1) 握手
+  printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"cli-test","version":"0.0.1"}}}'
+  sleep 2
+  # 2) 通知握手完成
+  printf '%s\n' '{"jsonrpc":"2.0","method":"notifications/initialized","params":{}}'
+  sleep 1
+  # 3) 列出工具
+  printf '%s\n' '{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}'
+  sleep 2
+} | npx -y @modelcontextprotocol/server-everything 2>/dev/null
+
 ```
 
-## 接入点
 
-- `Agent.executeWithPermission(...)`：在 `tool.execute()` 之前调用 `checker.check()`。
-- `AgentEvent.PermissionRequest`：新增事件，携带 `CompletableFuture<PermissionResponse>` 给 UI 回填。
-- `CmdUI`：处理 `PermissionRequest` 弹窗，并支持 `/permission` 命令。
-- `Main`：装配 `new PermissionChecker(PermissionMode.DEFAULT, Path.of("").toAbsolutePath())`。
+```json
+{
+  "method": "notifications/tools/list_changed",
+  "jsonrpc": "2.0"
+}
+```
+```json
+{
+  "result": {
+    "protocolVersion": "2024-11-05",
+    "capabilities": {
+      "tools": { "listChanged": true },
+      "prompts": { "listChanged": true },
+      "resources": { "subscribe": true, "listChanged": true },
+      "logging": {},
+      "tasks": {
+        "list": {},
+        "cancel": {},
+        "requests": { "tools": { "call": {} } }
+      },
+      "completions": {}
+    },
+    "serverInfo": {
+      "name": "mcp-servers/everything",
+      "title": "Everything Reference Server",
+      "version": "2.0.0"
+    },
+    "instructions": "# Everything Server – Server Instructions\n\nAudience: These instructions are written for an LLM or autonomous agent integrating with the Everything MCP Server.\nFollow them to use, extend, and troubleshoot the server safely and effectively.\n\n## Cross-Feature Relationships\n\n- Use `get-roots-list` to see client workspace roots before file operations\n- `gzip-file-as-resource` creates session-scoped resources accessible only during the current session\n- Enable `toggle-simulated-logging` before debugging to see server log messages\n- Enable `toggle-subscriber-updates` to receive periodic resource update notifications\n\n## Constraints & Limitations\n\n- `gzip-file-as-resource`: Max fetch size controlled by `GZIP_MAX_FETCH_SIZE` (default 10MB), timeout by `GZIP_MAX_FETCH_TIME_MILLIS` (default 30s), allowed domains by `GZIP_ALLOWED_DOMAINS`\n- Session resources are ephemeral and lost when the session ends\n- Sampling requests (`trigger-sampling-request`) require client sampling capability\n- Elicitation requests (`trigger-elicitation-request`) require client elicitation capability\n\n## Operational Patterns\n\n- For long operations, use `trigger-long-running-operation` which sends progress notifications\n- Prefer reading resources before calling mutating tools\n- Check `get-roots-list` output to understand the client's workspace context\n\n## Easter Egg\n\nIf asked about server instructions, respond with \"🎉 Server instructions are working! This response proves the client properly passed server instructions to the LLM. This demonstrates MCP's instructions feature in action.\""
+  },
+  "jsonrpc": "2.0",
+  "id": 1
+}
+```
+```json
+{
+  "result": {
+    "tools": [
+      {
+        "name": "echo",
+        "title": "Echo Tool",
+        "description": "Echoes back the input string",
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": { "message": { "type": "string", "description": "Message to echo" } },
+          "required": ["message"]
+        },
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "execution": { "taskSupport": "forbidden" }
+      },
+      {
+        "name": "simulate-research-query",
+        "title": "Simulate Research Query",
+        "description": "Simulates a deep research operation that gathers, analyzes, and synthesizes information. Demonstrates MCP task-based operations with progress through multiple stages. If 'ambiguous' is true and client supports elicitation, sends an elicitation request for clarification.",
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "topic": {
+              "type": "string",
+              "description": "The research topic to investigate"
+            },
+            "ambiguous": {
+              "default": false,
+              "description": "Simulate an ambiguous query that requires clarification (triggers input_required status)",
+              "type": "boolean"
+            }
+          },
+          "required": ["topic"]
+        },
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": false
+        },
+        "execution": { "taskSupport": "required" }
+      }
+    ]
+  },
+  "jsonrpc": "2.0",
+  "id": 2
+}
+
+```
+
+```cmd
+printf '%s\n' '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"echo","arguments":{"message":"hello from terminal"}}}'
+```
+
+```json
+{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"echo","arguments":{"message":"hello from terminal"}}}
+```

@@ -1,0 +1,643 @@
+- generic [active] [ref=f1e1]:
+  - region "Notifications (F8)":
+    - list
+  - complementary "Announcement" [ref=f1e2]:
+    - generic [ref=f1e3]:
+      - generic [ref=f1e4]: New
+      - link "AI Coding Crash Course is out now." [ref=f1e5] [cursor=pointer]:
+        - /url: /s/crash-course
+  - generic [ref=f1e10]:
+    - banner [ref=f1e11]:
+      - link "AI Hero home" [ref=f1e13] [cursor=pointer]:
+        - /url: /
+        - generic [ref=f1e14]: AIHero
+      - navigation "Primary navigation" [ref=f1e15]:
+        - list [ref=f1e16]:
+          - listitem [ref=f1e17]:
+            - link "Courses" [ref=f1e18] [cursor=pointer]:
+              - /url: /courses
+      - navigation "User navigation" [ref=f1e21]:
+        - list [ref=f1e22]:
+          - listitem [ref=f1e23]:
+            - button "Search" [ref=f1e24] [cursor=pointer]
+          - listitem [ref=f1e25]:
+            - link "Newsletter" [ref=f1e26] [cursor=pointer]:
+              - /url: /newsletter
+          - listitem [ref=f1e27]:
+            - link "Log in" [ref=f1e28] [cursor=pointer]:
+              - /url: /login
+          - listitem [ref=f1e29]:
+            - link "Get the free course" [ref=f1e30] [cursor=pointer]:
+              - /url: /skills/subscribe
+    - generic [ref=f1e31]:
+      - generic "Learning navigation" [ref=f1e32]:
+        - generic [ref=f1e33]:
+          - generic [ref=f1e34]: Explore
+          - list [ref=f1e36]:
+            - listitem [ref=f1e37]:
+              - link "Map" [ref=f1e38] [cursor=pointer]:
+                - /url: /learn
+            - listitem [ref=f1e42]:
+              - link "Skills" [expanded] [ref=f1e43] [cursor=pointer]:
+                - /url: /skills
+              - list [ref=f1e52]:
+                - listitem [ref=f1e53]:
+                  - link "Overview" [ref=f1e54] [cursor=pointer]:
+                    - /url: /skills
+                - listitem [ref=f1e56]:
+                  - button "Toggle Getting Started section" [ref=f1e58] [cursor=pointer]:
+                    - generic [ref=f1e59]: "1"
+                    - generic [ref=f1e60]: Getting Started
+                - listitem [ref=f1e63]:
+                  - button "Toggle The Main Flow section" [ref=f1e65] [cursor=pointer]:
+                    - generic [ref=f1e66]: "2"
+                    - generic [ref=f1e67]: The Main Flow
+                - listitem [ref=f1e70]:
+                  - button "Toggle Shaping section" [ref=f1e72] [cursor=pointer]:
+                    - generic [ref=f1e73]: "3"
+                    - generic [ref=f1e74]: Shaping
+                - listitem [ref=f1e77]:
+                  - button "Toggle Upkeep section" [ref=f1e79] [cursor=pointer]:
+                    - generic [ref=f1e80]: "4"
+                    - generic [ref=f1e81]: Upkeep
+                - listitem [ref=f1e84]:
+                  - button "Toggle Productivity Skills section" [ref=f1e86] [cursor=pointer]:
+                    - generic [ref=f1e87]: "5"
+                    - generic [ref=f1e88]: Productivity Skills
+                - listitem [ref=f1e91]:
+                  - button "Toggle Reference Skills section" [ref=f1e93] [cursor=pointer]:
+                    - generic [ref=f1e94]: "6"
+                    - generic [ref=f1e95]: Reference Skills
+            - listitem [ref=f1e98]:
+              - link "Open source" [ref=f1e99] [cursor=pointer]:
+                - /url: /open-source
+          - generic [ref=f1e106]: Guides
+          - list [ref=f1e108]:
+            - listitem [ref=f1e109]:
+              - link "LLM Fundamentals" [ref=f1e110] [cursor=pointer]:
+                - /url: /llm-fundamentals
+            - listitem [ref=f1e112]:
+              - link "AI Engineer Roadmap" [ref=f1e113] [cursor=pointer]:
+                - /url: /ai-engineer-roadmap
+            - listitem [ref=f1e115]:
+              - link "AI Coding Dictionary" [ref=f1e116] [cursor=pointer]:
+                - /url: /ai-coding-dictionary
+          - generic [ref=f1e118]: What's New
+          - list [ref=f1e120]:
+            - listitem [ref=f1e121]:
+              - link "The /wizard Skill" [ref=f1e122] [cursor=pointer]:
+                - /url: /skills-wizard
+            - listitem [ref=f1e124]:
+              - link "The /to-questionnaire Skill" [ref=f1e125] [cursor=pointer]:
+                - /url: /skills-to-questionnaire
+            - listitem [ref=f1e127]:
+              - link "The /wait-what Skill" [ref=f1e128] [cursor=pointer]:
+                - /url: /skills-wait-what
+            - listitem [ref=f1e130]:
+              - link "See all posts" [ref=f1e131] [cursor=pointer]:
+                - /url: /posts
+                - generic [ref=f1e132]: All
+          - generic [ref=f1e135]: Topics
+          - button "Toggle Think Like an AI Engineer section" [ref=f1e138] [cursor=pointer]:
+            - generic [ref=f1e139]: Think Like an AI Engineer
+          - button "Toggle Learn How LLMs Think section" [ref=f1e144] [cursor=pointer]:
+            - generic [ref=f1e145]: Learn How LLMs Think
+          - button "Toggle Set Up Your Agent section" [ref=f1e150] [cursor=pointer]:
+            - generic [ref=f1e151]: Set Up Your Agent
+          - button "Toggle Score First Wins section" [ref=f1e156] [cursor=pointer]:
+            - generic [ref=f1e157]: Score First Wins
+          - button "Toggle Get Better Results section" [ref=f1e162] [cursor=pointer]:
+            - generic [ref=f1e163]: Get Better Results
+          - button "Toggle Build the Right Thing section" [ref=f1e168] [cursor=pointer]:
+            - generic [ref=f1e169]: Build the Right Thing
+          - button "Toggle Ship Solid Code section" [ref=f1e174] [cursor=pointer]:
+            - generic [ref=f1e175]: Ship Solid Code
+          - button "Toggle Build a Software Factory section" [ref=f1e180] [cursor=pointer]:
+            - generic [ref=f1e181]: Build a Software Factory
+          - button "Toggle Meta / Announcements section" [ref=f1e186] [cursor=pointer]:
+            - generic [ref=f1e187]: Meta / Announcements
+      - generic [ref=f1e190]:
+        - main [ref=f1e192]:
+          - generic [ref=f1e194]:
+            - generic [ref=f1e195]:
+              - heading "AI Skills for Real Engineers" [level=1] [ref=f1e196]
+              - paragraph [ref=f1e197]: A practical skill system for engineers who want to use AI without giving up their standards. Install the ones you want, then type a slash command.
+              - generic [ref=f1e198]:
+                - generic [ref=f1e202]:
+                  - term [ref=f1e203]: GitHub stars
+                  - definition [ref=f1e204]: 236,002
+                - generic [ref=f1e205]:
+                  - term [ref=f1e206]: Total skill installs
+                  - definition [ref=f1e207]:
+                    - link [ref=f1e208] [cursor=pointer]:
+                      - /url: https://www.skills.sh/mattpocock/skills
+                      - img "Live Skills.sh install count" [ref=f1e209]
+                    - link "GitHub" [ref=f1e210] [cursor=pointer]:
+                      - /url: https://github.com/mattpocock/skills
+              - generic [ref=f1e213]:
+                - generic [ref=f1e221]:
+                  - heading "Learn how I actually engineer with these" [level=2] [ref=f1e222]
+                  - paragraph [ref=f1e223]: "A free email course on the practices these skills came out of: the judgement calls, not just the commands."
+                - generic [ref=f1e224]:
+                  - generic [ref=f1e225]:
+                    - generic [ref=f1e226]:
+                      - generic [ref=f1e227]: First Name
+                      - textbox "First Name" [ref=f1e228]:
+                        - /placeholder: Name
+                    - generic [ref=f1e229]:
+                      - generic [ref=f1e230]: Email*
+                      - textbox "Email*" [ref=f1e231]:
+                        - /placeholder: you@example.com
+                    - button "Start the email course" [ref=f1e232] [cursor=pointer]
+                  - paragraph [ref=f1e234]: No spam. Unsubscribe any time.
+            - region "Skill installation options" [ref=f1e235]:
+              - generic [ref=f1e236]:
+                - paragraph [ref=f1e248]: Install the skills
+                - paragraph [ref=f1e249]: Pick the skills and agents you use. The installer writes editable files into your project.
+                - generic [ref=f1e250]:
+                  - generic [ref=f1e251]: $
+                  - code [ref=f1e252]: npx skills@latest add mattpocock/skills
+                  - button "Copy install the skills install command" [ref=f1e253] [cursor=pointer]
+                - generic [ref=f1e261]:
+                  - generic [ref=f1e262]: Update with npx skills update
+                  - link "Skills.sh" [ref=f1e263] [cursor=pointer]:
+                    - /url: https://www.skills.sh/mattpocock/skills
+              - generic [ref=f1e269]:
+                - paragraph [ref=f1e274]: Claude Code
+                - paragraph [ref=f1e275]: Install the complete set as a managed, read-only plugin from the official marketplace.
+                - generic [ref=f1e276]:
+                  - generic [ref=f1e277]: $
+                  - code [ref=f1e278]: claude plugins install mattpocock-skills
+                  - button "Copy claude code install command" [ref=f1e279] [cursor=pointer]
+                - generic [ref=f1e287]:
+                  - generic [ref=f1e288]: Updates automatically
+                  - link "Plugin docs" [ref=f1e289] [cursor=pointer]:
+                    - /url: https://code.claude.com/docs/en/plugins
+              - generic [ref=f1e293]:
+                - paragraph [ref=f1e294]: Works with any agent
+                - paragraph [ref=f1e295]: Claude Code · Cursor · Codex · Copilot · 25 skills · MIT
+          - region [ref=f1e296]:
+            - generic [ref=f1e297]:
+              - generic [ref=f1e298]:
+                - heading "Skills" [level=2] [ref=f1e299]
+                - paragraph [ref=f1e300]: Grouped by when you reach for them. Most people start with the main flow.
+              - list [ref=f1e301]:
+                - listitem [ref=f1e302]:
+                  - generic [ref=f1e303]:
+                    - heading "Getting Started" [level=3] [ref=f1e304]:
+                      - generic [ref=f1e305]: "01"
+                      - text: Getting Started
+                    - paragraph [ref=f1e306]: Set up once, then find your way around.
+                    - paragraph [ref=f1e307]:
+                      - text: Start with
+                      - link "/setup-matt-pocock-skills" [ref=f1e308] [cursor=pointer]:
+                        - /url: /skills-setup-matt-pocock-skills
+                  - list [ref=f1e309]:
+                    - listitem [ref=f1e310]:
+                      - link "/setup-matt-pocock-skills The /setup-matt-pocock-skills Skill Set up one repo so the other skills know how it works." [ref=f1e311] [cursor=pointer]:
+                        - /url: /skills-setup-matt-pocock-skills
+                        - generic [ref=f1e312]:
+                          - generic [ref=f1e313]: /setup-matt-pocock-skills
+                          - generic [ref=f1e314]: The /setup-matt-pocock-skills Skill
+                          - generic [ref=f1e315]: Set up one repo so the other skills know how it works.
+                    - listitem [ref=f1e318]:
+                      - link "/ask-matt The /ask-matt Skill Find out which skill to use for the situation you are in." [ref=f1e319] [cursor=pointer]:
+                        - /url: /skills-ask-matt
+                        - generic [ref=f1e320]:
+                          - generic [ref=f1e321]: /ask-matt
+                          - generic [ref=f1e322]: The /ask-matt Skill
+                          - generic [ref=f1e323]: Find out which skill to use for the situation you are in.
+                - listitem [ref=f1e326]:
+                  - generic [ref=f1e327]:
+                    - heading "The Main Flow" [level=3] [ref=f1e328]:
+                      - generic [ref=f1e329]: "02"
+                      - text: The Main Flow
+                    - paragraph [ref=f1e330]: The idea→ship spine, in order.
+                    - paragraph [ref=f1e331]:
+                      - text: Start with
+                      - link "/grill-with-docs" [ref=f1e332] [cursor=pointer]:
+                        - /url: /skills-grill-with-docs
+                  - list [ref=f1e333]:
+                    - listitem [ref=f1e334]:
+                      - link "/grill-with-docs The /grill-with-docs Skill Get interviewed about a plan, and record the decisions." [ref=f1e335] [cursor=pointer]:
+                        - /url: /skills-grill-with-docs
+                        - generic [ref=f1e336]:
+                          - generic [ref=f1e337]: /grill-with-docs
+                          - generic [ref=f1e338]: The /grill-with-docs Skill
+                          - generic [ref=f1e339]: Get interviewed about a plan, and record the decisions.
+                    - listitem [ref=f1e342]:
+                      - link "/to-spec The /to-spec Skill Turn an agreed conversation into a written spec." [ref=f1e343] [cursor=pointer]:
+                        - /url: /skills-to-spec
+                        - generic [ref=f1e344]:
+                          - generic [ref=f1e345]: /to-spec
+                          - generic [ref=f1e346]: The /to-spec Skill
+                          - generic [ref=f1e347]: Turn an agreed conversation into a written spec.
+                    - listitem [ref=f1e350]:
+                      - link "/to-tickets The /to-tickets Skill Split a spec into small tickets an agent can build." [ref=f1e351] [cursor=pointer]:
+                        - /url: /skills-to-tickets
+                        - generic [ref=f1e352]:
+                          - generic [ref=f1e353]: /to-tickets
+                          - generic [ref=f1e354]: The /to-tickets Skill
+                          - generic [ref=f1e355]: Split a spec into small tickets an agent can build.
+                    - listitem [ref=f1e358]:
+                      - link "/implement The /implement Skill Build a finished spec into code, test-first." [ref=f1e359] [cursor=pointer]:
+                        - /url: /skills-implement
+                        - generic [ref=f1e360]:
+                          - generic [ref=f1e361]: /implement
+                          - generic [ref=f1e362]: The /implement Skill
+                          - generic [ref=f1e363]: Build a finished spec into code, test-first.
+                    - listitem [ref=f1e366]:
+                      - link "/code-review The /code-review Skill Review a diff against your standards and against the spec." [ref=f1e367] [cursor=pointer]:
+                        - /url: /skills-code-review
+                        - generic [ref=f1e368]:
+                          - generic [ref=f1e369]: /code-review
+                          - generic [ref=f1e370]: The /code-review Skill
+                          - generic [ref=f1e371]: Review a diff against your standards and against the spec.
+                - listitem [ref=f1e374]:
+                  - generic [ref=f1e375]:
+                    - heading "Shaping" [level=3] [ref=f1e376]:
+                      - generic [ref=f1e377]: "03"
+                      - text: Shaping
+                    - paragraph [ref=f1e378]: Explore an open question and produce a decision/answer that feeds the flow.
+                    - paragraph [ref=f1e379]:
+                      - text: Start with
+                      - link "/wayfinder" [ref=f1e380] [cursor=pointer]:
+                        - /url: /skills-wayfinder
+                  - list [ref=f1e381]:
+                    - listitem [ref=f1e382]:
+                      - link "/wayfinder The /wayfinder Skill Chart a large effort as a map of decisions, and settle them." [ref=f1e383] [cursor=pointer]:
+                        - /url: /skills-wayfinder
+                        - generic [ref=f1e384]:
+                          - generic [ref=f1e385]: /wayfinder
+                          - generic [ref=f1e386]: The /wayfinder Skill
+                          - generic [ref=f1e387]: Chart a large effort as a map of decisions, and settle them.
+                    - listitem [ref=f1e390]:
+                      - link "/prototype The /prototype Skill Answer a design question with code you then delete." [ref=f1e391] [cursor=pointer]:
+                        - /url: /skills-prototype
+                        - generic [ref=f1e392]:
+                          - generic [ref=f1e393]: /prototype
+                          - generic [ref=f1e394]: The /prototype Skill
+                          - generic [ref=f1e395]: Answer a design question with code you then delete.
+                    - listitem [ref=f1e398]:
+                      - link "/research The /research Skill Get a cited answer, read from primary sources." [ref=f1e399] [cursor=pointer]:
+                        - /url: /skills-research
+                        - generic [ref=f1e400]:
+                          - generic [ref=f1e401]: /research
+                          - generic [ref=f1e402]: The /research Skill
+                          - generic [ref=f1e403]: Get a cited answer, read from primary sources.
+                - listitem [ref=f1e406]:
+                  - generic [ref=f1e407]:
+                    - heading "Upkeep" [level=3] [ref=f1e408]:
+                      - generic [ref=f1e409]: "04"
+                      - text: Upkeep
+                    - paragraph [ref=f1e410]: Keep the codebase and issue list healthy; generates work for the flow.
+                    - paragraph [ref=f1e411]:
+                      - text: Start with
+                      - link "/improve-codebase-architecture" [ref=f1e412] [cursor=pointer]:
+                        - /url: /skills-improve-codebase-architecture
+                  - list [ref=f1e413]:
+                    - listitem [ref=f1e414]:
+                      - link "/improve-codebase-architecture The /improve-codebase-architecture Skill Find the modules worth refactoring, as a visual report." [ref=f1e415] [cursor=pointer]:
+                        - /url: /skills-improve-codebase-architecture
+                        - generic [ref=f1e416]:
+                          - generic [ref=f1e417]: /improve-codebase-architecture
+                          - generic [ref=f1e418]: The /improve-codebase-architecture Skill
+                          - generic [ref=f1e419]: Find the modules worth refactoring, as a visual report.
+                    - listitem [ref=f1e422]:
+                      - link "/diagnosing-bugs The /diagnosing-bugs Skill Diagnose a hard bug, starting from a repro that fails." [ref=f1e423] [cursor=pointer]:
+                        - /url: /skills-diagnosing-bugs
+                        - generic [ref=f1e424]:
+                          - generic [ref=f1e425]: /diagnosing-bugs
+                          - generic [ref=f1e426]: The /diagnosing-bugs Skill
+                          - generic [ref=f1e427]: Diagnose a hard bug, starting from a repro that fails.
+                    - listitem [ref=f1e430]:
+                      - link "/resolving-merge-conflicts The /resolving-merge-conflicts Skill Finish a merge or rebase conflict, hunk by hunk." [ref=f1e431] [cursor=pointer]:
+                        - /url: /skills-resolving-merge-conflicts
+                        - generic [ref=f1e432]:
+                          - generic [ref=f1e433]: /resolving-merge-conflicts
+                          - generic [ref=f1e434]: The /resolving-merge-conflicts Skill
+                          - generic [ref=f1e435]: Finish a merge or rebase conflict, hunk by hunk.
+                    - listitem [ref=f1e438]:
+                      - link "/triage The /triage Skill Sort raw issues into work someone can pick up." [ref=f1e439] [cursor=pointer]:
+                        - /url: /skills-triage
+                        - generic [ref=f1e440]:
+                          - generic [ref=f1e441]: /triage
+                          - generic [ref=f1e442]: The /triage Skill
+                          - generic [ref=f1e443]: Sort raw issues into work someone can pick up.
+                    - listitem [ref=f1e446]:
+                      - link "/wizard The /wizard Skill Generate a script that walks a human through setup." [ref=f1e447] [cursor=pointer]:
+                        - /url: /skills-wizard
+                        - generic [ref=f1e448]:
+                          - generic [ref=f1e449]: /wizard
+                          - generic [ref=f1e450]: The /wizard Skill
+                          - generic [ref=f1e451]: Generate a script that walks a human through setup.
+                - listitem [ref=f1e454]:
+                  - generic [ref=f1e455]:
+                    - heading "Productivity Skills" [level=3] [ref=f1e456]:
+                      - generic [ref=f1e457]: "05"
+                      - text: Productivity Skills
+                    - paragraph [ref=f1e458]: Human-facing workflows you run, not about code.
+                    - paragraph [ref=f1e459]:
+                      - text: Start with
+                      - link "/grill-me" [ref=f1e460] [cursor=pointer]:
+                        - /url: /skills-grill-me
+                  - list [ref=f1e461]:
+                    - listitem [ref=f1e462]:
+                      - link "/grill-me The /grill-me Skill Align on an idea before committing to it." [ref=f1e463] [cursor=pointer]:
+                        - /url: /skills-grill-me
+                        - generic [ref=f1e464]:
+                          - generic [ref=f1e465]: /grill-me
+                          - generic [ref=f1e466]: The /grill-me Skill
+                          - generic [ref=f1e467]: Align on an idea before committing to it.
+                    - listitem [ref=f1e470]:
+                      - link "/handoff The /handoff Skill Write up a long session so another agent can continue it." [ref=f1e471] [cursor=pointer]:
+                        - /url: /skills-handoff
+                        - generic [ref=f1e472]:
+                          - generic [ref=f1e473]: /handoff
+                          - generic [ref=f1e474]: The /handoff Skill
+                          - generic [ref=f1e475]: Write up a long session so another agent can continue it.
+                    - listitem [ref=f1e478]:
+                      - link "/to-questionnaire The /to-questionnaire Skill Turn open questions into a doc someone else fills in." [ref=f1e479] [cursor=pointer]:
+                        - /url: /skills-to-questionnaire
+                        - generic [ref=f1e480]:
+                          - generic [ref=f1e481]: /to-questionnaire
+                          - generic [ref=f1e482]: The /to-questionnaire Skill
+                          - generic [ref=f1e483]: Turn open questions into a doc someone else fills in.
+                    - listitem [ref=f1e486]:
+                      - link "/teach The /teach Skill Learn a topic across many sessions that build on each other." [ref=f1e487] [cursor=pointer]:
+                        - /url: /skills-teach
+                        - generic [ref=f1e488]:
+                          - generic [ref=f1e489]: /teach
+                          - generic [ref=f1e490]: The /teach Skill
+                          - generic [ref=f1e491]: Learn a topic across many sessions that build on each other.
+                    - listitem [ref=f1e494]:
+                      - link "/wait-what The /wait-what Skill Ask the agent to say that again, in plain English." [ref=f1e495] [cursor=pointer]:
+                        - /url: /skills-wait-what
+                        - generic [ref=f1e496]:
+                          - generic [ref=f1e497]: /wait-what
+                          - generic [ref=f1e498]: The /wait-what Skill
+                          - generic [ref=f1e499]: Ask the agent to say that again, in plain English.
+                    - listitem [ref=f1e502]:
+                      - link "/writing-for-agents The /writing-for-agents Skill How to write skills and other documents agents read." [ref=f1e503] [cursor=pointer]:
+                        - /url: /skills-writing-for-agents
+                        - generic [ref=f1e504]:
+                          - generic [ref=f1e505]: /writing-for-agents
+                          - generic [ref=f1e506]: The /writing-for-agents Skill
+                          - generic [ref=f1e507]: How to write skills and other documents agents read.
+                - listitem [ref=f1e510]:
+                  - generic [ref=f1e511]:
+                    - heading "Reference Skills" [level=3] [ref=f1e512]:
+                      - generic [ref=f1e513]: "06"
+                      - text: Reference Skills
+                    - paragraph [ref=f1e514]: The reusable layer other skills invoke or cite.
+                    - paragraph [ref=f1e515]:
+                      - text: Start with
+                      - link "/codebase-design" [ref=f1e516] [cursor=pointer]:
+                        - /url: /skills-codebase-design
+                  - list [ref=f1e517]:
+                    - listitem [ref=f1e518]:
+                      - link "/codebase-design The /codebase-design Skill The vocabulary for designing deep modules." [ref=f1e519] [cursor=pointer]:
+                        - /url: /skills-codebase-design
+                        - generic [ref=f1e520]:
+                          - generic [ref=f1e521]: /codebase-design
+                          - generic [ref=f1e522]: The /codebase-design Skill
+                          - generic [ref=f1e523]: The vocabulary for designing deep modules.
+                    - listitem [ref=f1e526]:
+                      - link "/domain-modeling The /domain-modeling Skill Sharpen the words a project uses, and write them down." [ref=f1e527] [cursor=pointer]:
+                        - /url: /skills-domain-modeling
+                        - generic [ref=f1e528]:
+                          - generic [ref=f1e529]: /domain-modeling
+                          - generic [ref=f1e530]: The /domain-modeling Skill
+                          - generic [ref=f1e531]: Sharpen the words a project uses, and write them down.
+                    - listitem [ref=f1e534]:
+                      - link "/grilling The /grilling Skill The interview other skills run to stress-test a plan." [ref=f1e535] [cursor=pointer]:
+                        - /url: /skills-grilling
+                        - generic [ref=f1e536]:
+                          - generic [ref=f1e537]: /grilling
+                          - generic [ref=f1e538]: The /grilling Skill
+                          - generic [ref=f1e539]: The interview other skills run to stress-test a plan.
+                    - listitem [ref=f1e542]:
+                      - link "/tdd The /tdd Skill The rules of the red-green-refactor loop." [ref=f1e543] [cursor=pointer]:
+                        - /url: /skills-tdd
+                        - generic [ref=f1e544]:
+                          - generic [ref=f1e545]: /tdd
+                          - generic [ref=f1e546]: The /tdd Skill
+                          - generic [ref=f1e547]: The rules of the red-green-refactor loop.
+          - region [ref=f1e550]:
+            - generic [ref=f1e551]:
+              - paragraph [ref=f1e552]: What is a skill?
+              - paragraph [ref=f1e553]: Skills are small, sharp instructions you hand your coding agent so it works the way a senior engineer would. Install the ones you want, type a slash command, and the agent follows a process you actually trust.
+              - generic [ref=f1e554]:
+                - generic [ref=f1e555]:
+                  - heading "The problem" [level=3] [ref=f1e556]
+                  - paragraph [ref=f1e557]: An agent is only as good as the process you give it. Left to guess, it writes plausible code that quietly rots the codebase.
+                - generic [ref=f1e558]:
+                  - heading "The fix" [level=3] [ref=f1e559]
+                  - paragraph [ref=f1e560]: A skill encodes one good habit (grilling a plan, writing a spec, reviewing a diff), so the agent runs it the same way every time.
+                - generic [ref=f1e561]:
+                  - heading "Why it compounds" [level=3] [ref=f1e562]
+                  - paragraph [ref=f1e563]: Skills form a chain. Each one's output is the next one's input, so the whole workflow gets better as you tune single steps.
+              - generic [ref=f1e564]:
+                - generic [ref=f1e565]:
+                  - heading "Works in whatever agent you already use" [level=3] [ref=f1e566]
+                  - paragraph [ref=f1e567]: Skills are plain files, not a lock-in platform.
+                - list [ref=f1e568]:
+                  - listitem [ref=f1e569]: Claude Code
+                  - listitem [ref=f1e570]: Cursor
+                  - listitem [ref=f1e571]: Codex
+                  - listitem [ref=f1e572]: Amp
+                  - listitem [ref=f1e573]: Copilot
+                - link "Install" [ref=f1e574] [cursor=pointer]:
+                  - /url: "#install"
+          - region [ref=f1e577]:
+            - generic [ref=f1e578]:
+              - generic [ref=f1e579]:
+                - generic [ref=f1e580]:
+                  - paragraph [ref=f1e581]: Changelog
+                  - heading "What changed recently" [level=2] [ref=f1e582]
+                - generic [ref=f1e583]:
+                  - link "RSS" [ref=f1e584] [cursor=pointer]:
+                    - /url: /skills/rss.xml
+                  - link "Full history on GitHub →" [ref=f1e589] [cursor=pointer]:
+                    - /url: https://github.com/mattpocock/skills/releases
+              - list [ref=f1e590]:
+                - listitem [ref=f1e591]:
+                  - 'link "v1.2 Aug 5, 2026 /wait-what, /writing-for-agents, Claude Code Plugin, and more Explore Matt Pocock''s Skills v1.2.0: new documentation, Claude Code integration, the Wait What skill for Opus verbosity, and more." [ref=f1e592] [cursor=pointer]':
+                    - /url: /skills/skills-changelog-v12-wait-what-writing-for-agents-claude-code-plugin-and-more
+                    - generic [ref=f1e593]:
+                      - generic [ref=f1e594]: v1.2
+                      - generic [ref=f1e595]: Aug 5, 2026
+                    - generic [ref=f1e596]:
+                      - heading "/wait-what, /writing-for-agents, Claude Code Plugin, and more" [level=3] [ref=f1e597]
+                      - paragraph [ref=f1e598]: "Explore Matt Pocock's Skills v1.2.0: new documentation, Claude Code integration, the Wait What skill for Opus verbosity, and more."
+                - listitem [ref=f1e599]:
+                  - 'link "v1.1 Jul 8, 2026 /wayfinder, /to-spec, /to-tickets, /grilling improvements, and much more Skills v1.1 released: Learn new agent skills for AI coding including Wayfinder for planning, spec improvements, and TDD refactoring." [ref=f1e600] [cursor=pointer]':
+                    - /url: /skills/skills-changelog-v1-1-wayfinder-to-spec-to-tickets-grilling-improvements
+                    - generic [ref=f1e601]:
+                      - generic [ref=f1e602]: v1.1
+                      - generic [ref=f1e603]: Jul 8, 2026
+                    - generic [ref=f1e604]:
+                      - heading "/wayfinder, /to-spec, /to-tickets, /grilling improvements, and much more" [level=3] [ref=f1e605]
+                      - paragraph [ref=f1e606]: "Skills v1.1 released: Learn new agent skills for AI coding including Wayfinder for planning, spec improvements, and TDD refactoring."
+                - listitem [ref=f1e607]:
+                  - 'link "v1 Jun 18, 2026 63% Token Reduction, /ask-matt, /writing-great-skills Skills v1.0 update: 63% token reduction, new routing skills, domain modeling & codebase design. Install with npx now." [ref=f1e608] [cursor=pointer]':
+                    - /url: /skills/skills-changelog-v1-announcement
+                    - generic [ref=f1e609]:
+                      - generic [ref=f1e610]: v1
+                      - generic [ref=f1e611]: Jun 18, 2026
+                    - generic [ref=f1e612]:
+                      - heading "63% Token Reduction, /ask-matt, /writing-great-skills" [level=3] [ref=f1e613]
+                      - paragraph [ref=f1e614]: "Skills v1.0 update: 63% token reduction, new routing skills, domain modeling & codebase design. Install with npx now."
+                - listitem [ref=f1e615]:
+                  - 'link "May 11, 2026 Skills Changelog: /handoff, /prototype, /review and /writing Two new AI agent skills: /handoff for passing context between agents, and /prototype for building throwaway prototypes to test design decisions." [ref=f1e616] [cursor=pointer]':
+                    - /url: /skills/skills-changelog-handoff-prototype-review-and-writing
+                    - generic [ref=f1e617]: May 11, 2026
+                    - generic [ref=f1e619]:
+                      - 'heading "Skills Changelog: /handoff, /prototype, /review and /writing" [level=3] [ref=f1e620]'
+                      - paragraph [ref=f1e621]: "Two new AI agent skills: /handoff for passing context between agents, and /prototype for building throwaway prototypes to test design decisions."
+                - listitem [ref=f1e622]:
+                  - 'link "Apr 30, 2026 Skills Changelog: Ubiquitous Language -> /grill-with-docs Skills repo changelog: /grill-with-docs, ADRs, improved architecture language, multi-tracker support & new debugging skills. Updates inside." [ref=f1e623] [cursor=pointer]':
+                    - /url: /skills/skills-changelog-ubiquitous-language-grill-with-docs
+                    - generic [ref=f1e624]: Apr 30, 2026
+                    - generic [ref=f1e626]:
+                      - 'heading "Skills Changelog: Ubiquitous Language -> /grill-with-docs" [level=3] [ref=f1e627]'
+                      - paragraph [ref=f1e628]: "Skills repo changelog: /grill-with-docs, ADRs, improved architecture language, multi-tracker support & new debugging skills. Updates inside."
+          - region [ref=f1e629]:
+            - generic [ref=f1e631]:
+              - generic [ref=f1e632]:
+                - heading "Install the skills and get to work" [level=2] [ref=f1e633]
+                - paragraph [ref=f1e634]: Install the skills you want into the agents you use. Everything is MIT licensed and lives in one repo.
+                - link "View mattpocock/skills on GitHub, 236,002 stars" [ref=f1e635] [cursor=pointer]:
+                  - /url: https://github.com/mattpocock/skills
+                  - generic [ref=f1e638]: 236,002
+                  - generic [ref=f1e639]: mattpocock/skills
+                  - generic [ref=f1e640]: View on GitHub →
+              - region "Skill installation options" [ref=f1e641]:
+                - generic [ref=f1e642]:
+                  - paragraph [ref=f1e654]: Install the skills
+                  - generic [ref=f1e655]:
+                    - generic [ref=f1e656]: $
+                    - code [ref=f1e657]: npx skills@latest add mattpocock/skills
+                    - button "Copy install the skills install command" [ref=f1e658] [cursor=pointer]
+                  - generic [ref=f1e666]:
+                    - generic [ref=f1e667]: Update with npx skills update
+                    - link "Skills.sh" [ref=f1e668] [cursor=pointer]:
+                      - /url: https://www.skills.sh/mattpocock/skills
+                - generic [ref=f1e674]:
+                  - paragraph [ref=f1e679]: Claude Code
+                  - generic [ref=f1e680]:
+                    - generic [ref=f1e681]: $
+                    - code [ref=f1e682]: claude plugins install mattpocock-skills
+                    - button "Copy claude code install command" [ref=f1e683] [cursor=pointer]
+                  - generic [ref=f1e691]:
+                    - generic [ref=f1e692]: Updates automatically
+                    - link "Plugin docs" [ref=f1e693] [cursor=pointer]:
+                      - /url: https://code.claude.com/docs/en/plugins
+                - generic [ref=f1e697]:
+                  - paragraph [ref=f1e698]: Works with any agent
+                  - paragraph [ref=f1e699]: Claude Code · Cursor · Codex · Copilot · 25 skills · MIT
+          - region [ref=f1e700]:
+            - paragraph [ref=f1e701]: Trusted by engineers from
+            - list [ref=f1e702]:
+              - listitem [ref=f1e703]:
+                - generic "Vercel" [ref=f1e704]
+              - listitem [ref=f1e707]:
+                - generic "Adobe" [ref=f1e708]
+              - listitem [ref=f1e711]:
+                - generic "Shopify" [ref=f1e712]
+              - listitem [ref=f1e719]:
+                - generic "Figma" [ref=f1e720]
+              - listitem [ref=f1e727]:
+                - generic "Cloudflare" [ref=f1e728]
+              - listitem [ref=f1e733]:
+                - generic "Twilio" [ref=f1e734]
+              - listitem [ref=f1e737]:
+                - generic "OLX" [ref=f1e738]
+              - listitem [ref=f1e742]:
+                - generic "Trimble" [ref=f1e743]
+              - listitem [ref=f1e771]:
+                - generic "Nokia" [ref=f1e772]
+              - listitem [ref=f1e775]:
+                - generic "Ledger" [ref=f1e776]
+              - listitem [ref=f1e791]:
+                - generic "Bloomberg" [ref=f1e792]
+              - listitem [ref=f1e804]:
+                - generic "Kuda" [ref=f1e805]
+        - contentinfo [ref=f1e808]:
+          - generic [ref=f1e809]:
+            - generic [ref=f1e810]:
+              - heading "Learn" [level=3] [ref=f1e811]
+              - list [ref=f1e812]:
+                - listitem [ref=f1e813]:
+                  - link "AI Coding Crash Course" [ref=f1e814] [cursor=pointer]:
+                    - /url: /workshops/ai-coding-crash-course
+                - listitem [ref=f1e815]:
+                  - link "AI SDK v6 Crash Course" [ref=f1e816] [cursor=pointer]:
+                    - /url: /workshops/ai-sdk-v6-crash-course
+                - listitem [ref=f1e817]:
+                  - link "LLM Fundamentals" [ref=f1e818] [cursor=pointer]:
+                    - /url: /llm-fundamentals
+                - listitem [ref=f1e819]:
+                  - link "AI Coding Dictionary" [ref=f1e820] [cursor=pointer]:
+                    - /url: /ai-coding-dictionary
+                - listitem [ref=f1e821]:
+                  - link "The AI Engineer Roadmap" [ref=f1e822] [cursor=pointer]:
+                    - /url: /ai-engineer-roadmap
+                - listitem [ref=f1e823]:
+                  - link "Vercel AI SDK Tutorial" [ref=f1e824] [cursor=pointer]:
+                    - /url: /vercel-ai-sdk-tutorial
+                - listitem [ref=f1e825]:
+                  - link "Model Context Protocol Tutorial" [ref=f1e826] [cursor=pointer]:
+                    - /url: /model-context-protocol-tutorial
+            - generic [ref=f1e827]:
+              - heading "Cohorts" [level=3] [ref=f1e828]
+              - list [ref=f1e829]:
+                - listitem [ref=f1e830]:
+                  - link "AI Coding for Real Engineers" [ref=f1e831] [cursor=pointer]:
+                    - /url: /cohorts/ai-coding-for-real-engineers-m0k0w
+                - listitem [ref=f1e832]:
+                  - link "Claude Code for Real Engineers" [ref=f1e833] [cursor=pointer]:
+                    - /url: /cohorts/claude-code-for-real-engineers-2026-04
+                - listitem [ref=f1e834]:
+                  - link "Build Your Own AI Personal Assistant in TypeScript" [ref=f1e835] [cursor=pointer]:
+                    - /url: /cohorts/build-your-own-ai-personal-assistant-in-typescript
+                - listitem [ref=f1e836]:
+                  - link "Build DeepSearch in TypeScript" [ref=f1e837] [cursor=pointer]:
+                    - /url: /cohorts/build-deepsearch-in-typescript
+            - generic [ref=f1e838]:
+              - heading "Account" [level=3] [ref=f1e839]
+              - list [ref=f1e840]:
+                - listitem [ref=f1e841]:
+                  - link "Log in / Sign up" [ref=f1e842] [cursor=pointer]:
+                    - /url: /login
+            - generic [ref=f1e843]:
+              - heading "Agents" [level=3] [ref=f1e844]
+              - list [ref=f1e845]:
+                - listitem [ref=f1e846]:
+                  - link "sitemap.md" [ref=f1e847] [cursor=pointer]:
+                    - /url: /sitemap.md
+                - listitem [ref=f1e848]:
+                  - link "llms.txt" [ref=f1e849] [cursor=pointer]:
+                    - /url: /llms.txt
+                - listitem [ref=f1e850]:
+                  - link "skills.md" [ref=f1e851] [cursor=pointer]:
+                    - /url: /skills.md
+                - listitem [ref=f1e852]:
+                  - link "rss.xml" [ref=f1e853] [cursor=pointer]:
+                    - /url: /rss.xml
+          - generic [ref=f1e854]:
+            - navigation "Footer" [ref=f1e855]:
+              - link "Browse All" [ref=f1e856] [cursor=pointer]:
+                - /url: /posts
+              - link "Skills" [ref=f1e857] [cursor=pointer]:
+                - /url: /skills
+              - link "Free course" [ref=f1e858] [cursor=pointer]:
+                - /url: /skills/subscribe
+              - link "Dictionary" [ref=f1e859] [cursor=pointer]:
+                - /url: /ai-coding-dictionary
+              - link "FAQ" [ref=f1e860] [cursor=pointer]:
+                - /url: /faq
+              - link "Terms" [ref=f1e861] [cursor=pointer]:
+                - /url: /privacy
+            - button "system Theme" [ref=f1e862] [cursor=pointer]
+  - alert [ref=f1e865]
