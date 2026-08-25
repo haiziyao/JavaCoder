@@ -11,7 +11,7 @@ import com.jcoder.message.ConversationManager;
 import com.jcoder.permission.PermissionChecker;
 import com.jcoder.permission.PermissionMode;
 import com.jcoder.tool.ToolRegister;
-import com.jcoder.ui.CmdUI;
+import com.jcoder.ui.WebUI;
 import com.jcoder.ui.UI;
 
 import java.net.http.HttpClient;
@@ -73,7 +73,7 @@ public class Main {
                 Path.of("").toAbsolutePath()   // 项目根 = 当前工作目录
         ));
 
-        UI ui = new CmdUI();
+        UI ui = new WebUI();
         ui.run(agent, conversationManager);
 
     }

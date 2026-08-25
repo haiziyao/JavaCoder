@@ -3,327 +3,386 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="MyCoder —— 一个可扩展的终端 AI 编程助手项目介绍">
-  <title>MyCoder · AI 编程助手</title>
+  <meta name="description" content="MyCoder WebUI">
+  <title>MyCoder · 工作台</title>
   <style>
     :root {
-      --cream: #FFF9F0;
-      --cream-2: #FFEED9;
-      --paper: #FFFFFF;
-      --orange: #FF8A3D;
-      --coral: #FF7A6B;
-      --teal: #2EC4B6;
-      --blue: #A9D6EF;
-      --ink: #4A3728;
-      --ink-soft: #8A7266;
-      --line: rgba(74, 55, 40, .08);
-      --shadow-soft: 0 14px 34px rgba(255, 138, 61, .14);
-      --shadow-card: 0 10px 24px rgba(74, 55, 40, .07);
+      --cream: #fff8ec; --cream-deep: #f8eddb; --paper: #fffdf9; --orange: #ff8a3d;
+      --coral: #ff7467; --teal: #25b9aa; --blue: #acd9ea; --ink: #49382f;
+      --muted: #8c766b; --line: rgba(91, 66, 52, .10); --soft-line: rgba(255, 138, 61, .16);
+      --shadow: 0 18px 55px rgba(122, 79, 48, .10); --card-shadow: 0 8px 22px rgba(94, 62, 42, .08);
     }
     * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body {
-      margin: 0;
-      color: var(--ink);
-      background: var(--cream);
-      font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
-      line-height: 1.65;
-      overflow-x: hidden;
-      position: relative;
-    }
-    /* 暖色柔光圆点背景 */
-    body:before, body:after {
-      content: ""; position: fixed; border-radius: 50%; pointer-events: none; z-index: 0;
-    }
-    body:before {
-      width: 460px; height: 460px; top: -160px; right: -140px;
-      background: radial-gradient(circle, rgba(46,196,182,.18), transparent 70%);
-    }
-    body:after {
-      width: 520px; height: 520px; bottom: -200px; left: -180px;
-      background: radial-gradient(circle, rgba(255,138,61,.16), transparent 70%);
-    }
-    a { color: inherit; text-decoration: none; }
-    .wrap { width: min(1120px, calc(100% - 44px)); margin: auto; position: relative; z-index: 1; }
+    html, body { height: 100%; }
+    body { margin: 0; color: var(--ink); background: var(--cream); font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; overflow: hidden; }
+    button, textarea, select { font: inherit; }
+    button { color: inherit; }
+    .app { height: 100%; display: grid; grid-template-columns: 260px 1fr; position: relative; isolation: isolate; }
+    .app::before, .app::after { content: ""; position: fixed; z-index: -1; border-radius: 999px; filter: blur(2px); pointer-events: none; }
+    .app::before { width: 430px; height: 430px; right: -170px; top: -190px; background: radial-gradient(circle, rgba(37,185,170,.16), transparent 68%); }
+    .app::after { width: 470px; height: 470px; left: 130px; bottom: -300px; background: radial-gradient(circle, rgba(255,138,61,.15), transparent 68%); }
 
-    nav { height: 82px; display: flex; justify-content: space-between; align-items: center; }
-    .brand { display: flex; gap: 13px; align-items: center; font-weight: 800; letter-spacing: -.02em; font-size: 20px; color: var(--ink); }
-    .brand-mark {
-      width: 40px; height: 40px; border-radius: 13px; display: grid; place-items: center;
-      background: linear-gradient(135deg, var(--orange), var(--coral));
-      color: #fff; box-shadow: 0 8px 18px rgba(255,122,107,.35);
-    }
-    .brand-mark:after { content: ">_"; font: 700 14px ui-monospace, monospace; }
-    nav .links { display: flex; gap: 30px; color: var(--ink-soft); font-size: 14px; font-weight: 600; }
-    nav .links a:hover { color: var(--orange); }
+    .sidebar { background: rgba(255, 253, 249, .78); border-right: 1px solid var(--line); backdrop-filter: blur(18px); padding: 19px 14px; display: flex; flex-direction: column; min-width: 0; }
+    .brand { display: flex; align-items: center; gap: 11px; padding: 5px 8px 20px; font-size: 17px; font-weight: 800; letter-spacing: -.02em; }
+    .brand-mark { position: relative; width: 37px; height: 37px; border-radius: 13px 13px 13px 7px; background: linear-gradient(145deg, var(--orange), var(--coral)); box-shadow: 0 8px 17px rgba(255,116,103,.28), inset 0 2px 0 rgba(255,255,255,.35); }
+    .brand-mark::before { content: ">_"; position: absolute; inset: 0; display: grid; place-items: center; color: white; font: 800 12px ui-monospace, monospace; }
+    .brand-copy small { display: block; margin-top: 1px; color: var(--muted); font-size: 10px; font-weight: 650; letter-spacing: .08em; text-transform: uppercase; }
+    .new-chat { width: 100%; border: 1px solid rgba(255,138,61,.18); background: linear-gradient(135deg, #fff, #fff9f1); border-radius: 15px; padding: 12px 13px; display: flex; align-items: center; gap: 10px; cursor: pointer; box-shadow: var(--card-shadow); font-weight: 700; transition: .2s ease; }
+    .new-chat:hover { transform: translateY(-2px); border-color: rgba(255,138,61,.42); }
+    .plus { width: 26px; height: 26px; border-radius: 9px; display: grid; place-items: center; color: #fff; background: var(--orange); font-size: 19px; line-height: 1; }
+    .side-label { color: #a28d80; font-size: 11px; font-weight: 750; letter-spacing: .08em; margin: 24px 10px 10px; text-transform: uppercase; }
+    .history { display: grid; gap: 5px; }
+    .history-item { border: 0; background: transparent; border-radius: 12px; padding: 10px 11px; text-align: left; cursor: default; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .history-item.active { color: var(--ink); background: rgba(255,138,61,.09); font-weight: 650; }
+    .sidebar-bottom { margin-top: auto; }
+    .status-card { border: 1px solid rgba(37,185,170,.16); background: rgba(255,255,255,.72); border-radius: 16px; padding: 12px; display: flex; gap: 10px; align-items: center; box-shadow: 0 7px 18px rgba(37,185,170,.06); }
+    .status-orb { width: 31px; height: 31px; flex: 0 0 auto; border-radius: 11px; background: linear-gradient(145deg, var(--teal), #79d9cb); display: grid; place-items: center; color: white; box-shadow: 0 6px 13px rgba(37,185,170,.22); }
+    .status-orb::after { content: "✓"; font-weight: 800; }
+    .status-copy strong { display: block; font-size: 12px; }
+    .status-copy span { color: var(--muted); font-size: 10px; }
 
-    .hero { min-height: 620px; display: grid; grid-template-columns: 1.02fr .98fr; align-items: center; gap: 56px; padding: 58px 0 96px; }
-    .eyebrow {
-      display: inline-flex; align-items: center; gap: 8px;
-      color: var(--coral); font: 700 12px ui-monospace, SFMono-Regular, Consolas, monospace;
-      text-transform: uppercase; letter-spacing: .14em;
-      background: #fff; border: 1px solid rgba(255,122,107,.25); border-radius: 999px; padding: 7px 15px;
-      box-shadow: 0 6px 16px rgba(255,122,107,.12);
-    }
-    h1 { font-size: clamp(44px, 5.6vw, 70px); line-height: 1.08; letter-spacing: -.04em; margin: 26px 0 22px; color: var(--ink); }
-    h1 span { color: var(--orange); position: relative; white-space: nowrap; }
-    h1 span:after {
-      content: ""; position: absolute; left: 0; right: 0; bottom: 6px; height: 14px; z-index: -1;
-      background: linear-gradient(90deg, rgba(255,138,61,.28), rgba(46,196,182,.28)); border-radius: 6px;
-    }
-    .lead { color: var(--ink-soft); font-size: 17px; max-width: 520px; margin: 0 0 32px; }
-    .actions { display: flex; gap: 13px; flex-wrap: wrap; }
-    .btn { border: 1px solid var(--line); border-radius: 14px; padding: 13px 20px; font-size: 14px; font-weight: 700; transition: .2s; background: #fff; }
-    .btn.primary { background: linear-gradient(135deg, var(--orange), var(--coral)); color: #fff; border: none; box-shadow: 0 12px 26px rgba(255,122,107,.35); }
-    .btn:hover { transform: translateY(-3px); }
-    .btn.primary:hover { box-shadow: 0 16px 32px rgba(255,122,107,.45); }
-    .btn:not(.primary):hover { border-color: var(--orange); color: var(--orange); }
+    .main { min-width: 0; height: 100%; display: flex; flex-direction: column; position: relative; }
+    .topbar { height: 66px; flex: 0 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 0 25px; border-bottom: 1px solid rgba(91,66,52,.07); background: rgba(255,248,236,.63); backdrop-filter: blur(16px); z-index: 3; }
+    .session-title { display: flex; align-items: center; gap: 9px; min-width: 0; }
+    .session-title strong { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .session-badge { color: var(--teal); background: rgba(37,185,170,.10); border: 1px solid rgba(37,185,170,.14); border-radius: 999px; padding: 4px 8px; font-size: 10px; font-weight: 800; letter-spacing: .04em; }
+    .permission-select { appearance: none; border: 1px solid var(--line); background: var(--paper) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238c766b' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 10px center; border-radius: 12px; padding: 8px 31px 8px 11px; color: var(--muted); font-size: 11px; font-weight: 700; outline: none; cursor: pointer; }
+    .permission-select:focus { border-color: rgba(255,138,61,.52); box-shadow: 0 0 0 3px rgba(255,138,61,.10); }
 
-    /* 纸雕感终端卡片 */
-    .terminal {
-      background: var(--paper); border-radius: 24px; padding: 22px 22px 26px;
-      box-shadow: var(--shadow-soft), 0 2px 0 rgba(255,255,255,.9) inset;
-      border: 1px solid rgba(255,138,61,.12);
-      transform: rotate(-1.2deg);
-      position: relative;
-    }
-    .terminal:before {
-      content: ""; position: absolute; inset: 9px -9px -9px 9px; z-index: -1;
-      background: linear-gradient(135deg, var(--teal), var(--blue));
-      border-radius: 26px; opacity: .35;
-    }
-    .terminal-head { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
-    .dot { width: 13px; height: 13px; border-radius: 50%; background: var(--coral); }
-    .dot:nth-child(2) { background: var(--orange); }
-    .dot:nth-child(3) { background: var(--teal); }
-    .terminal-title { margin-left: 9px; color: var(--ink-soft); font: 600 12px ui-monospace, monospace; }
-    pre {
-      background: var(--cream); border-radius: 16px; padding: 22px 22px 24px; margin: 0; overflow: auto;
-      font: 13px/2 ui-monospace, SFMono-Regular, Consolas, monospace; color: var(--ink);
-    }
-    .c { color: var(--coral); font-style: italic; }
-    .p { color: var(--orange); font-weight: 700; }
-    .k { color: var(--teal); font-weight: 700; }
-    .s { color: var(--orange); }
-    .o { color: var(--coral); font-weight: 700; }
-    .cursor { display: inline-block; width: 8px; height: 15px; background: var(--teal); border-radius: 2px; vertical-align: -2px; animation: blink 1.1s steps(2) infinite; }
-    @keyframes blink { 50% { opacity: 0; } }
+    .scroll { flex: 1; overflow-y: auto; overscroll-behavior: contain; scroll-behavior: smooth; }
+    .conversation { width: min(820px, calc(100% - 40px)); min-height: 100%; margin: 0 auto; padding: 52px 0 190px; }
+    .welcome { text-align: center; padding-top: min(12vh, 94px); animation: appear .45s ease both; }
+    .illustration { width: 142px; height: 126px; position: relative; margin: 0 auto 24px; }
+    .paper-stack { position: absolute; width: 94px; height: 78px; left: 24px; top: 25px; border-radius: 20px 20px 17px 17px; background: var(--paper); border: 1px solid rgba(255,138,61,.12); box-shadow: 8px 10px 0 rgba(172,217,234,.48), 16px 20px 0 rgba(37,185,170,.24), 0 15px 30px rgba(119,73,39,.10); transform: rotate(-3deg); }
+    .paper-stack::before { content: "{  }"; position: absolute; inset: 0; display: grid; place-items: center; color: var(--coral); font: 900 27px ui-monospace, monospace; }
+    .sun { position: absolute; width: 40px; height: 40px; border-radius: 50%; top: 3px; right: 4px; background: var(--orange); box-shadow: inset -6px -6px 0 rgba(255,116,103,.25), 0 8px 17px rgba(255,138,61,.22); }
+    .leaf { position: absolute; width: 26px; height: 14px; border-radius: 18px 3px 18px 3px; background: var(--teal); left: 2px; bottom: 18px; transform: rotate(23deg); }
+    .dot-blue { position: absolute; width: 17px; height: 17px; border-radius: 6px; background: var(--blue); left: 11px; top: 12px; transform: rotate(14deg); }
+    .welcome h1 { font-size: clamp(27px, 4vw, 39px); letter-spacing: -.045em; margin: 0 0 10px; }
+    .welcome h1 span { color: var(--orange); }
+    .welcome p { max-width: 490px; color: var(--muted); margin: 0 auto; line-height: 1.8; font-size: 14px; }
+    .suggestions { margin: 31px auto 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 11px; max-width: 680px; }
+    .suggestion { border: 1px solid var(--line); border-radius: 17px; background: rgba(255,253,249,.78); padding: 15px; text-align: left; cursor: pointer; box-shadow: 0 8px 21px rgba(95,64,44,.05); transition: .2s; }
+    .suggestion:hover { transform: translateY(-3px) rotate(-.4deg); border-color: rgba(255,138,61,.35); box-shadow: var(--card-shadow); }
+    .suggestion i { width: 29px; height: 29px; display: grid; place-items: center; border-radius: 10px; margin-bottom: 11px; background: rgba(255,138,61,.12); color: var(--orange); font-style: normal; font-weight: 800; }
+    .suggestion:nth-child(2) i { color: var(--teal); background: rgba(37,185,170,.11); }
+    .suggestion:nth-child(3) i { color: #579fc0; background: rgba(172,217,234,.25); }
+    .suggestion strong { display: block; font-size: 12px; margin-bottom: 4px; }
+    .suggestion span { color: var(--muted); font-size: 11px; line-height: 1.55; }
 
-    section { padding: 84px 0; position: relative; }
-    .section-head { margin-bottom: 40px; }
-    .section-head h2 { margin: 16px 0 0; font-size: clamp(30px, 4vw, 42px); letter-spacing: -.03em; line-height: 1.15; color: var(--ink); }
-    .section-head p { color: var(--ink-soft); max-width: 460px; font-size: 15px; margin: 14px 0 0; }
+    .message { margin-bottom: 29px; animation: appear .28s ease both; }
+    .user-message { display: flex; justify-content: flex-end; }
+    .user-bubble { max-width: min(660px, 88%); padding: 13px 17px; border-radius: 19px 19px 6px 19px; background: linear-gradient(135deg, #ff934f, var(--coral)); color: #fff; line-height: 1.68; font-size: 14px; box-shadow: 0 10px 24px rgba(255,116,103,.22), inset 0 1px 0 rgba(255,255,255,.24); white-space: pre-wrap; overflow-wrap: anywhere; }
+    .assistant-message { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 12px; align-items: start; }
+    .assistant-avatar { width: 34px; height: 34px; border-radius: 12px 12px 12px 5px; display: grid; place-items: center; color: white; background: linear-gradient(145deg, var(--teal), #72d6c8); box-shadow: 0 7px 16px rgba(37,185,170,.23); font: 800 11px ui-monospace, monospace; }
+    .assistant-avatar::after { content: ">_"; }
+    .assistant-content { min-width: 0; padding-top: 4px; }
+    .assistant-text { font-size: 14px; line-height: 1.82; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .assistant-text:empty { display: none; }
+    .thinking { display: inline-flex; gap: 5px; align-items: center; color: var(--muted); font-size: 12px; padding: 5px 0; }
+    .thinking i { width: 6px; height: 6px; border-radius: 50%; background: var(--orange); animation: bounce 1.15s infinite ease-in-out; }
+    .thinking i:nth-child(2) { animation-delay: .15s; background: var(--coral); }
+    .thinking i:nth-child(3) { animation-delay: .3s; background: var(--teal); }
 
-    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-    .card {
-      background: var(--paper); border-radius: 22px; padding: 28px 26px;
-      border: 1px solid var(--line); box-shadow: var(--shadow-card); transition: .25s; position: relative;
-    }
-    .card:hover { transform: translateY(-5px); box-shadow: 0 16px 34px rgba(255,138,61,.2); }
-    .icon {
-      width: 52px; height: 52px; border-radius: 16px; display: grid; place-items: center;
-      font: 700 17px ui-monospace, monospace; margin-bottom: 18px; color: #fff;
-      background: linear-gradient(135deg, var(--teal), var(--blue)); box-shadow: 0 8px 16px rgba(46,196,182,.28);
-    }
-    .card:nth-child(1) .icon { background: linear-gradient(135deg, var(--orange), var(--coral)); box-shadow: 0 8px 16px rgba(255,138,61,.3); }
-    .card:nth-child(3) .icon { background: linear-gradient(135deg, var(--coral), var(--orange)); box-shadow: 0 8px 16px rgba(255,122,107,.3); }
-    .card h3 { font-size: 18px; margin: 0 0 10px; color: var(--ink); }
-    .card p { margin: 0; color: var(--ink-soft); font-size: 14px; }
+    .event-stack { display: grid; gap: 9px; margin: 12px 0; }
+    .tool-card { border: 1px solid rgba(255,138,61,.16); background: linear-gradient(135deg, rgba(255,255,255,.9), rgba(255,247,235,.82)); border-radius: 16px; overflow: hidden; box-shadow: 0 7px 17px rgba(95,64,44,.055); }
+    .tool-head { width: 100%; border: 0; background: transparent; display: flex; align-items: center; gap: 10px; padding: 11px 13px; text-align: left; cursor: pointer; }
+    .tool-icon { width: 29px; height: 29px; border-radius: 10px; display: grid; place-items: center; color: #fff; background: linear-gradient(145deg, var(--orange), var(--coral)); box-shadow: 0 5px 11px rgba(255,116,103,.20); font-weight: 900; }
+    .tool-title { min-width: 0; flex: 1; }
+    .tool-title strong { display: block; font: 750 12px ui-monospace, monospace; }
+    .tool-title span { color: var(--muted); font-size: 10px; }
+    .tool-state { color: var(--orange); background: rgba(255,138,61,.10); border-radius: 999px; padding: 4px 8px; font-size: 9px; font-weight: 800; }
+    .tool-card.done .tool-icon { background: linear-gradient(145deg, var(--teal), #71d3c6); }
+    .tool-card.done .tool-state { color: var(--teal); background: rgba(37,185,170,.10); }
+    .tool-card.failed { border-color: rgba(255,116,103,.30); }
+    .tool-card.failed .tool-state { color: var(--coral); background: rgba(255,116,103,.11); }
+    .tool-body { display: none; border-top: 1px solid var(--line); padding: 12px 13px; background: rgba(255,255,255,.58); }
+    .tool-card.open .tool-body { display: block; }
+    .tool-section + .tool-section { margin-top: 11px; }
+    .tool-section label { display: block; color: var(--muted); font-size: 9px; font-weight: 800; letter-spacing: .09em; margin-bottom: 5px; text-transform: uppercase; }
+    .tool-section pre { margin: 0; max-height: 230px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; color: #665046; background: var(--cream); border-radius: 10px; padding: 10px; font: 11px/1.6 ui-monospace, SFMono-Regular, Consolas, monospace; }
+    .log-line { position: relative; margin: 5px 0; padding: 7px 11px 7px 26px; color: #947b6c; font: 10.5px/1.55 ui-monospace, monospace; border-left: 2px dashed rgba(37,185,170,.35); background: linear-gradient(90deg, rgba(37,185,170,.055), transparent); border-radius: 0 9px 9px 0; overflow-wrap: anywhere; }
+    .log-line::before { content: ""; position: absolute; width: 7px; height: 7px; left: 8px; top: 12px; border-radius: 50%; background: var(--teal); box-shadow: 0 0 0 3px rgba(37,185,170,.10); }
+    .turn-chip { width: fit-content; margin: 10px 0; color: #9b8171; background: rgba(172,217,234,.20); border: 1px solid rgba(110,180,211,.18); border-radius: 999px; padding: 5px 10px; font-size: 9px; font-weight: 750; letter-spacing: .04em; }
+    .complete-line { display: flex; align-items: center; gap: 8px; color: var(--teal); font-size: 10px; font-weight: 750; margin-top: 12px; }
+    .complete-line::before, .complete-line::after { content: ""; height: 1px; background: rgba(37,185,170,.18); flex: 1; }
+    .error-card { margin: 10px 0; border: 1px solid rgba(255,116,103,.23); border-radius: 14px; background: rgba(255,116,103,.07); color: #bd574e; padding: 11px 13px; font-size: 12px; }
+    .permission-card { border: 1px solid rgba(255,138,61,.26); background: #fffaf1; border-radius: 17px; padding: 14px; box-shadow: 0 9px 22px rgba(255,138,61,.09); }
+    .permission-card h4 { margin: 0 0 5px; font-size: 12px; }
+    .permission-card p { margin: 0 0 12px; color: var(--muted); font: 11px/1.6 ui-monospace, monospace; overflow-wrap: anywhere; }
+    .permission-actions { display: flex; gap: 7px; flex-wrap: wrap; }
+    .permission-actions button { border: 1px solid var(--line); background: #fff; border-radius: 10px; padding: 7px 10px; cursor: pointer; font-size: 10px; font-weight: 750; }
+    .permission-actions .allow { border: 0; color: #fff; background: var(--teal); }
+    .permission-actions .deny { color: var(--coral); }
+    .permission-card.resolved { opacity: .65; }
 
-    .architecture { display: grid; grid-template-columns: .92fr 1.08fr; gap: 22px; align-items: stretch; }
-    .flow { display: flex; flex-direction: column; justify-content: center; gap: 12px; }
-    .flow-item {
-      background: var(--paper); border: 1px solid var(--line); border-radius: 18px; padding: 16px 18px;
-      box-shadow: var(--shadow-card); display: flex; align-items: center; gap: 15px; position: relative;
-    }
-    .flow-item strong { display: block; font-size: 14px; color: var(--ink); }
-    .flow-item small { color: var(--ink-soft); font-size: 12px; }
-    .num {
-      flex: 0 0 40px; height: 40px; border-radius: 13px; display: grid; place-items: center;
-      color: #fff; font: 800 14px ui-monospace, monospace;
-      background: linear-gradient(135deg, var(--teal), var(--blue)); box-shadow: 0 6px 14px rgba(46,196,182,.3);
-    }
-    .flow-item:nth-child(odd) .num { background: linear-gradient(135deg, var(--orange), var(--coral)); box-shadow: 0 6px 14px rgba(255,138,61,.3); }
-    .arrow { color: var(--orange); text-align: center; font-size: 18px; height: 6px; line-height: 6px; opacity: .7; }
+    .composer-wrap { position: absolute; z-index: 4; left: 0; right: 0; bottom: 0; padding: 25px 24px 20px; background: linear-gradient(transparent, var(--cream) 35%); pointer-events: none; }
+    .composer { pointer-events: auto; width: min(820px, 100%); margin: auto; padding: 10px 10px 9px 16px; background: rgba(255,253,249,.94); border: 1px solid rgba(255,138,61,.20); border-radius: 22px; box-shadow: 0 17px 48px rgba(113,72,44,.15), inset 0 1px 0 #fff; backdrop-filter: blur(18px); transition: .2s; }
+    .composer:focus-within { border-color: rgba(255,138,61,.50); box-shadow: 0 18px 52px rgba(113,72,44,.17), 0 0 0 4px rgba(255,138,61,.07); }
+    textarea { width: 100%; min-height: 43px; max-height: 170px; resize: none; border: 0; outline: 0; background: transparent; color: var(--ink); padding: 8px 4px 5px; line-height: 1.6; font-size: 14px; }
+    textarea::placeholder { color: #ad998d; }
+    .composer-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .composer-note { color: #aa9487; font-size: 9px; padding-left: 4px; }
+    .send { width: 39px; height: 39px; border: 0; border-radius: 13px; color: #fff; cursor: pointer; background: linear-gradient(145deg, var(--orange), var(--coral)); box-shadow: 0 7px 16px rgba(255,116,103,.30); transition: .2s; display: grid; place-items: center; }
+    .send:hover { transform: translateY(-2px) rotate(-2deg); }
+    .send:disabled { cursor: not-allowed; filter: grayscale(.55); opacity: .55; transform: none; }
+    .send svg { width: 18px; height: 18px; }
+    .mobile-menu { display: none; border: 0; background: transparent; font-size: 20px; }
+    .toast { position: fixed; z-index: 10; top: 78px; left: 50%; transform: translate(-50%, -10px); padding: 9px 13px; color: #fff; background: rgba(73,56,47,.92); border-radius: 11px; font-size: 11px; opacity: 0; pointer-events: none; transition: .22s; box-shadow: var(--card-shadow); }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
 
-    .code-card { padding: 26px; overflow: hidden; transform: rotate(1deg); }
-    .code-card pre { height: 100%; background: var(--cream-2); }
-    .code-card .tag { display: inline-flex; align-items: center; gap: 7px; font: 700 11px ui-monospace, monospace; color: var(--coral); margin-bottom: 12px; }
-    .code-card .tag:before { content: "⌘"; color: var(--orange); }
-
-    .tools { grid-template-columns: repeat(6, 1fr); gap: 16px; }
-    .tool { padding: 20px 16px; text-align: center; border-radius: 18px; }
-    .tool .icon { margin: 0 auto 12px; width: 46px; height: 46px; font-size: 15px; }
-    .tool h3 { font-size: 13px; margin-bottom: 4px; }
-    .tool p { font-size: 11.5px; }
-
-    .config { display: grid; grid-template-columns: .92fr 1.08fr; gap: 22px; align-items: stretch; }
-    .config-note { display: flex; flex-direction: column; justify-content: center; }
-    .config-note h3 { font-size: 26px; letter-spacing: -.02em; margin: 16px 0; color: var(--ink); }
-    .config-note p { color: var(--ink-soft); font-size: 14px; margin: 0; }
-    .config-note .eyebrow { align-self: flex-start; }
-
-    footer {
-      border-top: 1px solid var(--line); padding: 32px 0 46px; color: var(--ink-soft); font-size: 13px;
-      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
-    }
-    .footer-accent { color: var(--coral); font-weight: 700; }
-    .stamp {
-      display: inline-flex; align-items: center; gap: 8px;
-      color: var(--coral); font: 700 12px "PingFang SC", "Microsoft YaHei", sans-serif;
-      letter-spacing: .1em; background: #fff; border: 2px solid var(--coral);
-      border-radius: 9px; padding: 5px 12px; transform: rotate(-3deg);
-    }
-
-    @media (max-width: 900px) {
-      nav .links { display: none; }
-      .hero, .architecture, .config { grid-template-columns: 1fr; }
-      .hero { padding-top: 40px; gap: 44px; }
-      .grid { grid-template-columns: 1fr; }
-      .tools { grid-template-columns: repeat(3, 1fr); }
-    }
-    @media (max-width: 560px) {
-      .wrap { width: min(100% - 28px, 1120px); }
-      h1 { font-size: 42px; }
-      .tools { grid-template-columns: repeat(2, 1fr); }
-      footer { display: block; }
-      footer span { display: block; margin-bottom: 10px; }
+    @keyframes appear { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+    @keyframes bounce { 0%, 70%, 100% { transform: translateY(0); } 35% { transform: translateY(-5px); } }
+    @media (max-width: 760px) {
+      .app { grid-template-columns: 1fr; }
+      .sidebar { position: fixed; z-index: 8; inset: 0 auto 0 0; width: 260px; transform: translateX(-105%); transition: .25s; box-shadow: var(--shadow); }
+      .sidebar.open { transform: none; }
+      .mobile-menu { display: block; cursor: pointer; }
+      .topbar { padding: 0 16px; }
+      .session-badge { display: none; }
+      .conversation { width: min(100% - 26px, 820px); padding-top: 34px; }
+      .suggestions { grid-template-columns: 1fr; }
+      .suggestion { display: grid; grid-template-columns: 34px 1fr; column-gap: 10px; }
+      .suggestion i { grid-row: span 2; margin: 0; }
+      .composer-wrap { padding-inline: 12px; }
     }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <nav>
-      <a class="brand" href="#top"><span class="brand-mark"></span><span>MyCoder</span></a>
-      <div class="links"><a href="#features">能力</a><a href="#architecture">工作方式</a><a href="#tools">工具箱</a><a href="#config">配置</a></div>
-    </nav>
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand"><span class="brand-mark"></span><span class="brand-copy">MyCoder<small>Agent workspace</small></span></div>
+    <button class="new-chat" id="newChat"><span class="plus">＋</span><span>新建对话</span></button>
+    <div class="side-label">今天</div>
+    <div class="history" id="history"><div class="history-item active">新的工程任务</div></div>
+    <div class="sidebar-bottom">
+      <div class="status-card"><span class="status-orb"></span><span class="status-copy"><strong>本地服务已连接</strong><span>127.0.0.1 · 安全工作区</span></span></div>
+    </div>
+  </aside>
 
-    <main id="top">
-      <!-- Hero -->
-      <section class="hero">
-        <div>
-          <div class="eyebrow">/ intelligent coding agent</div>
-          <h1>让想法，<br><span>直接变成代码。</span></h1>
-          <p class="lead">MyCoder 是一个基于 Java 构建的终端 AI 编程助手。它连接大语言模型与真实开发环境，理解任务、调用工具，并持续推进直到完成。</p>
-          <div class="actions"><a class="btn primary" href="#architecture">了解工作流　→</a><a class="btn" href="#tools">查看内置工具</a></div>
-        </div>
-        <div class="terminal">
-          <div class="terminal-head"><i class="dot"></i><i class="dot"></i><i class="dot"></i><span class="terminal-title">mycoder · session</span></div>
-          <pre><span class="c">// 启动一次新对话</span>
-<span class="p">$</span> <span class="k">java</span> -jar mycoder.jar
+  <main class="main">
+    <header class="topbar">
+      <div class="session-title"><button class="mobile-menu" id="mobileMenu">☰</button><strong id="sessionTitle">新的工程任务</strong><span class="session-badge">LOCAL AGENT</span></div>
+      <select class="permission-select" id="permissionMode" title="权限模式">
+        <option value="DEFAULT">默认权限</option><option value="ACCEPT_EDITS">接受编辑</option><option value="PLAN">规划模式</option><option value="BYPASS">全部放行</option>
+      </select>
+    </header>
 
-<span class="o">MyCoder</span> <span class="c">· AI 对话已启动 · 输入 exit 退出</span>
-
-<span class="p">&gt;</span> 帮我找到项目中所有的配置文件
-
-<span class="k">↳ thinking</span> <span class="c">选择 Glob 工具…</span>
-<span class="k">↳ tool</span> <span class="s">Glob</span> { pattern: <span class="s">"**/*.json"</span> }
-<span class="k">↳ result</span> 找到 1 个文件
-
-<span class="p">&gt;</span> <span class="s">这就是 application.json，已为你总结。</span><span class="cursor"></span></pre>
-        </div>
-      </section>
-
-      <!-- Features -->
-      <section id="features">
-        <div class="section-head">
-          <div class="eyebrow">01 / core capabilities</div>
-          <h2>不只是聊天，<br>而是完成任务。</h2>
-          <p>从自然语言需求到可执行的工程动作，MyCoder 把模型的推理落到你的代码库里。</p>
-        </div>
-        <div class="grid">
-          <article class="card"><div class="icon">AI</div><h3>模型驱动的理解</h3><p>同时兼容 OpenAI 与 DeepSeek 协议，通过流式 SSE 逐字接收响应，让模型边思考边规划。</p></article>
-          <article class="card"><div class="icon">↻</div><h3>自动推进循环</h3><p>工具执行结果会回到对话上下文，模型继续判断、修正并调用下一个工具，默认最多自动推进 100 轮。</p></article>
-          <article class="card"><div class="icon">⌘</div><h3>面向真实项目</h3><p>读取、搜索、编辑和运行都在项目环境中完成，让 AI 从「给建议」走向「动手实现」。</p></article>
-        </div>
-      </section>
-
-      <!-- Architecture -->
-      <section id="architecture">
-        <div class="section-head">
-          <div class="eyebrow">02 / how it works</div>
-          <h2>一个清晰的<br>Agent 闭环。</h2>
-          <p>MyCoder 把每轮对话拆成可观察、可扩展的执行流程，模型与工具各司其职。</p>
-        </div>
-        <div class="architecture">
-          <div class="flow">
-            <div class="flow-item"><span class="num">01</span><div><strong>用户提出目标</strong><small>ConversationManager 记录上下文</small></div></div>
-            <div class="arrow">↓</div>
-            <div class="flow-item"><span class="num">02</span><div><strong>LLM 流式响应</strong><small>OpenAI / DeepSeek 客户端解析 SSE</small></div></div>
-            <div class="arrow">↓</div>
-            <div class="flow-item"><span class="num">03</span><div><strong>选择并调用工具</strong><small>ToolRegister 调度执行</small></div></div>
-            <div class="arrow">↓</div>
-            <div class="flow-item"><span class="num">04</span><div><strong>结果回传，持续推进</strong><small>直到生成最终答案</small></div></div>
+    <div class="scroll" id="scroll">
+      <div class="conversation" id="conversation">
+        <section class="welcome" id="welcome">
+          <div class="illustration"><span class="paper-stack"></span><span class="sun"></span><span class="leaf"></span><span class="dot-blue"></span></div>
+          <h1>今天想一起<span>构建什么？</span></h1>
+          <p>描述你的目标，我会阅读项目、调用工具并持续推进。每一次工程动作，都清晰可见。</p>
+          <div class="suggestions">
+            <button class="suggestion" data-prompt="请帮我快速理解这个项目的结构与核心流程"><i>⌘</i><strong>理解项目</strong><span>梳理目录结构和关键调用链</span></button>
+            <button class="suggestion" data-prompt="请检查当前项目中可能存在的问题，并给出修复建议"><i>✓</i><strong>检查问题</strong><span>定位风险并给出小范围修复</span></button>
+            <button class="suggestion" data-prompt="请为这个项目补充一份清晰的使用说明"><i>✦</i><strong>完善文档</strong><span>生成简洁准确的工程说明</span></button>
           </div>
-          <div class="card code-card">
-            <span class="tag">ToolRegister.createDefault()</span>
-            <pre><span class="p">register</span>.<span class="k">register</span>(<span class="o">new</span> ReadFileTool());
-<span class="p">register</span>.<span class="k">register</span>(<span class="o">new</span> WriteFileTool());
-<span class="p">register</span>.<span class="k">register</span>(<span class="o">new</span> EditFileTool());
-<span class="p">register</span>.<span class="k">register</span>(<span class="o">new</span> BashTool());
-<span class="p">register</span>.<span class="k">register</span>(<span class="o">new</span> GlobTool());
-<span class="p">register</span>.<span class="k">register</span>(<span class="o">new</span> GrepTool());
+        </section>
+      </div>
+    </div>
 
-<span class="c">// 每个工具都遵循统一的 Tool 契约</span>
-<span class="k">ToolExecuteResult</span> result = tool.<span class="k">execute</span>(params);
-<span class="p">conversationManager</span>.<span class="k">addToolResultsMsg</span>(result);</pre>
-          </div>
-        </div>
-      </section>
+    <div class="composer-wrap">
+      <div class="composer">
+        <textarea id="prompt" rows="1" placeholder="给 MyCoder 一个任务…"></textarea>
+        <div class="composer-foot"><span class="composer-note">Enter 发送 · Shift + Enter 换行</span><button class="send" id="send" title="发送"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 14-7-4 14-3-6-7-1Z"/><path d="m12 13 7-8"/></svg></button></div>
+      </div>
+    </div>
+  </main>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+  const $ = selector => document.querySelector(selector);
+  const conversation = $('#conversation');
+  const scroll = $('#scroll');
+  const promptBox = $('#prompt');
+  const sendButton = $('#send');
+  const welcome = $('#welcome');
+  const permissionMode = $('#permissionMode');
+  const toolCards = new Map();
+  let busy = false;
 
-      <!-- Tools -->
-      <section id="tools">
-        <div class="section-head">
-          <div class="eyebrow">03 / built-in toolkit</div>
-          <h2>给 Agent 一双<br>真正能工作的手。</h2>
-          <p>默认注册六种基础工具，同时保留清晰的扩展接口，方便接入你的专属能力。</p>
-        </div>
-        <div class="grid tools">
-          <article class="card tool"><div class="icon">▣</div><h3>ReadFile</h3><p>读取文件内容</p></article>
-          <article class="card tool"><div class="icon">＋</div><h3>WriteFile</h3><p>创建或覆盖文件</p></article>
-          <article class="card tool"><div class="icon">✎</div><h3>EditFile</h3><p>精确替换文本</p></article>
-          <article class="card tool"><div class="icon">$</div><h3>Bash</h3><p>执行 Shell 命令</p></article>
-          <article class="card tool"><div class="icon">⌕</div><h3>Glob</h3><p>按模式发现文件</p></article>
-          <article class="card tool"><div class="icon">≡</div><h3>Grep</h3><p>搜索代码内容</p></article>
-        </div>
-      </section>
+  function showToast(message) {
+    const toast = $('#toast');
+    toast.textContent = message;
+    toast.classList.add('show');
+    clearTimeout(showToast.timer);
+    showToast.timer = setTimeout(() => toast.classList.remove('show'), 2200);
+  }
 
-      <!-- Config -->
-      <section id="config">
-        <div class="section-head">
-          <div class="eyebrow">04 / configuration</div>
-          <h2>保持开放，<br>连接任何模型。</h2>
-          <p>Provider 配置与业务逻辑分离，使用熟悉的 JSON 即可切换协议、服务地址和模型参数。</p>
-        </div>
-        <div class="config">
-          <div class="card config-note">
-            <div class="eyebrow">application.json</div>
-            <h3>简单配置，快速启动</h3>
-            <p>默认支持 DeepSeek 与 OpenAI 兼容协议，自托管或第三方服务均可。上下文窗口、最大输出长度、思考模式等参数按需调整即可。</p>
-          </div>
-          <div class="card code-card">
-            <span class="tag">application.json</span>
-            <pre>{
-  <span class="s">"providers"</span>: [{
-    <span class="s">"name"</span>: <span class="s">"ds-provider"</span>,
-    <span class="s">"protocol"</span>: <span class="o">"deepseek"</span>,
-    <span class="s">"baseUrl"</span>: <span class="s">"https://api.deepseek.com"</span>,
-    <span class="s">"model"</span>: <span class="s">"deepseek-v4-flash"</span>,
-    <span class="s">"thinking"</span>: <span class="p">false</span>,
-    <span class="s">"contextWindow"</span>: <span class="o">128000</span>,
-    <span class="s">"maxOutputTokens"</span>: <span class="o">8192</span>
-  }]
-}</pre>
-          </div>
-        </div>
-      </section>
-    </main>
+  function scrollBottom() { requestAnimationFrame(() => { scroll.scrollTop = scroll.scrollHeight; }); }
+  function setBusy(value) { busy = value; sendButton.disabled = value; promptBox.disabled = value; }
+  function element(tag, className, text) {
+    const node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text !== undefined) node.textContent = text;
+    return node;
+  }
+  function pretty(value) {
+    if (typeof value === 'string') return value;
+    try { return JSON.stringify(value, null, 2); } catch { return String(value); }
+  }
+  function resizeInput() {
+    promptBox.style.height = 'auto';
+    promptBox.style.height = Math.min(promptBox.scrollHeight, 170) + 'px';
+  }
 
-    <footer>
-      <span>MyCoder <span class="footer-accent">·</span> AI 编程助手 · 作者 亥子曜</span>
-      <span>Built with Java · Designed for builders</span>
-      <span class="stamp">大手笔出品</span>
-    </footer>
-  </div>
+  function addUserMessage(text) {
+    welcome?.remove();
+    const row = element('div', 'message user-message');
+    row.append(element('div', 'user-bubble', text));
+    conversation.append(row);
+    const title = text.length > 22 ? text.slice(0, 22) + '…' : text;
+    $('#sessionTitle').textContent = title;
+    $('.history-item.active').textContent = title;
+  }
+
+  function createAssistantMessage() {
+    const row = element('div', 'message assistant-message');
+    row.append(element('div', 'assistant-avatar'));
+    const content = element('div', 'assistant-content');
+    const thinking = element('div', 'thinking');
+    thinking.append(element('span', '', '正在思考'), element('i'), element('i'), element('i'));
+    const text = element('div', 'assistant-text');
+    const events = element('div', 'event-stack');
+    content.append(thinking, text, events);
+    row.append(content);
+    conversation.append(row);
+    return { row, content, thinking, text, events };
+  }
+
+  function addToolCall(container, event) {
+    const card = element('div', 'tool-card');
+    card.dataset.id = event.id;
+    const head = element('button', 'tool-head');
+    const icon = element('span', 'tool-icon', '↗');
+    const title = element('span', 'tool-title');
+    title.append(element('strong', '', event.name), element('span', '', '工具调用 · 点击查看详情'));
+    const state = element('span', 'tool-state', '执行中');
+    head.append(icon, title, state);
+    const body = element('div', 'tool-body');
+    const argsSection = element('div', 'tool-section');
+    argsSection.append(element('label', '', 'Arguments'), element('pre', '', pretty(event.args)));
+    const resultSection = element('div', 'tool-section');
+    resultSection.append(element('label', '', 'Result'), element('pre', 'tool-output', '等待工具返回…'));
+    body.append(argsSection, resultSection);
+    head.addEventListener('click', () => card.classList.toggle('open'));
+    card.append(head, body);
+    container.append(card);
+    toolCards.set(event.id, card);
+  }
+
+  function updateToolResult(event) {
+    const card = toolCards.get(event.id);
+    if (!card) return;
+    card.classList.add(event.error ? 'failed' : 'done');
+    card.querySelector('.tool-state').textContent = event.error ? '执行失败' : '已完成';
+    card.querySelector('.tool-output').textContent = event.output || '(无输出)';
+  }
+
+  function addPermission(container, event) {
+    const card = element('div', 'permission-card');
+    card.append(element('h4', '', '需要你的授权 · ' + event.toolName), element('p', '', event.description));
+    const actions = element('div', 'permission-actions');
+    const choices = [['允许一次', 'ALLOW', 'allow'], ['总是允许', 'ALLOW_ALWAYS', ''], ['拒绝', 'DENY', 'deny']];
+    choices.forEach(([label, decision, style]) => {
+      const button = element('button', style, label);
+      button.addEventListener('click', async () => {
+        actions.querySelectorAll('button').forEach(item => item.disabled = true);
+        try {
+          const response = await fetch('/api/permission', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ requestId: event.requestId, decision }) });
+          if (!response.ok) throw new Error((await response.json()).error || '授权失败');
+          card.classList.add('resolved');
+          actions.replaceChildren(element('span', 'complete-line', decision === 'DENY' ? '已拒绝' : '已授权'));
+        } catch (error) {
+          showToast(error.message);
+          actions.querySelectorAll('button').forEach(item => item.disabled = false);
+        }
+      });
+      actions.append(button);
+    });
+    card.append(actions);
+    container.append(card);
+  }
+
+  function handleEvent(view, event) {
+    if (event.type !== 'start') view.thinking.remove();
+    switch (event.type) {
+      case 'text': view.text.textContent += event.delta; break;
+      case 'tool_call': addToolCall(view.events, event); break;
+      case 'tool_result': updateToolResult(event); break;
+      case 'log': view.events.append(element('div', 'log-line', event.message)); break;
+      case 'turn_complete': view.events.append(element('div', 'turn-chip', '第 ' + event.turn + ' 轮完成')); break;
+      case 'loop_complete': view.events.append(element('div', 'complete-line', '任务完成 · 共 ' + event.turns + ' 轮')); break;
+      case 'permission_request': addPermission(view.events, event); break;
+      case 'error': view.events.append(element('div', 'error-card', event.message)); break;
+    }
+    scrollBottom();
+  }
+
+  async function sendMessage(prefilled) {
+    const message = (prefilled ?? promptBox.value).trim();
+    if (!message || busy) return;
+    promptBox.value = '';
+    resizeInput();
+    addUserMessage(message);
+    const view = createAssistantMessage();
+    setBusy(true);
+    scrollBottom();
+    try {
+      const response = await fetch('/api/chat', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ message }) });
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || '请求失败');
+      }
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      while (true) {
+        const { value, done } = await reader.read();
+        buffer += decoder.decode(value || new Uint8Array(), { stream: !done });
+        const lines = buffer.split('\n');
+        buffer = lines.pop();
+        for (const line of lines) if (line.trim()) handleEvent(view, JSON.parse(line));
+        if (done) break;
+      }
+      if (buffer.trim()) handleEvent(view, JSON.parse(buffer));
+    } catch (error) {
+      view.thinking.remove();
+      view.events.append(element('div', 'error-card', error.message || '连接已中断'));
+      showToast(error.message || '连接已中断');
+    } finally {
+      setBusy(false);
+      promptBox.focus();
+      scrollBottom();
+    }
+  }
+
+  promptBox.addEventListener('input', resizeInput);
+  promptBox.addEventListener('keydown', event => {
+    if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); }
+  });
+  sendButton.addEventListener('click', () => sendMessage());
+  document.querySelectorAll('.suggestion').forEach(item => item.addEventListener('click', () => sendMessage(item.dataset.prompt)));
+  permissionMode.addEventListener('change', async () => {
+    try {
+      const response = await fetch('/api/permission-mode', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ mode: permissionMode.value }) });
+      if (!response.ok) throw new Error((await response.json()).error || '切换失败');
+      showToast('权限模式已切换');
+    } catch (error) { showToast(error.message); }
+  });
+  $('#mobileMenu').addEventListener('click', () => $('#sidebar').classList.toggle('open'));
+  $('#newChat').addEventListener('click', () => {
+    if (busy) { showToast('请等待当前任务完成'); return; }
+    location.reload();
+  });
+
+  fetch('/api/state').then(response => response.json()).then(state => {
+    if (state.permissionMode && state.permissionMode !== 'UNAVAILABLE') permissionMode.value = state.permissionMode;
+    if (state.busy) showToast('Agent 正在处理上一项任务');
+  }).catch(() => showToast('无法读取服务状态'));
+  promptBox.focus();
+</script>
 </body>
 </html>
