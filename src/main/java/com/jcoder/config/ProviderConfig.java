@@ -9,6 +9,7 @@ public record ProviderConfig(
         String protocol,
         String baseUrl,
         String model,
+        String reasoningEffort,
         String apiKey,
         boolean thinking,
         Integer contextWindow,

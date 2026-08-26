@@ -4,8 +4,9 @@
       "name": "my-provider",
       "protocol": "gpt",
       "baseUrl": "http://127.0.0.1:54321/v1",
-      "apiKey": "agt_codex_gNQu7X2S0FVBmfWtHeFF3PJoBPoWyy37",
+      "apiKey": "agt_codex_gll0aExmQjYrRLuxHJ1g5MIESyXlZS2d",
       "model": "gpt-5.6-sol",
+      "reasoningEffort": "max",
       "thinking": false,
       "contextWindow": 128000,
       "maxOutputTokens": 8192

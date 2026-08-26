@@ -24,7 +24,7 @@ public class RequestBodyHelper {
     public String buildRequestBody(ObjectMapper objectMapper,
                                    PromptContent promptContent,
                                    String model, boolean isStream, int maxOutputTokens,
-                                   boolean thinking) throws JsonProcessingException {
+                                   boolean thinking,String reasoningEffort) throws JsonProcessingException {
         ObjectNode requestBodyRoot = objectMapper.createObjectNode();
 
         requestBodyRoot.put("model", model);
@@ -34,6 +34,10 @@ public class RequestBodyHelper {
 
         ArrayNode messages = buildMessages(objectMapper, promptContent);
         requestBodyRoot.set("messages", messages);
+        // 推理强度
+        if(reasoningEffort!=null && !reasoningEffort.isBlank()){
+            requestBodyRoot.put("reasoning_effort", reasoningEffort);
+        }
 
         // 工具注入
         if (!promptContent.tools().isEmpty()) {

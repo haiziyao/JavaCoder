@@ -1,5 +1,9 @@
 package com.jcoder.agent;
 
+import com.jcoder.context.CompactionCircuitBreaker;
+import com.jcoder.context.ContextBudget;
+import com.jcoder.context.ContextCompactor;
+import com.jcoder.context.ToolResultOffloader;
 import com.jcoder.llm.LLMClient;
 import com.jcoder.llm.model.StreamBlock;
 import com.jcoder.message.ConversationManager;
@@ -17,6 +21,7 @@ import com.jcoder.tool.Tool;
 import com.jcoder.tool.ToolExecuteResult;
 import com.jcoder.tool.ToolRegister;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +53,9 @@ public class Agent {
 
     //TODO: 权限管理+Hook回调
     private PermissionChecker checker;
+    // 记忆摘要压缩熔断器
+    private final CompactionCircuitBreaker compactionCircuitBreaker =
+            new CompactionCircuitBreaker();
 
 
     public Agent(LLMClient client, ToolRegister toolRegister,
@@ -94,10 +102,26 @@ public class Agent {
 
             //消费通知队列
 
-            //自动上下文压缩
-
             //注入工具清单
             //plan model 注入
+
+            // 单个结果压缩: 工具超50k压缩,一条结果超200k压缩
+            Path contextProjectRoot = Path.of(workDir == null || workDir.isBlank()
+                                        ? "." : workDir);
+            ToolResultOffloader.OffloadReport offloadReport =
+                    ToolResultOffloader.apply(conversationManager, contextProjectRoot);
+            if (offloadReport.changed()) {
+                queue.putSafe(new AgentEvent.Log(
+                                "[context] offloaded "
+                                        + offloadReport.offloadedResults()
+                                        + " tool result(s), removed "
+                                        + offloadReport.removedCharacters()
+                                        + " characters, files="
+                                        + offloadReport.files()
+                        )
+                );
+            }
+
             //组装本轮完整 Prompt
             currentPromptContent = promptBuilder.build(
                     conversationManager,
@@ -106,6 +130,118 @@ public class Agent {
                     mode,
                     turn
             );
+            // 上下文计算
+            ContextBudget contextBudget = ContextBudget.calculate(
+                            currentPromptContent, contextWindow, maxOutput);
+
+            queue.putSafe(new AgentEvent.ContextUsage(
+                    contextBudget.estimatedInputTokens(), contextBudget.inputLimit(),
+                    contextBudget.remainingInputTokens(), contextBudget.shouldCompact()));
+
+            if (contextBudget.shouldCompact()) {
+
+                if (!compactionCircuitBreaker.allowAutomaticAttempt()) {
+                    queue.putSafe(
+                            new AgentEvent.Log(
+                                    "[context] automatic compaction is disabled "
+                                            + "after "
+                                            + compactionCircuitBreaker.maxFailures()
+                                            + " consecutive failures; "
+                                            + "use /compact to retry manually"
+                            )
+                    );
+                }else {
+
+                    try {
+                        ContextCompactor.CompactionResult compactResult =
+                                ContextCompactor.compact(conversationManager, client);
+
+                        compactionCircuitBreaker.recordSuccess();
+
+                        if (compactResult.compacted()) {
+                            queue.putSafe(
+                                    new AgentEvent.ContextCompacted(
+                                            compactResult.beforeMessages(),
+                                            compactResult.afterMessages(),
+                                            compactResult.beforeTokens(),
+                                            compactResult.afterTokens()
+                                    )
+                            );
+
+                            /*
+                             * Conversation 已经被替换，
+                             * 必须重新构造本轮真实 Prompt。
+                             */
+                            currentPromptContent =
+                                    promptBuilder.build(
+                                            conversationManager,
+                                            toolRegister.listDefinitions(),
+                                            EnvironmentContext.detect(workDir),
+                                            mode,
+                                            turn
+                                    );
+
+                            contextBudget =
+                                    ContextBudget.calculate(
+                                            currentPromptContent,
+                                            contextWindow,
+                                            maxOutput
+                                    );
+
+                            queue.putSafe(
+                                    new AgentEvent.ContextUsage(
+                                            contextBudget.estimatedInputTokens(),
+                                            contextBudget.inputLimit(),
+                                            contextBudget.remainingInputTokens(),
+                                            contextBudget.shouldCompact()
+                                    )
+                            );
+                        }
+
+                    } catch (InterruptedException e) {
+                        throw e;
+                    } catch (Exception e) {
+                        compactionCircuitBreaker.recordFailure();
+
+                        queue.putSafe(
+                                new AgentEvent.Log(
+                                        "[context] compaction failed ("
+                                                + compactionCircuitBreaker
+                                                .consecutiveFailures()
+                                                + "/"
+                                                + compactionCircuitBreaker
+                                                .maxFailures()
+                                                + "): "
+                                                + e.getMessage()
+                                )
+                        );
+
+
+                        if (compactionCircuitBreaker.isOpen()) {
+                            queue.putSafe(
+                                    new AgentEvent.Log(
+                                            "[context] automatic compaction has been "
+                                                    + "disabled; use /compact to retry"
+                                    )
+                            );
+                        }
+                    }
+                }
+            }
+
+            // 当前上下文使用量
+            if (contextBudget.exceedsWindow()) {
+                queue.putSafe(
+                        new AgentEvent.Error(
+                                "Context window exhausted: "
+                                        + "estimated input="
+                                        + contextBudget.estimatedInputTokens()
+                                        + ", input limit="
+                                        + contextBudget.inputLimit()
+                        )
+                );
+                return;
+            }
             //消费式流响应
             TurnResult result = executeOneTurn(
                     client, currentPromptContent, queue, turn);
@@ -255,6 +391,51 @@ public class Agent {
         return tool.execute(args); // 编译器兜底，实际不会走到
     }
 
+
+    /**
+     * 用户主动执行压缩。
+     *
+     * 手动命令表示用户明确要求重试，
+     * 因此先重置自动摘要熔断器。
+     */
+    public ContextCompactor.CompactionResult compactNow(
+            ConversationManager conversationManager
+    ) throws InterruptedException {
+
+        if (conversationManager == null) {
+            throw new IllegalArgumentException(
+                    "conversationManager must not be null"
+            );
+        }
+
+        compactionCircuitBreaker.reset();
+
+        try {
+            ContextCompactor.CompactionResult result =
+                    ContextCompactor.compact(
+                            conversationManager,
+                            client
+                    );
+
+            compactionCircuitBreaker.recordSuccess();
+            return result;
+
+        } catch (InterruptedException | RuntimeException e) {
+            /*
+             * reset 后本次仍然失败，
+             * 新一轮连续失败次数从 1 开始。
+             */
+            compactionCircuitBreaker.recordFailure();
+            throw e;
+        }
+    }
+
+    /**
+     * 只给同包测试观察状态，不作为 CLI 业务接口。
+     */
+    CompactionCircuitBreaker compactionCircuitBreaker() {
+        return compactionCircuitBreaker;
+    }
 
     public void setChecker(PermissionChecker checker) { this.checker = checker; }
     public PermissionChecker getChecker() { return checker; }

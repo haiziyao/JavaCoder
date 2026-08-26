@@ -36,6 +36,7 @@ public class OpenAIClient implements LLMClient{
     private final RequestBodyHelper requestBodyHelper = new RequestBodyHelper();
 
     private volatile String model;
+    private volatile String reasoningEffort;
     private volatile boolean thinking;
     private volatile int maxOutputTokens;
     private volatile String lastRequestJson = "";
@@ -48,6 +49,7 @@ public class OpenAIClient implements LLMClient{
         // 这个值我都不想自己加,让模型自己走默认值吧
         maxOutputTokens = this.providerConfig.maxOutputTokens();
         thinking = this.providerConfig.thinking();
+        reasoningEffort = this.providerConfig.reasoningEffort();
     }
 
     @Override
@@ -67,7 +69,7 @@ public class OpenAIClient implements LLMClient{
     private void doStream(PromptContent promptContent,
                           LinkedBlockingQueue<StreamBlock> queue) throws Exception {
         lastRequestJson = requestBodyHelper.buildRequestBody(
-                objectMapper, promptContent, model, true, maxOutputTokens, thinking);
+                objectMapper, promptContent, model, true, maxOutputTokens, thinking,reasoningEffort);
 
 
         HttpRequest request = HttpRequest.newBuilder()

@@ -36,6 +36,44 @@ public class CmdUI implements UI {
                     continue;
                 }
 
+                if ("/compact".equalsIgnoreCase(prompt)) {
+                    try {
+                        var result =
+                                agent.compactNow(
+                                        conversationManager
+                                );
+
+                        if (result.compacted()) {
+                            System.out.println(
+                                    "[上下文压缩] 消息 "
+                                            + result.beforeMessages()
+                                            + " → "
+                                            + result.afterMessages()
+                                            + "，历史估算 tokens "
+                                            + result.beforeTokens()
+                                            + " → "
+                                            + result.afterTokens()
+                            );
+                        } else {
+                            System.out.println(
+                                    "[上下文压缩] 没有足够的旧消息可压缩；"
+                                            + "最近消息保持不变"
+                            );
+                        }
+
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        return;
+                    } catch (RuntimeException e) {
+                        System.err.println(
+                                "[上下文压缩失败] "
+                                        + e.getMessage()
+                        );
+                    }
+
+                    continue;
+                }
+
                 if ("exit".equalsIgnoreCase(prompt)) {
                     break;
                 }
@@ -113,6 +151,37 @@ public class CmdUI implements UI {
                                 default  -> PermissionResponse.ALLOW;
                             };
                             e.future().complete(resp);
+                        }
+
+
+                        case AgentEvent.ContextUsage e -> {
+                            System.out.println(
+                                    "\n[上下文] 估算输入 "
+                                            + e.estimatedInputTokens()
+                                            + " / "
+                                            + e.inputLimit()
+                                            + " tokens，剩余 "
+                                            + e.remainingInputTokens()
+                            );
+
+                            if (e.shouldCompact()) {
+                                System.out.println(
+                                        "[上下文] 已达到自动压缩阈值，准备生成摘要"
+                                );
+                            }
+                        }
+
+                        case AgentEvent.ContextCompacted e -> {
+                            System.out.println(
+                                    "\n[上下文压缩] 消息 "
+                                            + e.beforeMessages()
+                                            + " → "
+                                            + e.afterMessages()
+                                            + "，估算 tokens "
+                                            + e.beforeTokens()
+                                            + " → "
+                                            + e.afterTokens()
+                            );
                         }
                     }
 

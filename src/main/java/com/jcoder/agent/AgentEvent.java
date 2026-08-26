@@ -15,4 +15,9 @@ public sealed interface AgentEvent {
     record Log(String message) implements AgentEvent {}
     record PermissionRequest(String toolName, String description,
                              CompletableFuture<PermissionResponse> future) implements AgentEvent {}
+
+    record ContextUsage(int estimatedInputTokens, int inputLimit, int remainingInputTokens, boolean shouldCompact) implements AgentEvent {}
+    record ContextCompacted(int beforeMessages, int afterMessages, int beforeTokens, int afterTokens) implements AgentEvent {}
+
+
 }
