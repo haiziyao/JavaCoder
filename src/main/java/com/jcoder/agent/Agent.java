@@ -4,6 +4,9 @@ import com.jcoder.context.CompactionCircuitBreaker;
 import com.jcoder.context.ContextBudget;
 import com.jcoder.context.ContextCompactor;
 import com.jcoder.context.ToolResultOffloader;
+import com.jcoder.hook.controller.ToolHookController;
+import com.jcoder.hook.dispatcher.HookDispatchReport;
+import com.jcoder.hook.dispatcher.HookInvocationResult;
 import com.jcoder.llm.LLMClient;
 import com.jcoder.llm.model.StreamBlock;
 import com.jcoder.message.ConversationManager;
@@ -56,6 +59,7 @@ public class Agent {
 
     //TODO: 权限管理+Hook回调
     private PermissionChecker checker;
+    private volatile ToolHookController toolHookController;
     // 记忆摘要压缩熔断器
     private final CompactionCircuitBreaker compactionCircuitBreaker =
             new CompactionCircuitBreaker();
@@ -382,7 +386,11 @@ public class Agent {
     private ToolExecuteResult executeWithPermission(Tool tool, Map<String, Object> args,
                                                     AgentEventQueue queue) {
         if (checker == null) {                       // 没装配 checker 就直通（向后兼容）
-            return tool.execute(args);
+            return executeToolWithHooks(
+                    tool,
+                    args,
+                    queue
+            );
         }
 
         var check = checker.check(tool, args);
@@ -391,7 +399,11 @@ public class Agent {
                 return ToolExecuteResult.error("Permission denied: " + check.reason());
             }
             case ALLOW -> {
-                return tool.execute(args);
+                return executeToolWithHooks(
+                        tool,
+                        args,
+                        queue
+                );
             }
             case ASK -> {
                 // 发事件给 UI，并阻塞等用户回答（Agent 跑在虚拟线程，不卡 UI）
@@ -412,10 +424,201 @@ public class Agent {
                 if (resp == PermissionResponse.ALLOW_ALWAYS) {
                     checker.addAllowAlwaysRule(tool, args);
                 }
-                return tool.execute(args);
+                return executeToolWithHooks(
+                        tool,
+                        args,
+                        queue
+                );
             }
         }
-        return tool.execute(args); // 编译器兜底，实际不会走到
+        return executeToolWithHooks(
+                tool,
+                args,
+                queue
+        ); // 编译器兜底，实际不会走到
+    }
+
+    private ToolExecuteResult executeToolWithHooks(
+            Tool tool,
+            Map<String, Object> args,
+            AgentEventQueue queue
+    ) {
+        ToolHookController controller =
+                toolHookController;
+
+        Path hookWorkingDirectory =
+                Path.of(
+                        workDir == null
+                                || workDir.isBlank()
+                                ? "."
+                                : workDir
+                ).toAbsolutePath().normalize();
+
+        if (controller != null) {
+            try {
+                logCompletedAsyncHooks(
+                        controller,
+                        queue
+                );
+
+                ToolHookController.BeforeToolResult before =
+                        controller.beforeTool(
+                                sessionId,
+                                hookWorkingDirectory,
+                                tool.name(),
+                                args
+                        );
+
+                logHookReport(
+                        before.report(),
+                        queue
+                );
+
+                if (before.decision().rejected()) {
+                    return ToolExecuteResult.error(
+                            "Rejected by hook: "
+                                    + before.decision().message()
+                    );
+                }
+            } catch (RuntimeException exception) {
+                return ToolExecuteResult.error(
+                        "Pre-tool hook controller failed: "
+                                + exceptionMessage(exception)
+                );
+            }
+        }
+
+        long startedAt =
+                System.nanoTime();
+
+        ToolExecuteResult toolResult;
+
+        try {
+            toolResult = tool.execute(args);
+
+            if (toolResult == null) {
+                toolResult = ToolExecuteResult.error(
+                        "Tool returned null result: "
+                                + tool.name()
+                );
+            }
+        } catch (RuntimeException exception) {
+            toolResult = ToolExecuteResult.error(
+                    "Tool execution failed: "
+                            + exceptionMessage(exception)
+            );
+        }
+
+        long durationMillis =
+                Math.max(
+                        0,
+                        (System.nanoTime() - startedAt)
+                                / 1_000_000L
+                );
+
+        if (controller != null) {
+            try {
+                HookDispatchReport after =
+                        controller.afterTool(
+                                sessionId,
+                                hookWorkingDirectory,
+                                tool.name(),
+                                args,
+                                toolResult,
+                                durationMillis
+                        );
+
+                logHookReport(after, queue);
+                logCompletedAsyncHooks(
+                        controller,
+                        queue
+                );
+            } catch (RuntimeException exception) {
+                /*
+                 * Tool 已经执行完成。后置 Hook 失败只能记录，
+                 * 不能把已经完成的 Tool 结果改写成 Hook 错误。
+                 */
+                queue.putSafe(
+                        new AgentEvent.Log(
+                                "[hook] post-tool controller failed: "
+                                        + exceptionMessage(exception)
+                        )
+                );
+            }
+        }
+
+        return toolResult;
+    }
+
+    private static void logHookReport(
+            HookDispatchReport report,
+            AgentEventQueue queue
+    ) {
+        if (report.matchedCount() == 0) {
+            return;
+        }
+
+        queue.putSafe(
+                new AgentEvent.Log(
+                        "[hook] event="
+                                + report.event()
+                                + " matched="
+                                + report.matchedCount()
+                                + " completed="
+                                + report.completedCount()
+                                + " scheduled="
+                                + report.scheduledCount()
+                )
+        );
+
+        for (HookInvocationResult failure
+                : report.failures()) {
+            queue.putSafe(
+                    new AgentEvent.Log(
+                            "[hook] failed id="
+                                    + failure.definition().id()
+                                    + " error="
+                                    + failure.executionResult()
+                                    .errorMessage()
+                    )
+            );
+        }
+    }
+
+    private static void logCompletedAsyncHooks(
+            ToolHookController controller,
+            AgentEventQueue queue
+    ) {
+        for (HookInvocationResult result
+                : controller
+                .drainAsyncCompletedResults()) {
+            String state =
+                    result.executionResult().success()
+                            ? "success"
+                            : "failure";
+
+            queue.putSafe(
+                    new AgentEvent.Log(
+                            "[hook] async completed id="
+                                    + result.definition().id()
+                                    + " state="
+                                    + state
+                    )
+            );
+        }
+    }
+
+    private static String exceptionMessage(
+            Throwable throwable
+    ) {
+        String message =
+                throwable.getMessage();
+
+        if (message == null || message.isBlank()) {
+            return throwable.getClass().getSimpleName();
+        }
+
+        return message;
     }
 
 
@@ -499,6 +702,17 @@ public class Agent {
 
     public void setChecker(PermissionChecker checker) { this.checker = checker; }
     public PermissionChecker getChecker() { return checker; }
+
+    public ToolHookController getToolHookController() {
+        return toolHookController;
+    }
+
+    public void setToolHookController(
+            ToolHookController toolHookController
+    ) {
+        this.toolHookController =
+                toolHookController;
+    }
 
     public String getWorkDir() {
         return workDir;

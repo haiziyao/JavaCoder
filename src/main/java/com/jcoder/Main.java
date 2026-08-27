@@ -6,6 +6,9 @@ import com.jcoder.config.ConfigManager;
 import com.jcoder.config.McpServerConfig;
 import com.jcoder.config.ProviderConfig;
 import com.jcoder.llm.LLMClient;
+import com.jcoder.hook.controller.ToolHookController;
+import com.jcoder.hook.dispatcher.HookDispatcher;
+import com.jcoder.hook.executor.HookExecutorRegistry;
 import com.jcoder.mcp.McpManager;
 import com.jcoder.memory.MemoryExtractor;
 import com.jcoder.memory.MemoryPolicy;
@@ -104,6 +107,18 @@ public class Main {
         agent.setWorkDir(projectRoot.toString());
         agent.setChecker(new PermissionChecker(PermissionMode.DEFAULT, projectRoot));
 
+        HookDispatcher hookDispatcher =
+                new HookDispatcher(
+                        HookExecutorRegistry.createDefault(),
+                        List.of()
+                );
+
+        agent.setToolHookController(
+                new ToolHookController(
+                        hookDispatcher
+                )
+        );
+
         MemoryService memoryService = new MemoryService(
                 new MemoryStore(projectRoot),
                 new MemoryPolicy(),
@@ -139,7 +154,11 @@ public class Main {
              * 等待已经启动的自动记忆提取完成，
              * 避免用户输入 exit 后最后一轮记忆丢失。
              */
-            memoryService.close();
+            try {
+                memoryService.close();
+            } finally {
+                hookDispatcher.close();
+            }
         }
 
     }
@@ -187,4 +206,3 @@ public class Main {
         }
     }
 }
-
