@@ -2,10 +2,16 @@ package com.jcoder.command;
 
 import com.jcoder.context.ContextCompactor;
 import com.jcoder.context.ContextTokenEstimator;
+import com.jcoder.memory.MemoryEntry;
+import com.jcoder.memory.MemoryService;
 import com.jcoder.permission.PermissionChecker;
 import com.jcoder.permission.PermissionMode;
+import com.jcoder.session.SessionManager;
+import com.jcoder.session.SessionStore;
 
+import java.io.IOException;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,6 +33,8 @@ public final class DefaultCommands {
         registerClear(registry);
         registerStatus(registry);
         registerReview(registry);
+        registerSession(registry);
+        registerMemory(registry);
 
         return registry;
     }
@@ -415,6 +423,203 @@ public final class DefaultCommands {
         return CommandResult.prompt(
                 prompt
         );
+    }
+
+    private static void registerSession(SlashCommandRegistry registry) {
+        registry.register(
+                new SlashCommand(
+                        "session",
+                        "管理当前对话快照：list/save/new/resume",
+                        List.of(),
+                        DefaultCommands::executeSession
+                )
+        );
+    }
+
+    private static CommandResult executeSession(
+            CommandContext context,
+            String arguments
+    ) {
+        SessionManager manager = context.sessionManager();
+        if (manager == null) {
+            return CommandResult.error("SessionManager 未装配");
+        }
+
+        String value = arguments == null ? "" : arguments.strip();
+
+        try {
+            if (value.isBlank() || "info".equalsIgnoreCase(value)) {
+                return CommandResult.success(
+                        "[Session] 当前：" + manager.currentSessionId()
+                                + "，消息：" + context.conversation().size()
+                );
+            }
+
+            if ("save".equalsIgnoreCase(value)) {
+                SessionStore.SessionInfo info = manager.save();
+                return CommandResult.success(
+                        "[Session] 已保存 " + info.id()
+                                + "，消息：" + info.messageCount()
+                );
+            }
+
+            if ("new".equalsIgnoreCase(value)) {
+                String sessionId = manager.newSession();
+                return CommandResult.success(
+                        "[Session] 已创建新会话：" + sessionId
+                );
+            }
+
+            if ("list".equalsIgnoreCase(value)) {
+                List<SessionStore.SessionInfo> sessions = manager.listSessions();
+                if (sessions.isEmpty()) {
+                    return CommandResult.success("[Session] 没有已保存会话");
+                }
+
+                StringBuilder output = new StringBuilder("已保存 Session：\n");
+                int limit = Math.min(20, sessions.size());
+
+                for (int index = 0; index < limit; index++) {
+                    SessionStore.SessionInfo session = sessions.get(index);
+                    output.append("  ")
+                            .append(session.id())
+                            .append(" | messages=")
+                            .append(session.messageCount())
+                            .append(" | updated=")
+                            .append(Instant.ofEpochMilli(session.updatedAt()))
+                            .append(" | ")
+                            .append(session.preview())
+                            .append('\n');
+                }
+                if (sessions.size() > limit) {
+                    output.append("  ... 还有 ")
+                            .append(sessions.size() - limit)
+                            .append(" 个\n");
+                }
+                return CommandResult.success(output.toString().stripTrailing());
+            }
+
+            String resumePrefix = "resume ";
+            if (value.regionMatches(true, 0, resumePrefix, 0, resumePrefix.length())) {
+                String sessionId = value.substring(resumePrefix.length()).strip();
+                if (sessionId.isBlank()) {
+                    return CommandResult.error(
+                            "Usage: /session resume <session-id>"
+                    );
+                }
+
+                int restored = manager.resume(sessionId);
+                return CommandResult.success(
+                        "[Session] 已恢复 " + sessionId
+                                + "，消息：" + restored
+                );
+            }
+
+            return CommandResult.error(
+                    "Usage: /session [info|list|save|new|resume <session-id>]"
+            );
+        } catch (IOException | IllegalArgumentException e) {
+            return CommandResult.error("[Session] " + e.getMessage());
+        }
+    }
+
+    private static void registerMemory(SlashCommandRegistry registry) {
+        registry.register(
+                new SlashCommand(
+                        "memory",
+                        "查看和治理长期记忆：list/delete/clear",
+                        List.of("mem"),
+                        DefaultCommands::executeMemory
+                )
+        );
+    }
+
+    private static CommandResult executeMemory(
+            CommandContext context,
+            String arguments
+    ) {
+        MemoryService service = context.memoryService();
+        if (service == null) {
+            return CommandResult.error("MemoryService 未装配");
+        }
+
+        String value = arguments == null ? "" : arguments.strip();
+
+        try {
+            if (value.isBlank() || "list".equalsIgnoreCase(value)) {
+                return renderMemories(service.list(false));
+            }
+
+            if ("list all".equalsIgnoreCase(value)) {
+                return renderMemories(service.list(true));
+            }
+
+            String deletePrefix = "delete ";
+            if (value.regionMatches(true, 0, deletePrefix, 0, deletePrefix.length())) {
+                String memoryId = value.substring(deletePrefix.length()).strip();
+                if (memoryId.isBlank()) {
+                    return CommandResult.error("Usage: /memory delete <memory-id>");
+                }
+
+                boolean deleted = service.delete(memoryId);
+                return deleted
+                        ? CommandResult.success("[Memory] 已删除：" + memoryId)
+                        : CommandResult.error("Memory not found: " + memoryId);
+            }
+
+            String clearPrefix = "clear";
+            if (value.regionMatches(true, 0, clearPrefix, 0, clearPrefix.length())) {
+                String scopeText = value.substring(clearPrefix.length()).strip();
+                MemoryEntry.Scope scope;
+
+                if (scopeText.isBlank() || "all".equalsIgnoreCase(scopeText)) {
+                    scope = null;
+                } else if ("user".equalsIgnoreCase(scopeText)) {
+                    scope = MemoryEntry.Scope.USER;
+                } else if ("project".equalsIgnoreCase(scopeText)) {
+                    scope = MemoryEntry.Scope.PROJECT;
+                } else {
+                    return CommandResult.error(
+                            "Usage: /memory clear [user|project|all]"
+                    );
+                }
+
+                int deleted = service.clear(scope);
+                return CommandResult.success(
+                        "[Memory] 已标记删除 " + deleted + " 条"
+                );
+            }
+
+            return CommandResult.error(
+                    "Usage: /memory [list|list all|delete <id>|clear [user|project|all]]"
+            );
+        } catch (IOException e) {
+            return CommandResult.error("[Memory] " + e.getMessage());
+        }
+    }
+
+    private static CommandResult renderMemories(List<MemoryEntry> memories) {
+        if (memories.isEmpty()) {
+            return CommandResult.success("[Memory] 没有记忆");
+        }
+
+        StringBuilder output = new StringBuilder("长期记忆：\n");
+        for (MemoryEntry memory : memories) {
+            output.append("  ")
+                    .append(memory.id())
+                    .append(" | ")
+                    .append(memory.status())
+                    .append(" | ")
+                    .append(memory.scope())
+                    .append('/')
+                    .append(memory.category())
+                    .append(" | ")
+                    .append(memory.key())
+                    .append("\n    ")
+                    .append(memory.content())
+                    .append('\n');
+        }
+        return CommandResult.success(output.toString().stripTrailing());
     }
 
 }

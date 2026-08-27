@@ -3,6 +3,7 @@ package com.jcoder.agent;
 import com.jcoder.permission.PermissionResponse;
 
 import java.util.Map;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public sealed interface AgentEvent {
@@ -18,6 +19,15 @@ public sealed interface AgentEvent {
 
     record ContextUsage(int estimatedInputTokens, int inputLimit, int remainingInputTokens, boolean shouldCompact) implements AgentEvent {}
     record ContextCompacted(int beforeMessages, int afterMessages, int beforeTokens, int afterTokens) implements AgentEvent {}
+    record ContextCompactionStarted(int previousFailures) implements AgentEvent {}
+    record ContextCompactionFailed(String message, int consecutiveFailures) implements AgentEvent {}
+    record ContextCompactionCircuitOpen(int maxFailures) implements AgentEvent {}
+    record ToolResultOffloaded(int offloadedResults, long removedCharacters,
+                               List<String> files) implements AgentEvent {
+        public ToolResultOffloaded {
+            files = files == null ? List.of() : List.copyOf(files);
+        }
+    }
 
 
 }

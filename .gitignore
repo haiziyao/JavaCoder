@@ -1,5 +1,10 @@
 target/
 docs/
 .idea/
-.mycoder/
 .playwright-mcp/
+# 忽略 .mycoder 下的运行时数据
+.mycoder/*
+
+# 但允许项目级 Skill 被 Git 跟踪
+!.mycoder/skills/
+!.mycoder/skills/**

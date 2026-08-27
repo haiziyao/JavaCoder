@@ -17,6 +17,7 @@ import com.jcoder.prompt.EnvironmentContext;
 import com.jcoder.prompt.PromptBuilder;
 import com.jcoder.prompt.PromptContent;
 import com.jcoder.run.TurnResult;
+import com.jcoder.skill.SkillRuntime;
 import com.jcoder.tool.Tool;
 import com.jcoder.tool.ToolExecuteResult;
 import com.jcoder.tool.ToolRegister;
@@ -39,7 +40,9 @@ public class Agent {
     private final ToolRegister toolRegister;
     private final PromptBuilder promptBuilder = new PromptBuilder();
     private volatile PromptContent currentPromptContent;
+    private volatile String longTermMemoryReminder = "";
     private volatile AgentMode mode = AgentMode.NORMAL;
+
     // UNUSED: 目前算是冗余字段
     private String protocol;
 
@@ -56,6 +59,7 @@ public class Agent {
     // 记忆摘要压缩熔断器
     private final CompactionCircuitBreaker compactionCircuitBreaker =
             new CompactionCircuitBreaker();
+    private volatile SkillRuntime skillRuntime;
 
 
     public Agent(LLMClient client, ToolRegister toolRegister,
@@ -87,8 +91,7 @@ public class Agent {
     }
 
     public void agentLoop(ConversationManager conversationManager,AgentEventQueue queue) throws InterruptedException {
-        // 注入记忆,还没写
-        conversationManager.injectLongTermMemory();
+
 
         int totalInput = 0;
         int totalOutput = 0;
@@ -111,6 +114,11 @@ public class Agent {
             ToolResultOffloader.OffloadReport offloadReport =
                     ToolResultOffloader.apply(conversationManager, contextProjectRoot);
             if (offloadReport.changed()) {
+                queue.putSafe(new AgentEvent.ToolResultOffloaded(
+                        offloadReport.offloadedResults(),
+                        offloadReport.removedCharacters(),
+                        offloadReport.files().stream().map(Path::toString).toList()
+                ));
                 queue.putSafe(new AgentEvent.Log(
                                 "[context] offloaded "
                                         + offloadReport.offloadedResults()
@@ -128,7 +136,11 @@ public class Agent {
                     toolRegister.listDefinitions(),
                     EnvironmentContext.detect(workDir),
                     mode,
-                    turn
+                    turn,
+                    // 注入长期记忆
+                    longTermMemoryReminder,
+                    // 注入skill
+                    skillRuntime
             );
             // 上下文计算
             ContextBudget contextBudget = ContextBudget.calculate(
@@ -141,6 +153,9 @@ public class Agent {
             if (contextBudget.shouldCompact()) {
 
                 if (!compactionCircuitBreaker.allowAutomaticAttempt()) {
+                    queue.putSafe(new AgentEvent.ContextCompactionCircuitOpen(
+                            compactionCircuitBreaker.maxFailures()
+                    ));
                     queue.putSafe(
                             new AgentEvent.Log(
                                     "[context] automatic compaction is disabled "
@@ -153,6 +168,9 @@ public class Agent {
                 }else {
 
                     try {
+                        queue.putSafe(new AgentEvent.ContextCompactionStarted(
+                                compactionCircuitBreaker.consecutiveFailures()
+                        ));
                         ContextCompactor.CompactionResult compactResult =
                                 ContextCompactor.compact(conversationManager, client);
 
@@ -172,14 +190,15 @@ public class Agent {
                              * Conversation 已经被替换，
                              * 必须重新构造本轮真实 Prompt。
                              */
-                            currentPromptContent =
-                                    promptBuilder.build(
-                                            conversationManager,
-                                            toolRegister.listDefinitions(),
-                                            EnvironmentContext.detect(workDir),
-                                            mode,
-                                            turn
-                                    );
+                            currentPromptContent = promptBuilder.build(
+                                    conversationManager,
+                                    toolRegister.listDefinitions(),
+                                    EnvironmentContext.detect(workDir),
+                                    mode,
+                                    turn,
+                                    longTermMemoryReminder,
+                                    skillRuntime
+                            );
 
                             contextBudget =
                                     ContextBudget.calculate(
@@ -203,6 +222,11 @@ public class Agent {
                     } catch (Exception e) {
                         compactionCircuitBreaker.recordFailure();
 
+                        queue.putSafe(new AgentEvent.ContextCompactionFailed(
+                                e.getMessage(),
+                                compactionCircuitBreaker.consecutiveFailures()
+                        ));
+
                         queue.putSafe(
                                 new AgentEvent.Log(
                                         "[context] compaction failed ("
@@ -218,6 +242,9 @@ public class Agent {
 
 
                         if (compactionCircuitBreaker.isOpen()) {
+                            queue.putSafe(new AgentEvent.ContextCompactionCircuitOpen(
+                                    compactionCircuitBreaker.maxFailures()
+                            ));
                             queue.putSafe(
                                     new AgentEvent.Log(
                                             "[context] automatic compaction has been "
@@ -433,12 +460,20 @@ public class Agent {
      * 清空 Conversation 后，同时重置相关上下文状态。
      */
     public void resetContextManagement() {
+        longTermMemoryReminder = "";
         compactionCircuitBreaker.reset();
 
         /*
-         * 防止 /status 或调试代码继续读取
-         * 清空之前构造的旧 Prompt。
+         * /clear、/session new、/session resume
+         * 都会经过这个方法。
+         *
+         * active Skill 不属于 Conversation 快照，
+         * 所以切换上下文时必须清空。
          */
+        if (skillRuntime != null) {
+            skillRuntime.clear();
+        }
+
         currentPromptContent = null;
     }
 
@@ -508,5 +543,24 @@ public class Agent {
              return;
         }
         this.maxIterations = maxIterations;
+    }
+
+    public void setLongTermMemoryReminder(String reminder) {
+        this.longTermMemoryReminder =
+                reminder == null ? "" : reminder.strip();
+    }
+
+    public String getLongTermMemoryReminder() {
+        return longTermMemoryReminder;
+    }
+    public SkillRuntime getSkillRuntime() {
+        return skillRuntime;
+    }
+
+    public void setSkillRuntime(
+            SkillRuntime skillRuntime
+    ) {
+        this.skillRuntime =
+                skillRuntime;
     }
 }

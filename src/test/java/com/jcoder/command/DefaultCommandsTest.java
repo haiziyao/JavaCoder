@@ -30,7 +30,10 @@ class DefaultCommandsTest {
         SlashCommandRegistry registry = DefaultCommands.create();
 
         assertEquals(
-                List.of("clear", "compact", "help", "permission", "review", "status"),
+                List.of(
+                        "clear", "compact", "help", "memory",
+                        "permission", "review", "session", "status"
+                ),
                 registry.listCommands().stream()
                         .map(SlashCommand::name)
                         .toList()
@@ -45,6 +48,8 @@ class DefaultCommandsTest {
                 registry.find("c").orElseThrow());
         assertSame(registry.find("status").orElseThrow(),
                 registry.find("s").orElseThrow());
+        assertSame(registry.find("memory").orElseThrow(),
+                registry.find("mem").orElseThrow());
     }
 
     @Test

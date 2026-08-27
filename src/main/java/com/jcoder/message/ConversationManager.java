@@ -2,6 +2,7 @@ package com.jcoder.message;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 作者：亥子曜
@@ -49,6 +50,15 @@ public class ConversationManager {
 
     public int size() {
         return history.size();
+    }
+
+    public void replaceHistory(List<Message> messages) {
+        Objects.requireNonNull(messages, "messages");
+
+        List<Message> replacement = List.copyOf(messages);
+
+        history.clear();
+        history.addAll(replacement);
     }
 
     public int clear() {

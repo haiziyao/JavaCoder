@@ -3,9 +3,9 @@ package com.jcoder.permission;
 import com.jcoder.tool.Tool;
 
 import java.nio.file.Path;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 /**
@@ -16,7 +16,7 @@ public class PermissionChecker {
     private volatile PermissionMode mode;
     private final Path projectRoot;
 
-    private final Set<String> allowAlwaysRules = new HashSet<>();
+    private final Set<String> allowAlwaysRules = ConcurrentHashMap.newKeySet();
 
     // 危险命令（演示安全内核，可自行扩充）
     private static final Pattern DANGEROUS = Pattern.compile(
@@ -73,6 +73,10 @@ public class PermissionChecker {
 
     public void addAllowAlwaysRule(Tool tool, Map<String, Object> args) {
         allowAlwaysRules.add(tool.name() + ":" + checkFieldContent(tool.name(), args));
+    }
+
+    public void clearAllowAlwaysRules() {
+        allowAlwaysRules.clear();
     }
 
     /** 生成给用户看的一句话描述 */
