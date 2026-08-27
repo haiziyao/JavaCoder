@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="MyCoder 本地 Agent 工作台">
+  <meta name="theme-color" content="#fff8ec">
+  <meta name="csrf-token" content="">
+  <title>MyCoder · Agent 工作台</title>
+  <link rel="stylesheet" href="/assets/app.css">
+  <script defer src="/assets/app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#composerInput">跳到任务输入框</a>
+
+  <div class="app-shell" id="appShell" data-run-state="IDLE">
+    <header class="app-header">
+      <div class="header-inner">
+        <div class="brand-group">
+          <a class="brand" href="/" aria-label="MyCoder 工作台首页">
+            <span class="brand-mark" aria-hidden="true">&gt;_</span>
+            <span class="brand-copy">
+              <strong>MyCoder</strong>
+              <small>Agent workspace</small>
+            </span>
+          </a>
+
+          <button class="connection-chip" id="healthButton" type="button"
+                  aria-haspopup="dialog" aria-controls="healthDialog">
+            <span class="status-dot" aria-hidden="true"></span>
+            <span id="connectionLabel">正在连接本地服务</span>
+          </button>
+        </div>
+
+        <div class="header-actions">
+          <button class="context-chip" id="contextButton" type="button"
+                  aria-haspopup="dialog" aria-controls="contextDialog" disabled>
+            <span class="context-copy">
+              <span>上下文</span>
+              <strong id="contextLabel">尚无数据</strong>
+            </span>
+            <span class="context-track" aria-hidden="true">
+              <span class="context-fill" id="contextFill"></span>
+            </span>
+          </button>
+
+          <label class="permission-control" for="permissionMode">
+            <span class="sr-only">权限模式</span>
+            <select id="permissionMode" disabled>
+              <option value="DEFAULT">默认权限</option>
+              <option value="ACCEPT_EDITS">接受编辑</option>
+              <option value="BYPASS">全部放行</option>
+            </select>
+          </label>
+
+          <button class="icon-button new-conversation" id="newConversationButton"
+                  type="button" title="新建对话" aria-label="新建对话" disabled>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 5v14M5 12h14"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="run-banner" id="runBanner" hidden>
+      <div class="run-banner-inner">
+        <span class="run-spinner" aria-hidden="true"></span>
+        <span id="runBannerText">Agent 正在运行</span>
+      </div>
+    </div>
+
+    <main class="workspace" id="workspace">
+      <div class="conversation-scroll" id="conversationScroll">
+        <section class="conversation" id="conversation" aria-label="当前对话">
+          <div class="welcome" id="welcome">
+            <div class="welcome-illustration" aria-hidden="true">
+              <span class="paper paper-back"></span>
+              <span class="paper paper-front"><b>&gt;_</b></span>
+              <span class="orbit orbit-one"></span>
+              <span class="orbit orbit-two"></span>
+            </div>
+            <p class="eyebrow">Local coding agent</p>
+            <h1>今天想一起<br><span>构建什么？</span></h1>
+            <p class="welcome-lead">
+              描述你的目标，MyCoder 会阅读项目、调用工具并持续推进。每一步工程动作，都清晰可见。
+            </p>
+
+            <div class="suggestion-grid" aria-label="示例任务">
+              <button class="suggestion-card" type="button"
+                      data-prompt="请帮我梳理这个项目的结构与核心流程">
+                <span class="suggestion-icon" aria-hidden="true">⌘</span>
+                <span><strong>理解项目</strong><small>梳理目录结构和关键调用链</small></span>
+              </button>
+              <button class="suggestion-card" type="button"
+                      data-prompt="请检查当前项目中可能存在的问题，只给建议，不修改文件">
+                <span class="suggestion-icon" aria-hidden="true">✓</span>
+                <span><strong>检查问题</strong><small>只读定位风险并给出建议</small></span>
+              </button>
+              <button class="suggestion-card" type="button"
+                      data-prompt="请查找所有配置文件并说明它们的用途">
+                <span class="suggestion-icon" aria-hidden="true">⌕</span>
+                <span><strong>查找配置</strong><small>发现配置并解释关键字段</small></span>
+              </button>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <button class="jump-latest" id="jumpLatestButton" type="button" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>
+        回到最新
+      </button>
+
+      <div class="composer-region">
+        <form class="composer" id="composerForm">
+          <label class="sr-only" for="composerInput">给 MyCoder 一个任务</label>
+          <textarea id="composerInput" rows="1" maxlength="262144"
+                    placeholder="给 MyCoder 一个任务…" disabled></textarea>
+          <div class="composer-footer">
+            <span class="composer-hint" id="composerHint">Enter 发送 · Shift + Enter 换行</span>
+            <button class="send-button" id="sendButton" type="submit" disabled>
+              <span class="sr-only">发送任务</span>
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="m5 12 14-7-4 14-3-6-7-1Z"></path>
+                <path d="m12 13 7-8"></path>
+              </svg>
+            </button>
+          </div>
+        </form>
+        <p class="privacy-note">本地运行 · 工具写入和命令执行仍受权限检查</p>
+      </div>
+    </main>
+  </div>
+
+  <dialog class="panel-dialog health-dialog" id="healthDialog">
+    <div class="dialog-heading">
+      <div>
+        <p class="eyebrow">Runtime health</p>
+        <h2>运行状态</h2>
+      </div>
+      <button class="dialog-close" type="button" data-close-dialog aria-label="关闭运行状态">×</button>
+    </div>
+    <div class="health-summary" id="healthSummary">
+      <span class="status-orb" aria-hidden="true"></span>
+      <div><strong>正在读取状态</strong><p>等待本地 Java 服务响应。</p></div>
+    </div>
+    <dl class="detail-list">
+      <div><dt>工作目录</dt><dd id="workDirValue">—</dd></div>
+      <div><dt>Provider</dt><dd id="providerValue">—</dd></div>
+      <div><dt>模型</dt><dd id="modelValue">—</dd></div>
+      <div><dt>MCP</dt><dd id="mcpValue">—</dd></div>
+      <div><dt>运行状态</dt><dd id="runStateValue">IDLE</dd></div>
+    </dl>
+    <div class="health-errors" id="healthErrors" hidden>
+      <h3>需要处理</h3>
+      <div id="healthErrorList"></div>
+    </div>
+  </dialog>
+
+  <dialog class="panel-dialog context-dialog" id="contextDialog">
+    <div class="dialog-heading">
+      <div>
+        <p class="eyebrow">Context budget</p>
+        <h2>上下文用量</h2>
+      </div>
+      <button class="dialog-close" type="button" data-close-dialog aria-label="关闭上下文状态">×</button>
+    </div>
+    <div class="context-meter-large" data-level="safe">
+      <div class="meter-labels">
+        <span>估算输入</span>
+        <strong id="contextDialogValue">尚无数据</strong>
+      </div>
+      <div class="meter-track"><span id="contextDialogFill"></span></div>
+      <div class="meter-scale"><span>0%</span><span>自动压缩 85%</span><span>100%</span></div>
+    </div>
+    <p class="context-description" id="contextDescription">
+      首次构建 Prompt 后，这里会显示完整输入预算。
+    </p>
+    <button class="secondary-button compact-button" id="compactNowButton" type="button" disabled>
+      立即压缩
+    </button>
+  </dialog>
+
+  <dialog class="confirm-dialog" id="resetDialog">
+    <div class="confirm-icon" aria-hidden="true">＋</div>
+    <h2>开始新对话？</h2>
+    <p>当前对话、执行详情和会话级授权将被清空。Provider 与 MCP 连接会保留。</p>
+    <div class="confirm-actions">
+      <button class="secondary-button" type="button" data-close-dialog>取消</button>
+      <button class="primary-button" id="confirmResetButton" type="button">新建对话</button>
+    </div>
+  </dialog>
+
+  <dialog class="confirm-dialog danger-confirm" id="bypassDialog">
+    <div class="confirm-icon" aria-hidden="true">!</div>
+    <h2>切换到全部放行？</h2>
+    <p>该模式会跳过常规读写和命令确认。危险命令仍可能造成不可恢复的项目修改。</p>
+    <div class="confirm-actions">
+      <button class="secondary-button" id="cancelBypassButton" type="button">取消</button>
+      <button class="danger-button" id="confirmBypassButton" type="button">确认全部放行</button>
+    </div>
+  </dialog>
+
+  <div class="toast-region" id="toastRegion" aria-live="polite" aria-atomic="true"></div>
+  <div class="sr-only" id="statusAnnouncements" aria-live="polite" aria-atomic="true"></div>
+
+  <template id="userMessageTemplate">
+    <article class="message user-message">
+      <div class="user-bubble"></div>
+    </article>
+  </template>
+
+  <template id="workflowTemplate">
+    <article class="message assistant-workflow">
+      <div class="assistant-avatar" aria-hidden="true">&gt;_</div>
+      <div class="workflow-main">
+        <div class="workflow-heading">
+          <div><strong>MyCoder</strong><span class="workflow-status">正在启动</span></div>
+          <time></time>
+        </div>
+        <div class="turn-list"></div>
+        <details class="execution-details">
+          <summary>执行详情 <span class="detail-count">0</span></summary>
+          <div class="log-list"></div>
+        </details>
+        <div class="workflow-terminal" hidden></div>
+      </div>
+    </article>
+  </template>
+
+  <template id="turnTemplate">
+    <section class="agent-turn">
+      <div class="turn-label">第 <span>1</span> 轮</div>
+      <div class="assistant-text"></div>
+      <div class="event-stack"></div>
+    </section>
+  </template>
+
+  <template id="toolCardTemplate">
+    <article class="tool-card" data-state="running">
+      <button class="tool-card-header" type="button" aria-expanded="false">
+        <span class="tool-icon" aria-hidden="true">↗</span>
+        <span class="tool-title"><strong></strong><small></small></span>
+        <span class="tool-state">执行中</span>
+        <svg class="chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>
+      </button>
+      <div class="tool-card-body" hidden>
+        <section class="tool-section">
+          <div class="tool-section-heading"><span>Arguments</span><button type="button" data-copy="args">复制</button></div>
+          <pre class="tool-args"></pre>
+        </section>
+        <section class="tool-section">
+          <div class="tool-section-heading"><span>Result</span><button type="button" data-copy="result">复制</button></div>
+          <pre class="tool-result">等待工具返回…</pre>
+          <p class="artifact-path" hidden></p>
+        </section>
+      </div>
+    </article>
+  </template>
+
+  <template id="permissionCardTemplate">
+    <article class="permission-card" data-state="pending">
+      <div class="permission-heading"><span aria-hidden="true">!</span><div><strong>需要你的授权</strong><small></small></div></div>
+      <p class="permission-description"></p>
+      <div class="permission-actions">
+        <button class="permission-primary" type="button" data-decision="ALLOW">允许一次</button>
+        <button type="button" data-decision="ALLOW_ALWAYS">总是允许</button>
+        <button class="permission-deny" type="button" data-decision="DENY">拒绝</button>
+      </div>
+      <p class="permission-resolution" hidden></p>
+    </article>
+  </template>
+</body>
+</html>

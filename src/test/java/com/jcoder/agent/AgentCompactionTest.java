@@ -2,6 +2,9 @@ package com.jcoder.agent;
 
 import com.jcoder.context.CompactionCircuitBreaker;
 import com.jcoder.context.ContextCompactor;
+import com.jcoder.command.CommandContext;
+import com.jcoder.command.CommandResult;
+import com.jcoder.command.DefaultCommands;
 import com.jcoder.llm.LLMClient;
 import com.jcoder.llm.model.ResponseBody;
 import com.jcoder.llm.model.StreamBlock;
@@ -77,6 +80,32 @@ class AgentCompactionTest {
                     after.get(index).getContent()
             );
         }
+    }
+
+    @Test
+    void clearCommandClosesOpenCompactionBreaker() throws Exception {
+        FakeLlmClient client = FakeLlmClient.success(
+                "<summary>must not be used</summary>"
+        );
+        Agent agent = new Agent(client, new ToolRegister(), 128_000, 8_192);
+        CompactionCircuitBreaker breaker = agent.compactionCircuitBreaker();
+        breaker.recordFailure();
+        breaker.recordFailure();
+        breaker.recordFailure();
+        assertTrue(breaker.isOpen());
+
+        ConversationManager conversation = conversationWithMessages(3);
+        CommandResult result = DefaultCommands.create().execute(
+                "/clear",
+                new CommandContext(agent, conversation)
+        );
+
+        assertTrue(result.success());
+        assertEquals(0, conversation.size());
+        assertEquals(0, breaker.consecutiveFailures());
+        assertFalse(breaker.isOpen());
+        assertEquals(0, client.streamCalls,
+                "clear must reset state without invoking the model");
     }
 
     private static ConversationManager conversationWithMessages(int count) {

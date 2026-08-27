@@ -3,11 +3,14 @@ package com.jcoder.ui;
 import com.jcoder.agent.Agent;
 import com.jcoder.agent.AgentEvent;
 import com.jcoder.agent.AgentEventQueue;
+import com.jcoder.command.CommandContext;
+import com.jcoder.command.CommandResult;
+import com.jcoder.command.DefaultCommands;
+import com.jcoder.command.SlashCommandRegistry;
 import com.jcoder.message.ConversationManager;
-import com.jcoder.permission.PermissionChecker;
-import com.jcoder.permission.PermissionMode;
 import com.jcoder.permission.PermissionResponse;
 
+import java.util.Objects;
 import java.util.Scanner;
 
 /**
@@ -15,6 +18,23 @@ import java.util.Scanner;
  * -后之览者，亦将有感于斯文
  */
 public class CmdUI implements UI {
+
+    private final SlashCommandRegistry commandRegistry;
+    public CmdUI() {
+        this(DefaultCommands.create());}
+
+    /**
+     * 允许测试或其他 UI 注入不同的 Registry。
+     */
+    public CmdUI(
+            SlashCommandRegistry commandRegistry
+    ) {
+        this.commandRegistry =
+                Objects.requireNonNull(
+                        commandRegistry,
+                        "commandRegistry"
+                );
+    }
 
     @Override
     public void run(Agent agent, ConversationManager conversationManager) {
@@ -24,41 +44,55 @@ public class CmdUI implements UI {
 
                 String prompt = scanner.nextLine();
 
-                // 权限模式查看/切换（拦截命令，不发给模型）
-                if ("/permission".equalsIgnoreCase(prompt)) {
-                    PermissionChecker checker = agent.getChecker();
-                    if (checker == null) {
-                        System.out.println("[权限] 未装配 checker");
-                    } else {
-                        PermissionMode now = checker.cycleMode();
-                        System.out.println("[权限] 当前模式 → " + now);
-                    }
-                    continue;
-                }
-
-                if ("/compact".equalsIgnoreCase(prompt)) {
+                if (prompt.strip().startsWith("/")) {
                     try {
-                        var result =
-                                agent.compactNow(
-                                        conversationManager
+                        CommandResult result =
+                                commandRegistry.execute(
+                                        prompt,
+                                        new CommandContext(
+                                                agent,
+                                                conversationManager
+                                        )
                                 );
 
-                        if (result.compacted()) {
-                            System.out.println(
-                                    "[上下文压缩] 消息 "
-                                            + result.beforeMessages()
-                                            + " → "
-                                            + result.afterMessages()
-                                            + "，历史估算 tokens "
-                                            + result.beforeTokens()
-                                            + " → "
-                                            + result.afterTokens()
+                        if (!result.success()) {
+                            if (!result.output().isBlank()) {
+                                System.err.println(
+                                        "[命令错误] "
+                                                + result.output()
+                                );
+                            }
+
+                            continue;
+                        }
+
+                        /*
+                         * LOCAL 命令只在本地显示，
+                         * 不进入 Conversation。
+                         */
+                        if (!result.shouldSubmitPrompt()) {
+                            if (!result.output().isBlank()) {
+                                System.out.println(
+                                        result.output()
+                                );
+                            }
+
+                            continue;
+                        }
+
+                        /*
+                         * PROMPT 命令展开后继续走下面的正常 Agent 链路。
+                         *
+                         * Conversation 中保存的是展开后的真实 Prompt，
+                         * 而不是原始的 /review 文本。
+                         */
+                        prompt = result.output();
+
+                        if (prompt.isBlank()) {
+                            System.err.println(
+                                    "[命令错误] 命令生成了空 Prompt"
                             );
-                        } else {
-                            System.out.println(
-                                    "[上下文压缩] 没有足够的旧消息可压缩；"
-                                            + "最近消息保持不变"
-                            );
+                            continue;
                         }
 
                     } catch (InterruptedException e) {
@@ -66,12 +100,11 @@ public class CmdUI implements UI {
                         return;
                     } catch (RuntimeException e) {
                         System.err.println(
-                                "[上下文压缩失败] "
+                                "[命令执行失败] "
                                         + e.getMessage()
                         );
+                        continue;
                     }
-
-                    continue;
                 }
 
                 if ("exit".equalsIgnoreCase(prompt)) {

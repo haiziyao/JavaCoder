@@ -46,4 +46,15 @@ public class ConversationManager {
         history.add(msg);
     }
 
+
+    public int size() {
+        return history.size();
+    }
+
+    public int clear() {
+        int removedMessages = history.size();
+        history.clear();
+        return removedMessages;
+    }
+
 }

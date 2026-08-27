@@ -188,3 +188,105 @@ Day 7 解决的是单进程内的上下文控制，目前没有实现：
 - 完整 Session、RecoveryState 和文件快照。
 
 这些能力只有在后续学习目标真正需要时再增加，避免把上下文管理变成难以理解的框架。
+
+---
+
+# Day 8：Slash Command
+
+Day 8 将原本散落在 `CmdUI` 中的 `/permission`、`/compact` 判断改造成统一的 Slash Command 分发链路。LOCAL 命令只在本地执行；PROMPT 命令会展开成真正的用户请求，再进入正常 Agent Harness。
+
+## 执行链路
+
+```text
+CmdUI 读取输入
+  → 以 / 开头时交给 SlashCommandRegistry
+  → CommandInvocation 拆分命令名与参数
+  → 按规范名称或别名查找 SlashCommand
+  → Handler 使用 CommandContext 执行
+  → CommandResult 返回 LOCAL 或 PROMPT
+      ├─ LOCAL：CmdUI 本地显示并 continue
+      └─ PROMPT：展开文本写入 Conversation，再调用 Agent
+```
+
+因此未知 Slash Command 也不会误进入 Conversation：
+
+```text
+/not-exists
+→ Unknown command 本地错误
+→ 不调用 LLM
+→ 不增加对话历史
+```
+
+## 命令内核
+
+```text
+src/main/java/com/jcoder/command/
+├── CommandInvocation.java
+├── CommandContext.java
+├── CommandResult.java
+├── SlashCommand.java
+├── SlashCommandRegistry.java
+└── DefaultCommands.java
+```
+
+- `CommandInvocation`：解析 `/name arguments`，规范化命令名，并保留参数内部文本。
+- `CommandContext`：只向本地命令提供 `Agent` 与 `ConversationManager`。
+- `CommandResult`：统一成功、错误、输出文本和 LOCAL/PROMPT 交付方式；canonical constructor 保证失败或空白结果不能作为 PROMPT 提交。
+- `SlashCommand`：保存规范名称、说明、别名和 Handler。
+- `SlashCommandRegistry`：负责注册、冲突检查、查找、排序和执行。
+- `DefaultCommands`：集中注册 MyCoder 内置命令。
+
+Registry 会在修改内部索引前完成全部冲突检查，防止一次失败注册留下半条名称或别名。
+
+## 当前内置命令
+
+| 命令 | 别名 | 行为 |
+|---|---|---|
+| `/help [command]` | `/h`、`/?` | 显示命令列表或单个命令详情 |
+| `/permission` | `/perm` | 循环切换工具权限模式 |
+| `/compact` | `/c` | 手动摘要旧对话并重置摘要熔断状态 |
+| `/clear` | 无 | 清空当前内存历史、旧 Prompt 和摘要熔断状态 |
+| `/status` | `/s` | 显示 Agent、权限、消息、历史 token、工具和窗口状态 |
+| `/review [focus]` | 无 | 展开为代码审查 Prompt，并进入正常 Agent/LLM 链路 |
+
+`/clear` 只清理当前进程中的 Conversation，不删除 `.mycoder/context/tool-results/` 文件，也不执行其他磁盘删除。
+
+`/status` 中的 `History tokens` 只估算历史消息，不包含 system prompt、环境上下文和工具 Schema，因此使用 `~` 标记，而不是把它描述成完整请求 token。
+
+## UI 分发原则
+
+```text
+Slash Command → 本地执行，不进入 Conversation
+PROMPT Command→ 展开后进入 Conversation → Agent → LLM
+exit          → 退出 CLI
+空输入        → 忽略
+普通文本      → Conversation → Agent → LLM
+```
+
+`CmdUI` 支持注入不同的 `SlashCommandRegistry`，测试可以使用自定义命令验证分发，而不需要连接真实 LLM。
+
+## Day 8 测试状态
+
+2026-08-27 使用 Microsoft OpenJDK 21.0.11 执行：
+
+```powershell
+& 'D:\apache-maven-3.6.3\bin\mvn.cmd' clean test
+```
+
+结果：
+
+```text
+生产源码: 61
+测试源码: 18
+Tests run: 68
+Failures: 0
+Errors: 0
+Skipped: 1（MCP stdio 集成测试默认跳过）
+BUILD SUCCESS
+```
+
+命令测试覆盖解析、大小写规范化、参数保留、别名、四类注册冲突、失败注册不污染、帮助输出、权限切换、手动压缩、清空历史、旧 Prompt 与熔断重置、状态输出、LOCAL/PROMPT 类型不变量、`/review` 中文关注点保留，以及 UI 将展开 Prompt 写入历史并提交给 LLM。
+
+## 当前边界
+
+Day 8 已完成内置 LOCAL 命令和一个 PROMPT 命令的完整分发闭环。当前没有实现参考项目中的 Markdown/YAML 动态命令加载器、用户级命令覆盖、热加载和 TUI 自动补全；这些能力不是验证 Slash Command Harness 思想的前置条件，只有出现真实自定义命令需求时再增加。

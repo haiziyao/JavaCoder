@@ -429,7 +429,32 @@ public class Agent {
             throw e;
         }
     }
+    /**
+     * 清空 Conversation 后，同时重置相关上下文状态。
+     */
+    public void resetContextManagement() {
+        compactionCircuitBreaker.reset();
 
+        /*
+         * 防止 /status 或调试代码继续读取
+         * 清空之前构造的旧 Prompt。
+         */
+        currentPromptContent = null;
+    }
+
+    public int getContextWindow() {
+        return contextWindow;
+    }
+
+    public int getMaxOutputTokens() {
+        return maxOutput;
+    }
+
+    public int getToolCount() {
+        return toolRegister
+                .listTools()
+                .size();
+    }
     /**
      * 只给同包测试观察状态，不作为 CLI 业务接口。
      */
