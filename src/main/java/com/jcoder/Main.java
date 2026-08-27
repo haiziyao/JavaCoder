@@ -7,6 +7,8 @@ import com.jcoder.config.McpServerConfig;
 import com.jcoder.config.ProviderConfig;
 import com.jcoder.llm.LLMClient;
 import com.jcoder.hook.controller.ToolHookController;
+import com.jcoder.hook.config.HookManager;
+import com.jcoder.hook.config.HookStore;
 import com.jcoder.hook.dispatcher.HookDispatcher;
 import com.jcoder.hook.executor.HookExecutorRegistry;
 import com.jcoder.mcp.McpManager;
@@ -23,6 +25,7 @@ import com.jcoder.skill.SkillCatalog;
 import com.jcoder.skill.SkillRuntime;
 import com.jcoder.tool.ToolRegister;
 import com.jcoder.tool.impl.LoadSkillTool;
+import com.jcoder.tool.impl.ManageHookTool;
 import com.jcoder.ui.CmdUI;
 import com.jcoder.ui.UI;
 import com.jcoder.ui.WebUI;
@@ -61,7 +64,35 @@ public class Main {
         SkillCatalog skillCatalog = SkillCatalog.load(projectRoot);
         SkillRuntime skillRuntime = new SkillRuntime(skillCatalog);
 
+        HookDispatcher hookDispatcher =
+                new HookDispatcher(
+                        HookExecutorRegistry.createDefault(),
+                        List.of()
+                );
+
+        HookManager hookManager =
+                new HookManager(
+                        new HookStore(projectRoot),
+                        hookDispatcher
+                );
+
+        try {
+            int hookCount = hookManager.reload();
+            if (hookCount > 0) {
+                System.out.println(
+                        "[Hook] 已加载 Hook: "
+                                + hookCount
+                );
+            }
+        } catch (Exception error) {
+            System.err.println(
+                    "[Hook] 配置加载失败，当前以空 Hook 启动: "
+                            + error.getMessage()
+            );
+        }
+
         toolRegister.register(new LoadSkillTool(skillRuntime));
+        toolRegister.register(new ManageHookTool(hookManager));
         int builtInToolCount = toolRegister.listTools().size();
 
         if (skillCatalog.size() > 0) {
@@ -106,12 +137,6 @@ public class Main {
         agent.setSkillRuntime(skillRuntime);
         agent.setWorkDir(projectRoot.toString());
         agent.setChecker(new PermissionChecker(PermissionMode.DEFAULT, projectRoot));
-
-        HookDispatcher hookDispatcher =
-                new HookDispatcher(
-                        HookExecutorRegistry.createDefault(),
-                        List.of()
-                );
 
         agent.setToolHookController(
                 new ToolHookController(
